@@ -1,0 +1,23 @@
+// Override Bootstrap variables with STM values
+
+$font-family-sans-serif: 'Roboto', 'Arial', sans-serif;
+
+$primary:       #860038;
+$secondary:     #555559;
+$success:       #009669;
+$info:          #007cb0;
+$warning:       #cecd00;
+$danger:        #d94000;
+$light:         #d0d4d4;
+$dark:          #212529;
+
+$theme-colors: (
+    "primary":          $primary,
+    "secondary":        $secondary,
+    "success":          $success,
+    "info":             $info,
+    "warning":          $warning,
+    "danger":           $danger,
+    "light":            $light,
+    "dark":             $dark,
+);
