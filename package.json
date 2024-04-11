@@ -20,6 +20,8 @@
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.3",
         "bootstrap-icons": "^1.11.3",
-        "chart.js": "^3.9.1"
+        "chart.js": "^3.9.1",
+        "datatables.net-bs5": "^2.0.3",
+        "jquery": "^3.7.1"
     }
 }

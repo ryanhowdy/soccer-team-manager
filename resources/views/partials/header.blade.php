@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{{ mix('css/app.css') }}">
 <script src="{{ mix('js/app.js') }}"></script>
 <script>
+$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" } });
 document.addEventListener("DOMContentLoaded", function() {
     if (document.querySelector('form.keepAlive') !== null) {
         setInterval(function() { axios.post('/keepTokenAlive'); }, 1000 * 60 * 15);

@@ -7,10 +7,10 @@
         <div class="collapse navbar-collapse" id="navbar-links">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item me-2">
-                    <a class="nav-link active" href="#">Home</a>
+                    <a class="nav-link active" href="{{ route('home') }}">Home</a>
                 </li>
                 <li class="nav-item me-2">
-                    <a class="nav-link" href="#">Games</a>
+                    <a class="nav-link" href="{{ route('games.index') }}">Games</a>
                 </li>
                 <li class="nav-item me-2">
                     <a class="nav-link" href="#">Teams</a>

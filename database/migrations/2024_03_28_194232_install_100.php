@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('city')->nullable();
             $table->string('state', 2)->nullable();
+            $table->string('logo')->default('img/logo_none.png');
             $table->string('website')->nullable();
             $table->tinyText('notes')->nullable();
             $table->foreignId('created_user_id');
@@ -114,6 +115,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('nickname')->nullable();
             $table->smallInteger('birth_year');
+            $table->string('photo')->default('img/photo_none.png');
             $table->foreignId('created_user_id');
             $table->foreignId('updated_user_id');
             $table->timestamps();
@@ -204,14 +206,6 @@ return new class extends Migration
                 'additional' => null,
             ],
             [
-                'event'      => 'sub_in',
-                'additional' => 'position',
-            ],
-            [
-                'event'      => 'sub_out',
-                'additional' => null,
-            ],
-            [
                 'event'      => 'shot_on_target',
                 'additional' => null,
             ],
@@ -236,11 +230,11 @@ return new class extends Migration
                 'additional' => null,
             ],
             [
-                'event'      => 'cross',
+                'event'      => 'corner_kick',
                 'additional' => null,
             ],
             [
-                'event'      => 'corner_kick',
+                'event'      => 'corner_kick_against',
                 'additional' => null,
             ],
             [
@@ -253,10 +247,6 @@ return new class extends Migration
             ],
             [
                 'event'      => 'fouled',
-                'additional' => null,
-            ],
-            [
-                'event'      => 'free_kick',
                 'additional' => null,
             ],
             [
@@ -279,6 +269,18 @@ return new class extends Migration
                 'event'      => 'penalty_off_target',
                 'additional' => null,
             ],
+            [
+                'event'      => 'free_kick_goal',
+                'additional' => null,
+            ],
+            [
+                'event'      => 'free_kick_on_target',
+                'additional' => null,
+            ],
+            [
+                'event'      => 'free_kick_off_target',
+                'additional' => null,
+            ],
         ];
         foreach ($events as $e)
         {
@@ -292,7 +294,7 @@ return new class extends Migration
         Schema::create('result_events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('result_id');
-            $table->foreignId('player_id');
+            $table->foreignId('player_id')->nullable();
             $table->time('time')->default('00:00:00');
             $table->foreignId('event_id');
             $table->string('additional')->nullable();

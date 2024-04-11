@@ -11,7 +11,7 @@ class HomeController extends Controller
     /**
      * Redirects to login or home page
      *
-     * @return Illuminate\Support\Facades\View
+     * @return Illuminate\View\View
      */
     public function index()
     {
@@ -36,13 +36,17 @@ class HomeController extends Controller
      */
     public function home()
     {
+        $todayStart = \Carbon\Carbon::now()->startOfDay();
+        $todayEnd   = \Carbon\Carbon::now()->endOfDay();
+
         $scheduled = Result::with('competition')
             ->with('location')
-            ->with('homeTeam')
-            ->with('awayTeam')
+            ->with('homeTeam.club')
+            ->with('awayTeam.club')
             ->where('status', 'S')
+            ->whereBetween('date', [$todayStart, $todayEnd])
             ->get();
-        dump($scheduled);
+
         return view('home', [
             'scheduled' => $scheduled,
         ]);

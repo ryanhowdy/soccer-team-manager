@@ -1,0 +1,293 @@
+#live
+{
+    #game-controls
+    {
+        // Game progression
+        // initial > formation > first > half > second
+        &.initial,
+        &.formation
+        {
+            #home-score { display: none; }
+            #away-score { display: none; }
+            #start-game { display: inline-block; }
+            #timer { display: none; }
+            #end-half { display: none; }
+            #second-half-form { display: none; }
+            #end-game { display: none; }
+            #formation-form { display: block; }
+            #current-formation { display: none; }
+        }
+        &.formation
+        {
+            #formation-form { display: none; }
+            #current-formation { display: block; }
+        }
+        &.first,
+        &.half,
+        &.second
+        {
+            #home-score { display: block; }
+            #away-score { display: block; }
+            #start-game { display: none; }
+            #timer { display: block; }
+            #end-half { display: inline-block; }
+            #second-half-form { display: none; }
+            #end-game { display: none; }
+            #formation-form { display: none }
+            #current-formation { display: none; }
+        }
+        &.half
+        {
+            #timer { display: block; }
+            #end-half { display: none; }
+            #second-half-form { display: block; }
+        }
+        &.second
+        {
+            #end-half { display: none; }
+            #end-game { display: inline-block; }
+        }
+
+        #home-score,
+        #away-score
+        {
+            span.goal_against,
+            span.shot_against,
+            span.corner_kick_against
+            {
+                cursor: pointer;
+
+                &:hover
+                {
+                    color: #999;
+                }
+            }
+        }
+
+        #current-formation
+        {
+            cursor: pointer;
+        }
+    }
+
+    #field
+    {
+        height: 682px;
+        max-width: 452px;
+
+        &.formation-rows-4
+        {
+            padding-top: 100px;
+        }
+        &.formation-rows-3
+        {
+            padding-top: 200px;
+        }
+        &.formation-rows-2
+        {
+            padding-top: 300px;
+        }
+
+        .position
+        {
+            width: 80px;
+            min-height: 80px;
+            margin: 0 auto;
+            padding: 5px;
+            position: relative;
+
+            button.btn-close
+            {
+                position: absolute;
+                top: 0;
+                left: 0;
+                cursor: pointer;
+                z-index: 3;
+            }
+
+            .dropdown
+            {
+                display: none;
+
+                .player-picker
+                {
+                    cursor: pointer;
+                    display: block;
+
+                    &:hover
+                    {
+                        color: white;
+                    }
+                }
+
+                .dropdown-menu
+                {
+                    z-index: 1100; /* make it go over top the top nav */
+
+                    .dropdown-item
+                    {
+                        margin: 4px 0;
+                    }
+                }
+            }
+
+            h4
+            {
+                display: none;
+            }
+
+            .event-picker
+            {
+                cursor: pointer;
+                display: block;
+                width: 80px;
+                text-align: center;
+
+                img
+                {
+                    background: #fff;
+                    max-height: 65px;
+                }
+                .name
+                {
+                    width: 80px;
+                    padding: 6px;
+                }
+            }
+
+            &.empty
+            {
+                background: rgba(0, 0, 0, 0.3);
+                margin: 15px auto;
+
+                button.btn-close
+                {
+                    display: none;
+                }
+
+                .dropdown
+                {
+                    display: block;
+                }
+
+                h4
+                {
+                    display: block;
+                }
+
+                .event-picker
+                {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    #additional-modal
+    {
+        #player_id > option[disabled]
+        {
+            display: none;
+        }
+    }
+
+    .progress
+    {
+        background-color: #bbb;
+        height: 8px;
+
+        .progress-bar
+        {
+            background-color: #555;
+        }
+    }
+
+    .btn-scale-0,
+    .btn-scale-1
+    {
+        background-color: #dc3545;
+        padding: 6px 10px;
+    }
+    .btn-scale-2,
+    .btn-scale-3
+    {
+        background-color: #fd7e14;
+        padding: 6px 10px;
+    }
+    .btn-scale-4,
+    .btn-scale-5
+    {
+        background-color: #ffc107;
+        padding: 6px 10px;
+    }
+    .btn-scale-6,
+    .btn-scale-7
+    {
+        background-color: #28a745;
+        padding: 6px 10px;
+    }
+    .btn-scale-8,
+    .btn-scale-9
+    {
+        background-color: #1e7e34;
+        padding: 6px 10px;
+    }
+    .btn-check:checked + .btn
+    {
+        border-color: transparent;
+    }
+
+    @media only screen and (max-width: 500px)
+    {
+        .bg-dark
+        {
+            display: none;
+        }
+        .main-content
+        {
+            margin-top: 12px;
+
+            img.logo
+            {
+                max-width: 50px;
+            }
+
+            .team-name
+            {
+                display: none;
+            }
+
+            #formation-form > select,
+            #formation-form > input
+            {
+                width: 100% !important;
+            }
+
+            #field
+            {
+                > img
+                {
+                    width: calc(100vw - 48px - 24px);
+                }
+
+                &.formation-rows-4
+                {
+                    padding-top: 50px;
+                }
+                &.formation-rows-3
+                {
+                    padding-top: 140px;
+                }
+                &.formation-rows-2
+                {
+                    padding-top: 170px;
+                }
+
+                .position.empty
+                {
+                    margin: 5px auto;
+                }
+            }
+        }
+    }
+}

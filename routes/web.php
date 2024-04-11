@@ -1,11 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\PasswordResetController;
-use App\Http\Controllers\RegisterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,18 +13,28 @@ use App\Http\Controllers\RegisterController;
 |
 */
 
-Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
-Route::get( '/login',                 [LoginController::class, 'create'])->name('login');
-Route::post('/login',                 [LoginController::class, 'store']);
-Route::get( '/forgot-password',       [ForgotPasswordController::class, 'create'])->name('password.request');
-Route::post('/forgot-password',       [ForgotPasswordController::class, 'store'])->name('password.email');
-Route::get( '/reset-password/{code}', [PasswordResetController::class, 'create'])->name('password.reset');
-Route::post('/reset-password/{code}', [PasswordResetController::class, 'store'])->name('password.store');
-Route::get( '/register',              [RegisterController::class, 'create'])->name('register');
-Route::post('/register',              [RegisterController::class, 'store']);
+Route::get( '/login',                 [\App\Http\Controllers\LoginController::class, 'create'])->name('login');
+Route::post('/login',                 [\App\Http\Controllers\LoginController::class, 'store']);
+Route::get( '/forgot-password',       [\App\Http\Controllers\ForgotPasswordController::class, 'create'])->name('password.request');
+Route::post('/forgot-password',       [\App\Http\Controllers\ForgotPasswordController::class, 'store'])->name('password.email');
+Route::get( '/reset-password/{code}', [\App\Http\Controllers\PasswordResetController::class, 'create'])->name('password.reset');
+Route::post('/reset-password/{code}', [\App\Http\Controllers\PasswordResetController::class, 'store'])->name('password.store');
+Route::get( '/register',              [\App\Http\Controllers\RegisterController::class, 'create'])->name('register');
+Route::post('/register',              [\App\Http\Controllers\RegisterController::class, 'store']);
 
 // Must be authed
 Route::middleware(['auth'])->group(function () {
-    Route::any( '/home',   [HomeController::class, 'home'])->name('home');
+    Route::any( '/home',   [\App\Http\Controllers\HomeController::class, 'home'])->name('home');
+
+    // Games
+    Route::get( '/games',           [\App\Http\Controllers\GameController::class, 'index'])->name('games.index');
+    Route::get( '/games/{id}',      [\App\Http\Controllers\GameController::class, 'show'])->name('games.show');
+    Route::get( '/games/{id}/live', [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
+
+    // AJAX
+    Route::post('/ajax/game/start', [\App\Http\Controllers\AjaxController::class, 'gameStart'])->name('ajax-start-game');
+    Route::post('/ajax/game/event', [\App\Http\Controllers\AjaxController::class, 'saveEvent'])->name('ajax-create-event');
+    Route::post('/ajax/game/end', [\App\Http\Controllers\AjaxController::class, 'gameEnd'])->name('ajax-end-game');
 });
