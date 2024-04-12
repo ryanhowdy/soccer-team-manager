@@ -157,4 +157,44 @@ export default class FormationDrawer
 
         return link;
     }
+
+    addPlayer($positionDiv, playerId)
+    {
+        let playerData   = this.players[playerId];
+        let $eventPicker = $positionDiv.find('.event-picker');
+
+        let img = document.createElement('img');
+        img.className = 'img-fluid rounded-circle';
+        img.setAttribute('data-player-id', playerId);
+        img.setAttribute('title', playerData.name);
+        img.src = '/' + playerData.photo;
+
+        let nameSpan = document.createElement('span');
+        nameSpan.className = 'name badge text-bg-dark opacity-75 fw-normal overflow-hidden';
+        nameSpan.textContent = playerData.name;
+
+        $positionDiv.removeClass('empty');
+        $eventPicker.append(img);
+        $eventPicker.append(nameSpan);
+    }
+
+    addPlayerStarters(starters, selector = '#field')
+    {
+        // Loop through the already drawn positions on the field
+        $(selector + ' .row .col .position.empty').each((index, positionDiv) => {
+            let $positionDiv = $(positionDiv);
+            let thisPosition = $positionDiv.data('playerPosition');
+
+            for (let playerId in starters)
+            {
+                // this starter, starts in this position
+                if (starters[playerId] = thisPosition)
+                {
+                    this.addPlayer($positionDiv, playerId);
+                    delete starters[playerId];
+                    break;
+                }
+            }
+        });
+    }
 }

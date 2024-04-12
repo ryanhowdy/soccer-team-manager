@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Position;
+use App\Models\Result;
 use App\Models\ResultEvent;
 use App\Models\Player;
 use App\Enums\Event;
@@ -132,34 +133,22 @@ class AjaxController extends Controller
     public function gameEnd(Request $request)
     {
         $validated = $request->validate([
-            'resultId'    => 'required|integer',
-            'starters'    => 'required',
-            'formationId' => 'required|integer',
+            'resultId'  => 'required|integer',
+            'homeScore' => 'required|integer',
+            'awayScore' => 'required|integer',
         ]);
 
-        $positionLkup = Position::get()
-            ->pluck('id', 'position')
-            ->toArray();
+        $existingResult = Result::find($request->resultId);
 
-        foreach ($request->starters as $playerId => $positionName)
-        {
-            $event = new ResultEvent;
-
-            $event->result_id  = $request->resultId;
-            $event->player_id  = $playerId;
-            $event->time       = '00:00:00';
-            $event->event_id   = Event::start;
-            $event->additional = $positionName;
-            $event->created_user_id = Auth()->user()->id;
-            $event->updated_user_id = Auth()->user()->id;
-
-            $event->save();
-        }
+        $existingResult->home_team_score = $request->homeScore;
+        $existingResult->away_team_score = $request->awayScore;
+        $existingResult->status          = 'D';
 
         return response()->json([
             'success' => true,
             'data'    => [
-                'result_id' => $request->resultId,
+                'result'   => $existingResult->toArray(),
+                'redirect' => route('home');
             ],
         ], 200);
     }

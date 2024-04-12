@@ -28,6 +28,13 @@ export default class Live
             this.confirmExit(e);
         });
 
+        // Resume an existing game if available
+        let savedResultId = localStorage.getItem('resultId');
+        if (savedResultId !== null && savedResultId == $('#field').data('resultId'))
+        {
+            this.resumeExistingGame();
+        }
+
         // Click Start Game
         $('.main-content').on('click', '#start-game', (e) => {
             this.clickStartGame(e);
@@ -36,6 +43,11 @@ export default class Live
         // Click End Half
         $('.main-content').on('click', '#end-half', (e) => {
             this.clickEndHalf(e);
+        });
+
+        // Click Start 2nd Half
+        $('.main-content').on('click', '#start-second-half', (e) => {
+            this.clickStartSecondHalf(e);
         });
 
         // Click End Game
@@ -49,7 +61,7 @@ export default class Live
         });
 
         // Click Change Formation
-        $('.main-content').on('click', '#current-formation', (e) => {
+        $('.main-content').on('click', '#current-formation > span.badge', (e) => {
             this.clickChangeFormation(e);
         });
 
@@ -99,13 +111,23 @@ export default class Live
      */
     clickStartGame(event)
     {
+        let resultId      = $('#field').data('resultId');
+        let savedResultId = localStorage.getItem('resultId');
+
+        // bail if we already have a result id saved
+        if (savedResultId !== null && resultId == savedResultId)
+        {
+            // this prevents user from clicking start, before we had a chance to resume the game for them
+            return;
+        }
+
         // Make sure we have a formation
         if (!$('#formation').val())
         {
             $('#field').before('<p class="alert alert-danger mt-2">Choose a formation first.</p>');
             return;
         }
-        if (!('formationId' in localStorage))
+        if (localStorage.getItem('formationId') === null)
         {
             $('#field').before('<p class="alert alert-danger mt-2">Choose a formation first.</p>');
             return;
@@ -117,7 +139,7 @@ export default class Live
             $('#field').before('<p class="alert alert-danger mt-2">Must have at least one starter.</p>');
             return;
         }
-        if (!('starters' in localStorage))
+        if (localStorage.getItem('starters') === null)
         {
             $('#field').before('<p class="alert alert-danger mt-2">Must have at least one starter.</p>');
             return;
@@ -125,7 +147,8 @@ export default class Live
 
         $('.alert').remove();
 
-        // Save the period
+        // Save the result and period, and reset timer
+        localStorage.setItem('resultId', resultId);
         localStorage.setItem('period', '1');
         localStorage.removeItem('time');
 
@@ -134,7 +157,7 @@ export default class Live
             url  : $('#field').data('startGameRoute'),
             type : 'POST',
             data : {
-                resultId    : $('#field').data('result'),
+                resultId    : resultId,
                 starters    : this.starters,
                 formationId : localStorage.getItem('formationId'),
             },
@@ -144,6 +167,37 @@ export default class Live
         }).fail(() => {
             $('#field').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save starting lineup.</p>');
         });
+    }
+
+    clickStartSecondHalf(event)
+    {
+        $('.alert').remove();
+
+        let time = $('#time').val();
+
+        if (!time)
+        {
+            $('#field').before('<p class="alert alert-danger mt-2">You must enter a 2nd half time.</p>');
+            return;
+        }
+        if (!/^\d\d$/.test(time))
+        {
+            $('#field').before('<p class="alert alert-danger mt-2">Time must be in minutes.</p>');
+            return;
+        }
+
+        // Save the 2nd period
+        localStorage.setItem('period', '2');
+
+        $('#game-controls').removeClass();
+
+        // hide 2nd half form
+        // show the end game button
+        $('#game-controls').addClass('second row text-center mb-3');
+
+        // Set the timer time
+        $('#timer > span').empty().append(time + ':00');
+        this.resumeTimer();
     }
 
     /**
@@ -161,6 +215,8 @@ export default class Live
 
         // Save updated period
         localStorage.setItem('period', 'half');
+
+        $('#game-controls').removeClass();
 
         // hide half button
         // show half time form
@@ -182,13 +238,17 @@ export default class Live
             url  : $('#field').data('endGameRoute'),
             type : 'POST',
             data : {
-                resultId : $('#field').data('result'),
+                resultId  : $('#field').data('resultId'),
+                homeScore : $('#home-score > .score').text(),
+                awayScore : $('#away-score > .score').text(),
             },
         }).done((data) => {
             localStorage.removeItem('time');
             localStorage.removeItem('formationId');
             localStorage.removeItem('starters');
             localStorage.removeItem('period');
+
+            window.location.href = data.redirect;
         }).fail(() => {
             $('#field').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save game.</p>');
         });
@@ -225,7 +285,7 @@ export default class Live
     confirmExit(event)
     {
         // If the game is still going on, make sure we realy want to exit
-        if ('starters' in localStorage || 'period' in localStorage)
+        if (localStorage.getItem('resultId') !== null)
         {
             event.preventDefault();
             event.returnValue = true;
@@ -240,6 +300,44 @@ export default class Live
     startTimer()
     {
         let start = new Date();
+
+        this.timer = setInterval(() => {
+            let now  = new Date();
+            let diff = now.getTime() - start.getTime();
+
+            let min = '00';
+            let sec = '00';
+
+            if (diff > 60000)
+            {
+                min = Math.floor(diff / 1000 / 60);
+                min = min.toString().pad('0', 2);
+            }
+            sec = Math.floor((diff / 1000) % 60);
+            sec = sec.toString().pad('0', 2);
+
+            // Save the time
+            localStorage.setItem('time', min + ':' + sec);
+
+            // Update the visual timer
+            $('#timer > span').empty().append(min + ':' + sec);
+        }, 1000);
+    }
+
+    /**
+     * resumeTimer
+     *
+     * return null
+     */
+    resumeTimer()
+    {
+        let existing = $('#timer > span').text();
+        existing     = existing.split(':');
+
+        //  1000 = 1 second
+        // 60000 = 1 minute
+
+        let start = new Date(Date.now() - ((existing[0] * 60000) + (existing[1] * 1000)));
 
         this.timer = setInterval(() => {
             let now  = new Date();
@@ -283,6 +381,8 @@ export default class Live
 
         let dashed = formationName.split('').join('-');
 
+        $('#current-formation > span.badge').text(dashed);
+
         $('#game-controls').removeClass();
 
         // hide the formation select box
@@ -309,7 +409,7 @@ export default class Live
     clickChangeFormation(event)
     {
         // can't change the formation after game has started
-        if (!$('#field').hasClass('ready'))
+        if ($('#field').hasClass('ready'))
         {
             return;
         }
@@ -352,24 +452,26 @@ export default class Live
 
         let $anchor      = $(event.target);
         let $position    = $anchor.parents('.position').first();
-        let $eventPicker = $position.find('.event-picker');
+        //let $eventPicker = $position.find('.event-picker');
 
         let playerId   = $anchor.data('playerId');
-        let playerData = this.players[playerId];
+        //let playerData = this.players[playerId];
 
-        let img = document.createElement('img');
-        img.className = 'img-fluid rounded-circle';
-        img.setAttribute('data-player-id', playerId);
-        img.setAttribute('title', playerData.name);
-        img.src = '/' + playerData.photo;
+        //let img = document.createElement('img');
+        //img.className = 'img-fluid rounded-circle';
+        //img.setAttribute('data-player-id', playerId);
+        //img.setAttribute('title', playerData.name);
+        //img.src = '/' + playerData.photo;
 
-        let nameSpan = document.createElement('span');
-        nameSpan.className = 'name badge text-bg-dark opacity-75 fw-normal overflow-hidden';
-        nameSpan.textContent = playerData.name;
+        //let nameSpan = document.createElement('span');
+        //nameSpan.className = 'name badge text-bg-dark opacity-75 fw-normal overflow-hidden';
+        //nameSpan.textContent = playerData.name;
 
-        $position.removeClass('empty');
-        $eventPicker.append(img);
-        $eventPicker.append(nameSpan);
+        //$position.removeClass('empty');
+        //$eventPicker.append(img);
+        //$eventPicker.append(nameSpan);
+
+        this.drawer.addPlayer($position, playerId);
 
         this.starters[playerId] = $position.data('playerPosition');
 
@@ -485,7 +587,7 @@ export default class Live
     {
         let $eventButton = $(event.target);
 
-        let resultId = $('#field').data('result');
+        let resultId = $('#field').data('resultId');
         let playerId = $('#event-modal').data('playerId');
         let time     = $('#timer > span').text();
         let eventId  = $eventButton.data('eventId');
@@ -523,7 +625,7 @@ export default class Live
     {
         let $eventSpan = $(event.target);
 
-        let resultId = $('#field').data('result');
+        let resultId = $('#field').data('resultId');
         let time     = $('#timer > span').text();
         let eventId  = $eventSpan.data('eventId');
 
@@ -633,6 +735,9 @@ export default class Live
         // us events
         if (eventName == 'goal' || eventName == 'penalty_goal' || eventName == 'free_kick_goal')
         {
+            // update the score
+            $('#' + this.us + '-score > .score').text(parseInt($('#' + this.us + '-score > .score').text()) + 1);
+
             // Summary
             $('#game-goals-' + this.us).text(parseInt($('#game-goals-' + this.us).text()) + 1);
             $('#game-shots-' + this.us).text(parseInt($('#game-shots-' + this.us).text()) + 1);
@@ -724,6 +829,8 @@ export default class Live
         // them events
         if (eventName == 'goal_against')
         {
+            $('#' + this.them + '-score > .score').text(parseInt($('#' + this.them + '-score > .score').text()) + 1);
+
             $('#game-goals-' + this.them).text(parseInt($('#game-goals-' + this.them).text()) + 1)
             $('#game-shots-' + this.them).text(parseInt($('#game-shots-' + this.them).text()) + 1)
             $('#game-shots-on-' + this.them).text(parseInt($('#game-shots-on-' + this.them).text()) + 1)
@@ -770,5 +877,76 @@ export default class Live
 
             $(progress).find('.progress-bar').css('width', percentage + '%');
         });
+    }
+
+    /**
+     * addExistingEvents
+     *
+     * When resuming an existing game, will add the events we got from php to the 
+     * summary, events and players area on screen.
+     *
+     * @parem {object} events
+     * return null
+     */
+    addExistingEvents(events)
+    {
+        for (let [i, data] of Object.entries(events))
+        {
+            this.updateSummaryEventPlayerStats(data);
+        }
+    }
+
+    resumeExistingGame()
+    {
+        let savedStarters    = JSON.parse(localStorage.getItem('starters'));
+        let savedFormationId = localStorage.getItem('formationId');
+        let savedPeriod      = localStorage.getItem('period');
+        let savedTime        = localStorage.getItem('time');
+
+        // Formation
+        if (savedFormationId !== null)
+        {
+            // select the saved formation from the dropdown
+            $('#formation').val(savedFormationId);
+
+            // save and draw the formation
+            this.clickSaveFormation(new Event('click'));
+        }
+
+        // Starters
+        if (savedStarters !== null)
+        {
+            this.starters = savedStarters;
+
+            this.drawer.addPlayerStarters(this.starters);
+        }
+
+        // Game/Timer
+        if (savedPeriod !== null && savedTime !== null)
+        {
+            this.startGame();
+            $('#timer > span').empty().append(savedTime);
+
+            $('#game-controls').removeClass();
+
+            // half time
+            if (savedPeriod == 'half')
+            {
+                clearInterval(this.timer);
+                $('#game-controls').addClass('half row text-center mb-3');
+            }
+            // 2nd half
+            else if (savedPeriod == '2')
+            {
+                this.resumeTimer();
+                $('#game-controls').addClass('second row text-center mb-3');
+            }
+            // 1st half
+            else
+            {
+                this.resumeTimer();
+                $('#game-controls').addClass('first row text-center mb-3');
+            }
+        }
     }
 }

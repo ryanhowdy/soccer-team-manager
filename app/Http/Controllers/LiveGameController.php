@@ -11,6 +11,7 @@ use App\Models\Formation;
 use App\Models\Player;
 use App\Models\ClubTeamSeason;
 use App\Models\Event;
+use App\Enums\Event as EnumEvent;
 
 class LiveGameController extends Controller
 {
@@ -42,6 +43,9 @@ class LiveGameController extends Controller
 
         // This result maybe in progress, get any previous result events
         $resultEvents = ResultEvent::where('result_id', $result->id)
+            ->where('event_id', '!=', EnumEvent::start)
+            ->orderBy('time')
+            ->orderBy('id')
             ->get();
 
         $clubTeamSeasonIds = ClubTeamSeason::whereIn('club_team_id', $managedTeam)

@@ -20315,7 +20315,7 @@ th.dt-ordering-asc:after {
 #live #game-controls #away-score span.corner_kick_against:hover {
   color: #999;
 }
-#live #game-controls #current-formation {
+#live #game-controls #current-formation > span.badge {
   cursor: pointer;
 }
 #live #field {

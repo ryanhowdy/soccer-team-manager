@@ -17,7 +17,7 @@
                             <div class="team-name pt-2 pb-1">{{ $result->homeTeam->name }}</div>
                         </div>
                         <div id="home-score" class="ms-4 actions-against">
-                            <div class="display-4 fw-bold">0</div>
+                            <div class="score display-4 fw-bold">0</div>
                         @if($result->awayTeam->managed)
                             <span class="goal_against material-symbols-outlined" data-event-id="3">sports_soccer</span>
                             <span class="shot_against material-symbols-outlined" data-event-id="9">block</span>
@@ -35,7 +35,7 @@
 
                     <form id="second-half-form" class="mb-3">
                         <input type="number" class="form-control d-inline-block w-50" id="time" name="time" placeholder="45">
-                        <button type="submit" id="start-second-half" class="btn btn-secondary">Start 2nd Half</button>
+                        <button type="button" id="start-second-half" class="btn btn-secondary">Start 2nd Half</button>
                     </form>
 
                     <a id="end-game" class="btn btn-danger btn mt-2 mb-3 text-white">End Game</a>
@@ -50,7 +50,7 @@
                         @endforeach
                     @endforeach
                         </select>
-                        <button type="submit" id="submit-formation" class="btn btn-secondary">Save</button>
+                        <button type="button" id="submit-formation" class="btn btn-secondary">Save</button>
                     </form>
 
                     <div id="current-formation"><span class="badge fs-6 text-bg-secondary"></span></div>
@@ -58,7 +58,7 @@
                 <div class="col-4 col-lg-3">
                     <div class="d-flex">
                         <div id="away-score" class="me-4 actions-against">
-                            <div class="display-4 fw-bold">0</div>
+                            <div class="score display-4 fw-bold">0</div>
                         @if($result->homeTeam->managed)
                             <span class="goal_against material-symbols-outlined" data-event-id="3">sports_soccer</span>
                             <span class="shot_against material-symbols-outlined" data-event-id="9">block</span>
@@ -75,9 +75,9 @@
             </div><!--/#game-controls-->
 
             <div class="row">
-                <div class="col-12 col-lg-8">
+                <div class="col-12 col-lg-7">
                     <div id="field" class="mx-auto text-center position-relative" 
-                        data-result="{{ $result->id }}" data-start-game-route="{{ route('ajax-start-game') }}"
+                        data-result-id="{{ $result->id }}" data-start-game-route="{{ route('ajax-start-game') }}"
                         data-create-event-route="{{ route('ajax-create-event') }}"
                         data-end-game-route="{{ route('ajax-end-game') }}"
                         @if($result->homeTeam->managed) data-good-guys="home" @else data-good-guys="away" @endif
@@ -85,7 +85,7 @@
                         <img class="position-absolute start-0 top-0" src="{{ asset('img/field.svg') }}" />
                     </div><!--/#field-->
                 </div>
-                <div class="sidebar col-12 col-lg-4">
+                <div class="sidebar col-12 col-lg-5">
                     <ul class="nav nav-underline" id="game-detail-links">
                         <li class="nav-item">
                             <a class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary-pane" href="#">Summary</a>
@@ -103,7 +103,7 @@
                         </div><!--/#summary-pane-->
                         <div class="tab-pane pt-4 fade" id="events-pane" tabindex="0">
                             <i id="no-events-yet">no events yet</i>
-                            <div id="game-timeline" class="event-timeline small" style="display:none"></div>
+                            <div id="game-timeline" class="event-timeline small" style="display:none"> </div>
                         </div>
                         <div class="tab-pane pt-4 fade" id="players-pane" tabindex="0">
                             <table id="players-table" class="table table-striped table-sm small">
@@ -156,5 +156,10 @@ let players = {{ Js::from($players) }};
 let playersByPosition = {{ Js::from($groupedPlayers) }};
 
 let live = new Live(formations, players, playersByPosition);
+
+@if($resultEvents->isNotEmpty())
+let resultEvents = {{ Js::from($resultEvents) }};
+live.addExistingEvents(resultEvents);
+@endif
 </script>
 @endsection
