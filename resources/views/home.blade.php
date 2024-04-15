@@ -1,66 +1,181 @@
 @extends('layouts.main')
 
+@section('body-id', 'home')
 @section('page-title', 'Home')
 @section('page-desc', "Welcome to your team's home page")
 
 @section('content')
     <div class="container main-content">
 
-    @if (count($scheduled))
+        @if (count($scheduledToday))
+            @include('home.scheduled-today')
+        @endif
+
+        @if (count($scheduled))
+        @endif
+
+        <div id="filter" class="text-end mb-3">
+        @if($managedTeams->isNotEmpty())
+            <div class="dropdown">
+                <button class="btn bg-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ $selectedManagedTeamName }}
+                </button>
+                <ul class="dropdown-menu">
+                @foreach ($managedTeams as $i => $team)
+                    <li>
+                        <a href="{{ route('homeByTeam', ['teamId' => $team->id]) }}" @class([
+                           'dropdown-item',
+                           'active' => $selectedManagedTeamId == $team->id,
+                           ])>{{ $team->name }}</a>
+                    </li>
+                @endforeach
+                </ul>
+            </div>
+        @endif
+        </div>
+
         <div class="row">
-            <div class="col-8">
-
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
-                    <div class="mb-4">
-                        <div class="position-relative d-inline-block me-3" style="width:3rem; height:3rem;">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center w-100 h-100 bg-success text-white">
-                                <i class="bi bi-info-square-fill"></i>
-                            </div>
+                    <h3>Results</h3>
+                    <canvas id="wdl-chart" class="p-3 mb-2"></canvas>
+                    <script>
+                    let wdlChart = document.getElementById('wdl-chart');
+                    new Chart(wdlChart, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Win', 'Draw', 'Loss'],
+                            datasets: [{
+                                data: [{{ $chartData['wdl']['w'] }}, {{ $chartData['wdl']['d'] }}, {{ $chartData['wdl']['l'] }}],
+                                backgroundColor: ['#009669', '#555559', '#d94000'],
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                    </script>
+                    <div class="d-flex text-center justify-content-center">
+                        <div>
+                            <span class="d-inline-block border-top border-5 border-success p-2 pb-0 mx-2">Win</span>
+                            <div class="text-secondary">{{ $chartData['wdl']['w'] }}</div>
                         </div>
-                        <h4 class="d-inline-block align-middle">Today</h4>
-                    </div>
-        @foreach ($scheduled as $sched)
-                    <div class="rounded rounded-3 border p-5 mb-4">
-                        <div class="row border-bottom pb-3 text-center">
-                            <div class="col-2"></div>
-                            <div class="col-3">
-                                <img class="logo img-fluid" src="{{ asset($sched->homeTeam->club->logo) }}"/>
-                                <div class="pt-2 pb-1">{{ $sched->homeTeam->name }}</div>
-                                <span class="text-body-tertiary small">Home</span>
-                            </div>
-                            <div class="col-2">
-                                <div class="pt-5">{{ $sched->date->inUserTimezone()->format('g:i a') }}</div>
-                                <a href="{{ route('games.live', $sched->id) }}" class="btn btn-success btn-sm text-white">Start Game</a>
-                            </div>
-                            <div class="col-3">
-                                <img class="logo img-fluid" src="{{ asset($sched->awayTeam->club->logo) }}"/>
-                                <div class="pt-2 pb-1">{{ $sched->awayTeam->name }}</div>
-                                <span class="text-body-tertiary small">Away</span>
-                            </div>
-                            <div class="col-2"></div>
+                        <div>
+                            <span class="d-inline-block border-top border-5 border-secondary p-2 pb-0 mx-2">Draw</span>
+                            <div class="text-secondary">{{ $chartData['wdl']['d'] }}</div>
                         </div>
-                        <div class="d-flex justify-content-between text-secondary pt-2">
-                            <div class="pe-5 text-end">
-                                {{ $sched->competition->name }}
-                                <i class="bi bi-tag"></i>
-                            </div>
-                            <div class="ps-5">
-                                <i class="bi bi-geo-alt"></i>
-                                {{ $sched->location->name }}
-                            </div>
+                        <div>
+                            <span class="d-inline-block border-top border-5 border-danger p-2 pb-0 mx-2">Loss</span>
+                            <div class="text-secondary">{{ $chartData['wdl']['l'] }}</div>
                         </div>
                     </div>
-        @endforeach
-
                 </div><!--/.rounded-->
-            </div><!--/.col-8-->
-            <div class="col-4">
+            </div><!--/.col-->
+            <div class="col-12 col-md-6 col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
-                    weather?
+                    <h3>Goals</h3>
+                    <canvas id="player-goals-chart" class="p-3 mb-2"></canvas>
+                    <script>
+                    let playerGoalsChart = document.getElementById('player-goals-chart');
+                    new Chart(playerGoalsChart, {
+                        type: 'doughnut',
+                        data: {
+                            labels: [{!! $chartData['goals']['labels'] !!}],
+                            datasets: [{
+                                data: [{!! $chartData['goals']['data'] !!}],
+                                backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                    </script>
+                    <div class="d-flex text-center justify-content-center">
+                    @php $colors = ['dark', 'primary', 'info']; @endphp
+                    @foreach($chartData['goals']['players'] as $player => $goals)
+                        <div>
+                            <span class="d-inline-block border-top border-5 border-{{ $colors[$loop->index] }} p-2 pb-0 mx-2">{{ $player }}</span>
+                            <div class="text-secondary">{{ $goals }}</div>
+                        </div>
+                        @break($loop->index >= 2)
+                    @endforeach
+                    </div>
+                </div><!--/.rounded-->
+            </div><!--/.col-->
+            <div class="col-12 d-md-none d-lg-block col-lg-4 mb-3">
+                <div class="rounded rounded-3 bg-white p-4 mb-1">
+                    <h3>Assists</h3>
+                    <canvas id="player-assists-chart" class="p-3 mb-2"></canvas>
+                    <script>
+                    let playerAssistsChart = document.getElementById('player-assists-chart');
+                    new Chart(playerAssistsChart, {
+                        type: 'doughnut',
+                        data: {
+                            labels: [{!! $chartData['assists']['labels'] !!}],
+                            datasets: [{
+                                data: [{!! $chartData['assists']['data'] !!}],
+                                backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                    </script>
+                    <div class="d-flex text-center justify-content-center">
+                    @php $colors = ['dark', 'primary', 'info']; @endphp
+                    @foreach($chartData['assists']['players'] as $player => $assists)
+                        <div>
+                            <span class="d-inline-block border-top border-5 border-{{ $colors[$loop->index] }} p-2 pb-0 mx-2">{{ $player }}</span>
+                            <div class="text-secondary">{{ $assists }}</div>
+                        </div>
+                        @break($loop->index >= 2)
+                    @endforeach
+                    </div>
+                </div><!--/.rounded-->
+            </div><!--/.col-->
+        </div><!--/.row-->
+
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="rounded rounded-3 bg-white p-4 mb-3">
+                @foreach($results as $result)
+                    <a href="#" class="game-result d-grid align-items-center justify-content-center mb-3 text-decoration-none rounded rounded-2 text-dark">
+                        <div class="home-team d-flex align-items-center justify-content-end">
+                            <div class="me-2">{{ $result->homeTeam->name }}</div>
+                            <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}"/>
+                        </div>
+                        <div class="score text-center">
+                            <span class="badge rounded-pill text-bg-secondary">{{ $result->home_team_score }} - {{ $result->away_team_score }}</span>
+                        </div>
+                        <div class="away-team d-flex align-items-center">
+                            <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}"/>
+                            <div class="ms-2">{{ $result->awayTeam->name }}</div>
+                        </div>
+                    </a>
+                @endforeach
                 </div>
             </div>
+            <div class="col-6 col-md-3">
+                <div class="rounded rounded-3 bg-white p-4 mb-3">
+                    <h5>Goals Per Game</h5>
+                    <h1>{{ $chartData['gpg']['gpg'] }}</h1>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="rounded rounded-3 bg-white p-4 mb-3">
+                    <h5>Goals Allowed Per Game</h5>
+                    <h1>{{ $chartData['gapg']['gapg'] }}</h1>
+                </div><!--/.rounded-->
+            </div><!--/.col-4-->
         </div><!--/.row-->
-    @endif
 
     </div><!--/container-->
 @endsection

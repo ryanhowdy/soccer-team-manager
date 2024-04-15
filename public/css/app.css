@@ -20224,6 +20224,28 @@ th.dt-ordering-asc:after {
   content: "\f148";
 }
 
+.select2-container > span.selection > .select2-selection--single {
+  height: auto;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+}
+.select2-container > span.selection > .select2-selection--single > .select2-selection__rendered {
+  line-height: normal;
+  padding: 0;
+  display: inline;
+}
+
+#home img.logo {
+  height: 40px;
+}
+#home a.game-result {
+  grid-template-columns: 1fr 50px 1fr;
+}
+#home a.game-result a.game-result:hover {
+  background: #eee;
+}
+
 #live #game-controls.initial #home-score, #live #game-controls.formation #home-score {
   display: none;
 }

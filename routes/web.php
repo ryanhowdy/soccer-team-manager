@@ -26,7 +26,8 @@ Route::post('/register',              [\App\Http\Controllers\RegisterController:
 
 // Must be authed
 Route::middleware(['auth'])->group(function () {
-    Route::any( '/home',   [\App\Http\Controllers\HomeController::class, 'home'])->name('home');
+    Route::any( '/home',          [\App\Http\Controllers\HomeController::class, 'home'])->name('home');
+    Route::any( '/home/{teamId}', [\App\Http\Controllers\HomeController::class, 'home'])->name('homeByTeam');
 
     // Games
     Route::get( '/games',           [\App\Http\Controllers\GameController::class, 'index'])->name('games.index');

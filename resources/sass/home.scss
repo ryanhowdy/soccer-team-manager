@@ -1,0 +1,16 @@
+#home
+{
+    img.logo
+    {
+        height: 40px;
+    }
+    a.game-result
+    {
+        grid-template-columns: 1fr 50px 1fr; 
+
+        a.game-result:hover
+        {
+            background: #eee;
+        }
+    }
+}

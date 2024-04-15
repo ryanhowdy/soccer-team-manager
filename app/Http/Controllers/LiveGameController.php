@@ -43,7 +43,7 @@ class LiveGameController extends Controller
 
         // This result maybe in progress, get any previous result events
         $resultEvents = ResultEvent::where('result_id', $result->id)
-            ->where('event_id', '!=', EnumEvent::start)
+            ->where('event_id', '!=', EnumEvent::start->value)
             ->orderBy('time')
             ->orderBy('id')
             ->get();
