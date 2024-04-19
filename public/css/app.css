@@ -20236,6 +20236,11 @@ th.dt-ordering-asc:after {
   display: inline;
 }
 
+@media only screen and (max-width: 767px) {
+  .main-content {
+    margin-top: -190px;
+  }
+}
 #home img.logo {
   height: 40px;
 }
@@ -20243,6 +20248,16 @@ th.dt-ordering-asc:after {
   grid-template-columns: 1fr 50px 1fr;
 }
 #home a.game-result a.game-result:hover {
+  background: #eee;
+}
+
+#games img.logo {
+  height: 50px;
+}
+#games div.game-result {
+  grid-template-columns: 1fr 80px 1fr;
+}
+#games div.game-result:hover {
   background: #eee;
 }
 

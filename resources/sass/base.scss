@@ -48,3 +48,11 @@ th.dt-ordering-asc:after
         display: inline;
     }
 }
+
+@media only screen and (max-width: 767px)
+{
+    .main-content
+    {
+        margin-top: -190px;
+    }
+}

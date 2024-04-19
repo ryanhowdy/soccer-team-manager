@@ -10,14 +10,17 @@ class Result extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'date' => 'datetime',
     ];
+
+    protected $with = ['homeTeam.club', 'awayTeam.club'];
+
+    protected $appends = ['win_draw_loss'];
+
+    //
+    // Relationships
+    //
 
     public function season(): HasOne
     {
@@ -47,5 +50,25 @@ class Result extends Model
     public function formation(): HasOne
     {
         return $this->hasOne(Formation::class);
+    }
+
+    //
+    // Attributes
+    //
+
+    public function getWinDrawLossAttribute(): string
+    {
+        if ($this->attributes['home_team_score'] > $this->attributes['away_team_score'])
+        {
+            return $this->homeTeam->managed ? 'W' : 'L';
+        }
+        if ($this->attributes['home_team_score'] < $this->attributes['away_team_score'])
+        {
+            return $this->homeTeam->managed ? 'L' : 'W';
+        }
+        if ($this->attributes['home_team_score'] == $this->attributes['away_team_score'])
+        {
+            return 'D';
+        }
     }
 }

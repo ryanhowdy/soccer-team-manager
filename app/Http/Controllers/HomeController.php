@@ -48,8 +48,6 @@ class HomeController extends Controller
 
         $scheduledToday = Result::with('competition')
             ->with('location')
-            ->with('homeTeam.club')
-            ->with('awayTeam.club')
             ->where('status', 'S')
             ->whereBetween('date', [$todayStart, $todayEnd])
             ->get();
@@ -57,8 +55,6 @@ class HomeController extends Controller
         // Get all future scheduled games (not today)
         $scheduled = Result::with('competition')
             ->with('location')
-            ->with('homeTeam.club')
-            ->with('awayTeam.club')
             ->where('status', 'S')
             ->whereNotBetween('date', [$todayStart, $todayEnd])
             ->get();
@@ -99,8 +95,6 @@ class HomeController extends Controller
                 $query->where('home_team_id', $selectedManagedTeam->id)
                     ->where('away_team_id', $selectedManagedTeam->id);
             })
-            ->with('homeTeam.club')
-            ->with('awayTeam.club')
             ->get();
 
         // Figure out the chart data based on the results
@@ -119,7 +113,7 @@ class HomeController extends Controller
             $resultIds[$result->id] = $result->id;
 
             $goodGuys = $result->home_team_id == $selectedManagedTeam->id ? 'home' : 'away';
-            $badGuys  = $goodGuys === 'home'                          ? 'away' : 'good';
+            $badGuys  = $goodGuys === 'home'                              ? 'away' : 'good';
 
             // win/draw/loss
             if ($result->{$goodGuys . '_team_score'} > $result->{$badGuys . '_team_score'})
