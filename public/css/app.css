@@ -20575,3 +20575,27 @@ th.dt-ordering-asc:after {
 .event-timeline .event.away .icon {
   left: 18px;
 }
+
+#teams table th.club-name {
+  width: 40%;
+}
+#teams table th.teams {
+  width: 115px;
+}
+#teams table td.club-name {
+  cursor: pointer;
+}
+#teams table td.club-name > span {
+  display: none;
+}
+#teams table td.club-name:hover {
+  text-decoration: underline;
+}
+#teams table td.club-name:hover > span {
+  display: inline-block;
+  top: 25px;
+  right: 21px;
+}
+#teams img.logo {
+  width: 50px;
+}

@@ -34,6 +34,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/games/{id}',      [\App\Http\Controllers\GameController::class, 'show'])->name('games.show');
     Route::get( '/games/{id}/live', [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
 
+    // Teams
+    Route::get( '/teams',      [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
+    Route::get( '/teams/{id}', [\App\Http\Controllers\TeamController::class, 'show'])->name('teams.show');
+
     // AJAX
     Route::post('/ajax/game/start', [\App\Http\Controllers\AjaxController::class, 'gameStart'])->name('ajax-start-game');
     Route::post('/ajax/game/event', [\App\Http\Controllers\AjaxController::class, 'saveEvent'])->name('ajax-create-event');

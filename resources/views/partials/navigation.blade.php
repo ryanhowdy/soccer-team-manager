@@ -13,7 +13,7 @@
                     <a class="nav-link" href="{{ route('games.index') }}">Games</a>
                 </li>
                 <li class="nav-item me-2">
-                    <a class="nav-link" href="#">Teams</a>
+                    <a class="nav-link" href="{{ route('teams.index') }}">Teams</a>
                 </li>
                 <li class="nav-item me-2 dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Stats</a>

@@ -1,0 +1,40 @@
+#teams
+{
+    table 
+    {
+        th.club-name
+        {
+            width: 40%;
+        }
+        th.teams
+        {
+            width: 115px;
+        }
+
+        td.club-name 
+        {
+            cursor: pointer;
+
+            > span
+            {
+                display: none;
+            }
+            &:hover
+            {
+                text-decoration: underline;
+
+                > span
+                {
+                    display: inline-block;
+                    top: 25px;
+                    right: 21px;
+                }
+            }
+        }
+    }
+
+    img.logo
+    {
+        width: 50px;
+    }
+}
