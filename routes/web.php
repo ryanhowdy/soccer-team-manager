@@ -38,6 +38,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/teams',      [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
     Route::get( '/teams/{id}', [\App\Http\Controllers\TeamController::class, 'show'])->name('teams.show');
 
+    // Stats
+    Route::get( '/stats/teams',            [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.teams.index');
+    Route::get( '/stats/teams/{id}',       [\App\Http\Controllers\StatsTeamController::class, 'show'])->name('stats.teams.show');
+    Route::get( '/stats/compeitions',      [\App\Http\Controllers\StatsCompetitionController::class, 'index'])->name('stats.competitions.index');
+    Route::get( '/stats/compeitions/{id}', [\App\Http\Controllers\StatsCompetitionController::class, 'show'])->name('stats.competitions.show');
+    Route::get( '/stats/players',          [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.players.index');
+
     // AJAX
     Route::post('/ajax/game/start', [\App\Http\Controllers\AjaxController::class, 'gameStart'])->name('ajax-start-game');
     Route::post('/ajax/game/event', [\App\Http\Controllers\AjaxController::class, 'saveEvent'])->name('ajax-create-event');

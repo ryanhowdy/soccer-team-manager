@@ -20199,6 +20199,14 @@ img.logo {
   max-height: 75px;
 }
 
+.small {
+  font-size: 0.85rem;
+}
+
+.smaller {
+  font-size: 0.75rem;
+}
+
 th.dt-ordering-desc,
 th.dt-ordering-asc {
   position: relative;
@@ -20598,4 +20606,19 @@ th.dt-ordering-asc:after {
 }
 #teams img.logo {
   width: 50px;
+}
+
+#stats img.logo {
+  height: 40px;
+}
+#stats a.game-result {
+  grid-template-columns: 1fr 50px 1fr;
+}
+#stats a.game-result a.game-result:hover {
+  background: #eee;
+}
+#stats .circle-icon {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
 }
