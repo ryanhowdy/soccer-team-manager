@@ -96,6 +96,7 @@ return new class extends Migration
             $table->timestamp('ended_at');
             $table->string('website')->nullable();
             $table->enum('status', ['A', 'C', 'D']); // A - Active, C - Cancelled, D - Done
+            $table->tinyText('notes')->nullable();
             $table->foreignId('created_user_id');
             $table->foreignId('updated_user_id');
             $table->timestamps();

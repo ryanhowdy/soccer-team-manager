@@ -39,6 +39,6 @@ class ResultEvent extends Model
 
     public function getPlayerNameAttribute(): string
     {
-        return $this->player->name;
+        return $this->player ? $this->player->name : 'Unknown';
     }
 }

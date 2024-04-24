@@ -113,7 +113,7 @@ class HomeController extends Controller
             $resultIds[$result->id] = $result->id;
 
             $goodGuys = $result->home_team_id == $selectedManagedTeam->id ? 'home' : 'away';
-            $badGuys  = $goodGuys === 'home'                              ? 'away' : 'good';
+            $badGuys  = $goodGuys === 'home'                              ? 'away' : 'home';
 
             // win/draw/loss
             if ($result->{$goodGuys . '_team_score'} > $result->{$badGuys . '_team_score'})
