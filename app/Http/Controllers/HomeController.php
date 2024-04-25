@@ -46,11 +46,25 @@ class HomeController extends Controller
         $todayStart = \Carbon\Carbon::now()->startOfDay();
         $todayEnd   = \Carbon\Carbon::now()->endOfDay();
 
+        $scheduledTeamIds = [];
+
         $scheduledToday = Result::with('competition')
             ->with('location')
             ->where('status', 'S')
             ->whereBetween('date', [$todayStart, $todayEnd])
             ->get();
+
+        foreach ($scheduledToday as $s)
+        {
+            if ($s->homeTeam->managed == 0)
+            {
+                $scheduledTeamIds[] = $s->homeTeam->id;
+            }
+            if ($s->awayTeam->managed == 0)
+            {
+                $scheduledTeamIds[] = $s->awayTeam->id;
+            }
+        }
 
         // Get all future scheduled games (not today)
         $scheduled = Result::with('competition')
@@ -58,6 +72,35 @@ class HomeController extends Controller
             ->where('status', 'S')
             ->whereNotBetween('date', [$todayStart, $todayEnd])
             ->get();
+
+        foreach ($scheduled as $s)
+        {
+            if ($s->homeTeam->managed == 0)
+            {
+                $scheduledTeamIds[] = $s->homeTeam->id;
+            }
+            if ($s->awayTeam->managed == 0)
+            {
+                $scheduledTeamIds[] = $s->awayTeam->id;
+            }
+        }
+
+        // Get the last 5 results for each team we are scheduled to play
+        $lastResults = Result::where('status', 'D')
+            ->where(function (Builder $query) use ($scheduledTeamIds) {
+                $query->whereIn('home_team_id', $scheduledTeamIds)
+                    ->orWhereIn('away_team_id', $scheduledTeamIds);
+            })
+            ->orderBy('date')
+            ->get();
+
+        $lastResultsByTeam = [];
+        foreach ($lastResults as $r)
+        {
+            $badGuys = $r->homeTeam->managed == 0 ? 'home' : 'away';
+
+            $lastResultsByTeam[$r->{$badGuys . 'Team'}->id][] = $r;
+        }
 
         // Get all managed teams
         $managedTeams = ClubTeam::from('club_teams as t')
@@ -181,6 +224,7 @@ class HomeController extends Controller
         return view('home', [
             'scheduledToday'          => $scheduledToday,
             'scheduled'               => $scheduled,
+            'lastResultsByTeam'       => $lastResultsByTeam,
             'managedTeams'            => $managedTeams,
             'selectedManagedTeamId'   => $selectedManagedTeam->id,
             'selectedManagedTeamName' => $selectedManagedTeam->name,

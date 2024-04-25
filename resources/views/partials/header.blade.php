@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
         setInterval(function() { axios.post('/keepTokenAlive'); }, 1000 * 60 * 15);
     }
     $('.search-select').select2({matcher:optgroupMatcher});
+    $('[data-bs-toggle="tooltip"]').tooltip();
 });
 </script>
 </head>

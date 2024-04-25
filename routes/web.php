@@ -30,9 +30,10 @@ Route::middleware(['auth'])->group(function () {
     Route::any( '/home/{teamId}', [\App\Http\Controllers\HomeController::class, 'home'])->name('homeByTeam');
 
     // Games
-    Route::get( '/games',           [\App\Http\Controllers\GameController::class, 'index'])->name('games.index');
-    Route::get( '/games/{id}',      [\App\Http\Controllers\GameController::class, 'show'])->name('games.show');
-    Route::get( '/games/{id}/live', [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
+    Route::get( '/games',              [\App\Http\Controllers\GameController::class, 'index'])->name('games.index');
+    Route::get( '/games/{id}',         [\App\Http\Controllers\GameController::class, 'show'])->name('games.show');
+    Route::get( '/games/{id}/live',    [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
+    Route::get( '/games/{id}/preview', [\App\Http\Controllers\GameController::class, 'preview'])->name('games.preview');
 
     // Teams
     Route::get( '/teams',      [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');

@@ -1,6 +1,6 @@
 @include('partials.header')
 
-<body id="@yield('body-id', '')" class="bg-light">
+<body id="@yield('body-id', '')" class="bg-light pb-5 mb-5">
 
     @include('partials.navigation')
 

@@ -12,6 +12,7 @@
         @endif
 
         @if (count($scheduled))
+            @include('home.scheduled')
         @endif
 
         <div id="filter" class="text-end mb-3">

@@ -4,13 +4,36 @@
     {
         height: 40px;
     }
+
     a.game-result
     {
         grid-template-columns: 1fr 50px 1fr; 
 
-        a.game-result:hover
+        &:hover
         {
             background: #eee;
+        }
+    }
+
+    .scheduled-game
+    {
+        .date
+        {
+            margin-top: -3px;
+        }
+        .time
+        {
+            margin-top: -6px;
+        }
+
+        div.game-preview
+        {
+            grid-template-columns: 1fr 90px 1fr; 
+
+            img.logo
+            {
+                height: 50px;
+            }
         }
     }
 }

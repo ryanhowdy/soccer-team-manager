@@ -1,0 +1,40 @@
+    <div class="rounded rounded-3 bg-white p-4 mb-3 d-none d-lg-block">
+        <div class="mb-4">
+            <div class="position-relative d-inline-block me-3" style="width:3rem; height:3rem;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center w-100 h-100 bg-info text-white">
+                    <i class="bi bi-calendar-day-fill"></i>
+                </div>
+            </div>
+            <h4 class="d-inline-block align-middle">Upcoming Games</h4>
+        </div>
+    @foreach($scheduled as $result)
+        <div class="row scheduled-game mb-5">
+            <div class="col-4">
+                <div class="competition text-uppercase small">{{ $result->competition->name }}</div>
+                <div class="date fw-bold">{{ $result->date->format('M. jS, Y') }}</div>
+                <div class="time small">{{ $result->date->format('g:i a') }}</div>
+            </div>
+            <div class="col-5 text-center">
+                <div class="game-preview d-grid align-items-center justify-content-center mb-3 text-decoration-none rounded rounded-2 text-dark">
+                    <div class="home-team d-flex align-items-center justify-content-end">
+                        <div class="me-4">{{ $result->homeTeam->name }}</div>
+                        <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}"
+                            src="{{ asset($result->homeTeam->club->logo) }}"/>
+                    </div>
+                    <div class="score text-center">VS</div>
+                    <div class="away-team d-flex align-items-center">
+                        <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
+                            src="{{ asset($result->awayTeam->club->logo) }}"/>
+                        <div class="ms-4">{{ $result->awayTeam->name }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3 d-flex align-items-center justify-content-end">
+                <a class="btn btn-primary btn-sm py-1" href="{{ route('games.preview', ['id' => $result->id]) }}">
+                    Game Details
+                    <span class="bi-arrow-right-short"></span>
+                </a>
+            </div>
+        </div>
+    @endforeach
+    </div>

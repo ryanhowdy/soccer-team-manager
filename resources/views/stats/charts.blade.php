@@ -120,7 +120,8 @@
                     <a href="#" class="game-result d-grid align-items-center justify-content-center mb-3 text-decoration-none rounded rounded-2 text-dark">
                         <div class="home-team d-flex align-items-center justify-content-end">
                             <div class="me-2">{{ $result->homeTeam->name }}</div>
-                            <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}"/>
+                            <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}" 
+                                src="{{ asset($result->homeTeam->club->logo) }}"/>
                         </div>
                         <div class="score text-center">
                             <span @class([
@@ -133,7 +134,8 @@
                             ])>{{ $result->home_team_score }} - {{ $result->away_team_score }}</span>
                         </div>
                         <div class="away-team d-flex align-items-center">
-                            <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}"/>
+                            <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
+                                src="{{ asset($result->awayTeam->club->logo) }}"/>
                             <div class="ms-2">{{ $result->awayTeam->name }}</div>
                         </div>
                     </a>

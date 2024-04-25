@@ -20207,6 +20207,12 @@ img.logo {
   font-size: 0.75rem;
 }
 
+.last-5-form span {
+  font-size: 9px;
+  padding: 4px;
+  border-radius: 3px;
+}
+
 th.dt-ordering-desc,
 th.dt-ordering-asc {
   position: relative;
@@ -20255,8 +20261,20 @@ th.dt-ordering-asc:after {
 #home a.game-result {
   grid-template-columns: 1fr 50px 1fr;
 }
-#home a.game-result a.game-result:hover {
+#home a.game-result:hover {
   background: #eee;
+}
+#home .scheduled-game .date {
+  margin-top: -3px;
+}
+#home .scheduled-game .time {
+  margin-top: -6px;
+}
+#home .scheduled-game div.game-preview {
+  grid-template-columns: 1fr 90px 1fr;
+}
+#home .scheduled-game div.game-preview img.logo {
+  height: 50px;
 }
 
 #games img.logo {
