@@ -115,9 +115,10 @@
         <div class="row">
 
             <div class="col-12 col-md-6">
-                <div class="rounded rounded-3 bg-white p-4 mb-3">
+                <div class="game-listing-small rounded rounded-3 bg-white p-4 mb-3">
                 @foreach($results as $result)
-                    <a href="#" class="game-result d-grid align-items-center justify-content-center mb-3 text-decoration-none rounded rounded-2 text-dark">
+                    <a href="{{ route('games.show', ['id' => $result->id]) }}" 
+                        class="home-v-away d-grid align-items-center justify-content-center mb-3 text-decoration-none rounded rounded-2 text-dark">
                         <div class="home-team d-flex align-items-center justify-content-end">
                             <div class="me-2">{{ $result->homeTeam->name }}</div>
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}" 

@@ -1,18 +1,12 @@
-#games
+#game-preview
 {
-    img.logo
+    .progress
     {
-        height: 50px;
-    }
+        background-color: #bbb;
 
-    div.game-result
-    {
-        grid-template-columns: 1fr 80px 1fr; 
-
-        &:hover
+        .progress-bar
         {
-            background: #eee;
+            background-color: #555;
         }
     }
 }
-

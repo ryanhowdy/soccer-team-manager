@@ -1,0 +1,65 @@
+// home (today)
+.game-listing-cards
+{
+}
+
+// home (upcoming games)
+.game-listing-details
+{
+    .date
+    {
+        margin-top: -3px;
+    }
+    .time
+    {
+        margin-top: -6px;
+    }
+
+    .home-v-away
+    {
+        grid-template-columns: 1fr 90px 1fr; 
+
+        img.logo
+        {
+            height: 50px;
+        }
+    }
+}
+
+// charts
+.game-listing-small
+{
+    a.home-v-away
+    {
+        grid-template-columns: 1fr 50px 1fr; 
+
+        &:hover
+        {
+            background: #eee;
+        }
+
+        img.logo
+        {
+            height: 40px;
+        }
+    }
+}
+
+// games
+.game-listing
+{
+    .home-v-away
+    {
+        grid-template-columns: 1fr 80px 1fr; 
+
+        &:hover
+        {
+            background: #eee;
+        }
+
+        img.logo
+        {
+            height: 50px;
+        }
+    }
+}

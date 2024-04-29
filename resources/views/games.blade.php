@@ -39,9 +39,9 @@
             </div>
         </form>
 
-        <div class="rounded rounded-3 bg-white p-4 mb-1">
+        <div class="game-listing rounded rounded-3 bg-white p-4 mb-1">
         @foreach($results as $result)
-            <div class="game-result position-relative d-grid align-items-center justify-content-center mb-3 border p-2 rounded rounded-2">
+            <div class="home-v-away position-relative d-grid align-items-center justify-content-center mb-3 border p-2 rounded rounded-2">
                 <div class="position-absolute top-0 start-0 small p-2">
                     {{ $result->date->inUserTimezone()->format('M j, Y') }}
                     <i class="bi bi-clock"></i>
@@ -74,7 +74,7 @@
                         <div>{{ $result->awayTeam->name }}</div>
                     </div>
                 </div>
-            </div><!--/.game-result-->
+            </div>
         @endforeach
         </div>
 

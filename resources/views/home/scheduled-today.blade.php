@@ -8,7 +8,7 @@
             <h4 class="d-inline-block align-middle">Today</h4>
         </div>
 
-        <div class="row">
+        <div class="row game-listings-cards">
     @foreach ($scheduled as $sched)
             <div class="col-6">
                 <div class="rounded rounded-3 border p-3 mb-4">
@@ -44,7 +44,7 @@
                         $thisTeamId = $sched->homeTeam->managed ? $sched->away_team_id : $sched->home_team_id;
                     @endphp
                     @if (isset($lastResultsByTeam[$thisTeamId]))
-                        <div class="last-5-form pull-right">
+                        <div class="last-5-form pull-right" data-bs-toggle="tooltip" data-bs-title="Head 2 Head">
                         @foreach($lastResultsByTeam[$thisTeamId] as $r)
                             <span @class([
                                 'text-white',

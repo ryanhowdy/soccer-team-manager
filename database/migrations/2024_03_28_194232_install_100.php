@@ -203,6 +203,14 @@ return new class extends Migration
                 'additional' => 'position',
             ],
             [
+                'event'      => 'sub_in',
+                'additional' => null,
+            ],
+            [
+                'event'      => 'sub_out',
+                'additional' => null,
+            ],
+            [
                 'event'      => 'goal_against',
                 'additional' => null,
             ],

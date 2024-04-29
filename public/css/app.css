@@ -20255,36 +20255,44 @@ th.dt-ordering-asc:after {
     margin-top: -190px;
   }
 }
-#home img.logo {
-  height: 40px;
+#game-preview .progress {
+  background-color: #bbb;
 }
-#home a.game-result {
-  grid-template-columns: 1fr 50px 1fr;
+#game-preview .progress .progress-bar {
+  background-color: #555;
 }
-#home a.game-result:hover {
-  background: #eee;
-}
-#home .scheduled-game .date {
+
+.game-listing-details .date {
   margin-top: -3px;
 }
-#home .scheduled-game .time {
+.game-listing-details .time {
   margin-top: -6px;
 }
-#home .scheduled-game div.game-preview {
+.game-listing-details .home-v-away {
   grid-template-columns: 1fr 90px 1fr;
 }
-#home .scheduled-game div.game-preview img.logo {
+.game-listing-details .home-v-away img.logo {
   height: 50px;
 }
 
-#games img.logo {
-  height: 50px;
+.game-listing-small a.home-v-away {
+  grid-template-columns: 1fr 50px 1fr;
 }
-#games div.game-result {
+.game-listing-small a.home-v-away:hover {
+  background: #eee;
+}
+.game-listing-small a.home-v-away img.logo {
+  height: 40px;
+}
+
+.game-listing .home-v-away {
   grid-template-columns: 1fr 80px 1fr;
 }
-#games div.game-result:hover {
+.game-listing .home-v-away:hover {
   background: #eee;
+}
+.game-listing .home-v-away img.logo {
+  height: 50px;
 }
 
 #live #game-controls.initial #home-score, #live #game-controls.formation #home-score {
