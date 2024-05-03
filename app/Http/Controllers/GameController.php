@@ -72,6 +72,186 @@ class GameController extends Controller
     }
 
     /**
+     * show
+     *
+     * @return Illuminate\View\View
+     */
+    public function show($gameId)
+    {
+        $result = Result::find($gameId);
+
+        $resultEvents = ResultEvent::where('result_id', $gameId)
+            ->orderBy('time')
+            ->orderBy('id')
+            ->get();
+
+        $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
+        $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
+
+        $stats = [
+            'home' => [
+                'goals'     => 0,
+                'shots'     => 0,
+                'shots_on'  => 0,
+                'shots_off' => 0,
+                'corners'   => 0,
+                'offsides'  => 0,
+                'fouls'     => 0,
+            ],
+            'away' => [
+                'goals'     => 0,
+                'shots'     => 0,
+                'shots_on'  => 0,
+                'shots_off' => 0,
+                'corners'   => 0,
+                'offsides'  => 0,
+                'fouls'     => 0,
+            ],
+        ];
+        $playingTime = [];
+        $fulltime = 0;
+
+        foreach($resultEvents as $e)
+        {
+            if ($e->event_id == EnumEvent::start->value)
+            {
+                $playingTime[$e->player_id] = [
+                    'player'   => $e->player,
+                    'starter'  => true,
+                    'seconds'  => 0,
+                    'spans' => [
+                        [
+                            'start' => '00:00:00',
+                            'end'   => null,
+                        ],
+                    ],
+                ];
+            }
+            if ($e->event_id == EnumEvent::sub_out->value)
+            {
+                foreach($playingTime[$e->player_id]['spans'] as $i => $span)
+                {
+                    if ($span['end'] === null)
+                    {
+                        $playingTime[$e->player_id]['spans'][$i]['end'] = $e->time;
+
+                        $start = eventTimeToSeconds($span['start']);
+                        $end   = eventTimeToSeconds($e->time);
+
+                        $secs = $end - $start;
+
+                        $playingTime[$e->player_id]['seconds'] += $secs;
+                    }
+                }
+            }
+            if ($e->event_id == EnumEvent::sub_in->value)
+            {
+                if (isset($playingTime[$e->player_id]))
+                {
+                    $playingTime[$e->player_id]['spans'][] = [
+                        'start' => $e->time,
+                        'end'   => null,
+                    ];
+                }
+                else
+                {
+                    $playingTime[$e->player_id] = [
+                        'player'   => $e->player,
+                        'starter'  => false,
+                        'seconds'  => 0,
+                        'spans' => [
+                            [
+                                'start' => '00:00:00',
+                                'end'   => null,
+                            ],
+                        ],
+                    ];
+                }
+            }
+            if ($e->event_id == EnumEvent::fulltime->value)
+            {
+                $fulltime = $e->time;
+            }
+            if ($e->event_id == EnumEvent::goal->value)
+            {
+                $stats[$goodGuys]['goals']++;
+                $stats[$goodGuys]['shots']++;
+                $stats[$goodGuys]['shots_on']++;
+            }
+            if ($e->event_id == EnumEvent::shot_on_target->value)
+            {
+                $stats[$goodGuys]['shots']++;
+                $stats[$goodGuys]['shots_on']++;
+            }
+            if ($e->event_id == EnumEvent::shot_off_target->value)
+            {
+                $stats[$goodGuys]['shots']++;
+                $stats[$goodGuys]['shots_off']++;
+            }
+            if ($e->event_id == EnumEvent::goal_against->value)
+            {
+                $stats[$badGuys]['goals']++;
+                $stats[$badGuys]['shots']++;
+            }
+            if ($e->event_id == EnumEvent::save->value)
+            {
+                $stats[$badGuys]['shots']++;
+                $stats[$badGuys]['shots_on']++;
+            }
+            if ($e->event_id == EnumEvent::shot_against->value)
+            {
+                $stats[$badGuys]['shots']++;
+                $stats[$badGuys]['shots_off']++;
+            }
+            if ($e->event_id == EnumEvent::corner_kick->value)
+            {
+                $stats[$goodGuys]['corners']++;
+            }
+            if ($e->event_id == EnumEvent::corner_kick_against->value)
+            {
+                $stats[$badGuys]['corners']++;
+            }
+            if ($e->event_id == EnumEvent::fouled->value)
+            {
+                $stats[$goodGuys]['fouls']++;
+            }
+            if ($e->event_id == EnumEvent::foul->value)
+            {
+                $stats[$badGuys]['fouls']++;
+            }
+        }
+
+        // Do some final time cleanup
+        foreach($playingTime as $playerId => $data)
+        {
+            // End the time range for everyone who was in the game at fulltime
+            foreach($playingTime[$playerId]['spans'] as $i => $span)
+            {
+                if ($span['end'] === null)
+                {
+                    $playingTime[$playerId]['spans'][$i]['end'] = $fulltime;
+
+                    $start = eventTimeToSeconds($span['start']);
+                    $end   = eventTimeToSeconds($fulltime);
+
+                    $secs = $end - $start;
+
+                    $playingTime[$playerId]['seconds'] += $secs;
+                }
+            }
+
+            // format everyones time in minutes
+            $playingTime[$playerId]['minutes'] = secondsToMinutes($playingTime[$playerId]['seconds']);
+        }
+
+        return view('games.show', [
+            'result'      => $result,
+            'playingTime' => $playingTime,
+            'stats'       => $stats,
+        ]);
+    }
+
+    /**
      * preview
      *
      * @return Illuminate\View\View

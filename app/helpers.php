@@ -133,3 +133,50 @@ if (!function_exists('addOrdinalNumberSuffix'))
         return $num . 'th';
     }
 }
+
+if (!function_exists('eventTimeToSeconds'))
+{
+    /**
+     * eventTimeToSeconds 
+     * 
+     * Given an event time (which is stored as (H:i:s)) but we treat it as
+     * minutes, seconds and ignore the last part) converts it to just seconds.
+     *
+     * @param string $eventTime 
+     * @return int
+     */
+    function eventTimeToSeconds($eventTime)
+    {
+        $seconds = 0;
+
+        if ($eventTime)
+        {
+            $timeParts = explode(':', $eventTime);
+
+            // minutes
+            $seconds += ($timeParts[0] * 60);
+
+            // seconds
+            $seconds += $timeParts[1];
+        }
+
+        return $seconds;
+    }
+}
+
+if (!function_exists('secondsToMinutes'))
+{
+    /**
+     * secondsToMinutes
+     * 
+     * Will display seconds in whole minutes, rounding up.
+     * So 15 mins and 1 second will be displayed as 16 mins.
+     *
+     * @param int $seconds
+     * @return int
+     */
+    function secondsToMinutes($time)
+    {
+        return ceil($time / 60);
+    }
+}

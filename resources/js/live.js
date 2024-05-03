@@ -113,9 +113,10 @@ export default class Live
     {
         let resultId      = $('#field').data('resultId');
         let savedResultId = localStorage.getItem('resultId');
+        let period        = localStorage.getItem('period');
 
         // bail if we already have a result id saved
-        if (savedResultId !== null && resultId == savedResultId)
+        if (resultId == savedResultId && period != null)
         {
             // this prevents user from clicking start, before we had a chance to resume the game for them
             return;
@@ -169,6 +170,12 @@ export default class Live
         });
     }
 
+    /**
+     * clickStartSecondHalf
+     *
+     * @param {Object} event
+     * return null
+     */
     clickStartSecondHalf(event)
     {
         $('.alert').remove();
@@ -239,10 +246,12 @@ export default class Live
             type : 'POST',
             data : {
                 resultId  : $('#field').data('resultId'),
+                time      : $('#timer > span').text(),
                 homeScore : $('#home-score > .score').text(),
                 awayScore : $('#away-score > .score').text(),
             },
         }).done((data) => {
+            localStorage.removeItem('resultId');
             localStorage.removeItem('time');
             localStorage.removeItem('formationId');
             localStorage.removeItem('starters');
@@ -450,30 +459,33 @@ export default class Live
     {
         event.preventDefault();
 
-        let $anchor      = $(event.target);
-        let $position    = $anchor.parents('.position').first();
-        //let $eventPicker = $position.find('.event-picker');
-
-        let playerId   = $anchor.data('playerId');
-        //let playerData = this.players[playerId];
-
-        //let img = document.createElement('img');
-        //img.className = 'img-fluid rounded-circle';
-        //img.setAttribute('data-player-id', playerId);
-        //img.setAttribute('title', playerData.name);
-        //img.src = '/' + playerData.photo;
-
-        //let nameSpan = document.createElement('span');
-        //nameSpan.className = 'name badge text-bg-dark opacity-75 fw-normal overflow-hidden';
-        //nameSpan.textContent = playerData.name;
-
-        //$position.removeClass('empty');
-        //$eventPicker.append(img);
-        //$eventPicker.append(nameSpan);
+        let $anchor   = $(event.target);
+        let $position = $anchor.parents('.position').first();
+        let playerId  = $anchor.data('playerId');
 
         this.drawer.addPlayer($position, playerId);
 
         this.starters[playerId] = $position.data('playerPosition');
+
+        // Save this as a sub_in event
+        if ($('#field').hasClass('ready'))
+        {
+            $.ajax({
+                url  : $('#field').data('createEventRoute'),
+                type : 'POST',
+                data : {
+                    result_id  : $('#field').data('resultId'),
+                    player_id  : playerId,
+                    time       : $('#timer > span').text(),
+                    event_id   : '3',
+                    additional : $position.data('playerPosition')
+                },
+            }).done((data) => {
+                // do nothing on success
+            }).fail(() => {
+                $('#field').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save sub in event.</p>');
+            });
+        }
 
         // Save the starters
         localStorage.setItem('starters', JSON.stringify(this.starters));
@@ -494,9 +506,7 @@ export default class Live
     {
         let $anchor   = $(event.target);
         let $position = $anchor.parents('.position').first();
-
-        let playerId   = $position.find('img').data('playerId');
-        let playerData = this.players[playerId];
+        let playerId  = $position.find('img').data('playerId');
 
         // remove player photo
         $position.find('img').remove();
@@ -507,6 +517,25 @@ export default class Live
         $position.addClass('empty');
 
         delete this.starters[playerId];
+
+        // Save this as a sub_out event
+        if ($('#field').hasClass('ready'))
+        {
+            $.ajax({
+                url  : $('#field').data('createEventRoute'),
+                type : 'POST',
+                data : {
+                    result_id  : $('#field').data('resultId'),
+                    player_id  : playerId,
+                    time       : $('#timer > span').text(),
+                    event_id   : '4'
+                },
+            }).done((data) => {
+                // do nothing on success
+            }).fail(() => {
+                $('#field').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save sub out event.</p>');
+            });
+        }
 
         // Save the starters
         localStorage.setItem('starters', JSON.stringify(this.starters));
@@ -918,7 +947,9 @@ export default class Live
         {
             this.starters = savedStarters;
 
-            this.drawer.addPlayerStarters(this.starters);
+            let clonedStarters = JSON.parse(JSON.stringify(savedStarters));
+
+            this.drawer.addPlayerStarters(clonedStarters);
         }
 
         // Game/Timer

@@ -204,7 +204,7 @@ return new class extends Migration
             ],
             [
                 'event'      => 'sub_in',
-                'additional' => null,
+                'additional' => 'position',
             ],
             [
                 'event'      => 'sub_out',
@@ -288,6 +288,14 @@ return new class extends Migration
             ],
             [
                 'event'      => 'free_kick_off_target',
+                'additional' => null,
+            ],
+            [
+                'event'      => 'halftime',
+                'additional' => null,
+            ],
+            [
+                'event'      => 'fulltime',
                 'additional' => null,
             ],
         ];

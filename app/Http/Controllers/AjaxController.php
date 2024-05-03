@@ -7,7 +7,7 @@ use App\Models\Position;
 use App\Models\Result;
 use App\Models\ResultEvent;
 use App\Models\Player;
-use App\Enums\Event;
+use App\Enums\Event as EnumEvent;
 
 class AjaxController extends Controller
 {
@@ -36,7 +36,7 @@ class AjaxController extends Controller
             $event->result_id  = $request->resultId;
             $event->player_id  = $playerId;
             $event->time       = '00:00:00';
-            $event->event_id   = Event::start;
+            $event->event_id   = EnumEvent::start;
             $event->additional = $positionName;
             $event->created_user_id = Auth()->user()->id;
             $event->updated_user_id = Auth()->user()->id;
@@ -79,13 +79,13 @@ class AjaxController extends Controller
         {
             if ($request->pk_fk == 'penalty')
             {
-                $eventId = $request->event_id == Event::goal->value ? Event::penalty_goal->value
-                    : ($request->event_id == Event::shot_on_target->value ? Event::penalty_on_target->value : Event::penalty_off_target->value);
+                $eventId = $request->event_id == EnumEvent::goal->value ? EnumEvent::penalty_goal->value
+                    : ($request->event_id == EnumEvent::shot_on_target->value ? EnumEvent::penalty_on_target->value : EnumEvent::penalty_off_target->value);
             }
             if ($request->pk_fk == 'free_kick')
             {
-                $eventId = $request->event_id == Event::goal->value ? Event::free_kick_goal->value
-                    : ($request->event_id == Event::shot_on_target->value ? Event::free_kick_on_target->value : Event::free_kick_off_target->value);
+                $eventId = $request->event_id == EnumEvent::goal->value ? EnumEvent::free_kick_goal->value
+                    : ($request->event_id == EnumEvent::shot_on_target->value ? EnumEvent::free_kick_on_target->value : EnumEvent::free_kick_off_target->value);
             }
         }
 
@@ -114,7 +114,7 @@ class AjaxController extends Controller
 
         $response = $event->toArray();
 
-        $response['event_name'] = Event::from($eventId)->name;
+        $response['event_name'] = EnumEvent::from($eventId)->name;
 
         $response['player_name'] = Player::find($event->player_id)->name;
 
@@ -134,21 +134,36 @@ class AjaxController extends Controller
     {
         $validated = $request->validate([
             'resultId'  => 'required|integer',
+            'time'      => 'required|regex:/^\d?\d?\d:\d\d$/',
             'homeScore' => 'required|integer',
             'awayScore' => 'required|integer',
         ]);
 
+        // Save fulltime event
+        $event = new ResultEvent;
+
+        $event->result_id       = $request->resultId;
+        $event->time            = $request->time;
+        $event->event_id        = EnumEvent::fulltime->value;
+        $event->created_user_id = Auth()->user()->id;
+        $event->updated_user_id = Auth()->user()->id;
+
+        $event->save();
+
+        // Update result status to done and set final score
         $existingResult = Result::find($request->resultId);
 
         $existingResult->home_team_score = $request->homeScore;
         $existingResult->away_team_score = $request->awayScore;
         $existingResult->status          = 'D';
 
+        $existingResult->save();
+
         return response()->json([
             'success' => true,
             'data'    => [
                 'result'   => $existingResult->toArray(),
-                'redirect' => route('home');
+                'redirect' => route('home'),
             ],
         ], 200);
     }

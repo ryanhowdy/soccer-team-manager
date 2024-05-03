@@ -29,6 +29,12 @@ class LiveGameController extends Controller
             ->with('awayTeam.club')
             ->find($id);
 
+        // if the result already is marked as done/cancelled, redirect to the game details
+        if (in_array($result->status, ['D','C']))
+        {
+            return redirect()->route('games.show', ['id' => $id]);
+        }
+
         // Figure out which teams are managed
         $managedTeam = [];
 
