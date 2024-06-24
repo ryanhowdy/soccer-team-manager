@@ -125,15 +125,15 @@ class HomeController extends Controller
             $selectedManagedTeam = $managedTeams->random();
         }
 
-        // Get the currently active League competitions
-        $activeCompetitionIds = Competition::where('club_team_id', $selectedManagedTeam->id)
+        // Get the most recent League competition for this team
+        $activeCompetitionId = Competition::where('club_team_id', $selectedManagedTeam->id)
             ->where('type', 'League')
-            ->where('status', 'A')
-            ->pluck('id');
+            ->orderByDesc('started_at')
+            ->value('id');
 
         // Get all the results for the currently selected managed teams' most recent non tournament competition
         $results = Result::where('status', 'D')
-            ->whereIn('competition_id', $activeCompetitionIds)
+            ->where('competition_id', $activeCompetitionId)
             ->orWhere(function (Builder $query) use ($selectedManagedTeam) {
                 $query->where('home_team_id', $selectedManagedTeam->id)
                     ->where('away_team_id', $selectedManagedTeam->id);
@@ -181,8 +181,14 @@ class HomeController extends Controller
             $chartData['gapg']['games']++;
         }
 
-        $chartData['gpg']['gpg']   = round($chartData['gpg']['goals'] / $chartData['gpg']['games'], 2);
-        $chartData['gapg']['gapg'] = round($chartData['gapg']['allowed'] / $chartData['gapg']['games'], 2);
+        if ($chartData['gpg']['games'])
+        {
+            $chartData['gpg']['gpg']   = round($chartData['gpg']['goals'] / $chartData['gpg']['games'], 2);
+        }
+        if ($chartData['gapg']['games'])
+        {
+            $chartData['gapg']['gapg'] = round($chartData['gapg']['allowed'] / $chartData['gapg']['games'], 2);
+        }
 
         // Get player goals/assists
         $events = ResultEvent::whereIn('result_id', $resultIds)
