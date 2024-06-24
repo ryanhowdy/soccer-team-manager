@@ -8,6 +8,8 @@ use App\Models\Result;
 use App\Models\ResultEvent;
 use App\Models\Player;
 use App\Enums\Event as EnumEvent;
+use App\Models\PlayerPosition;
+use App\Models\Roster;
 
 class AjaxController extends Controller
 {
@@ -165,6 +167,70 @@ class AjaxController extends Controller
                 'result'   => $existingResult->toArray(),
                 'redirect' => route('home'),
             ],
+        ], 200);
+    }
+
+    /**
+     * savePlayerPosition
+     * 
+     * @param Request $request 
+     * @return json
+     */
+    public function savePlayerPosition(Request $request)
+    {
+        $validated = $request->validate([
+            'player_id'   => 'required|integer',
+            'position_id' => 'required|integer',
+        ]);
+
+        // Save the new player position
+        $playerPosition = new PlayerPosition;
+
+        $playerPosition->player_id       = $request->player_id;
+        $playerPosition->position_id     = $request->position_id;
+        $playerPosition->created_user_id = Auth()->user()->id;
+        $playerPosition->updated_user_id = Auth()->user()->id;
+
+        $playerPosition->save();
+
+        // Get all positions for this player
+        $positions = PlayerPosition::where('player_id', $request->player_id)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $positions->toArray(),
+        ], 200);
+    }
+
+    /**
+     * saveRoster
+     * 
+     * @param Request $request 
+     * @return json
+     */
+    public function saveRoster(Request $request)
+    {
+        $validated = $request->validate([
+            'club_team_season_id' => 'required|integer',
+            'player_id'           => 'required|integer',
+            'number'              => 'nullable|integer',
+        ]);
+
+        // Save the new player position
+        $roster = new Roster;
+
+        $roster->club_team_season_id = $request->club_team_season_id;
+        $roster->player_id           = $request->player_id;
+        $roster->number              = $request->number;
+        $roster->created_user_id     = Auth()->user()->id;
+        $roster->updated_user_id     = Auth()->user()->id;
+
+        $roster->save();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $roster->toArray(),
         ], 200);
     }
 }

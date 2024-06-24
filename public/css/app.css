@@ -20648,3 +20648,15 @@ th.dt-ordering-asc:after {
   height: 50px;
   line-height: 50px;
 }
+
+#rosters .player-number {
+  width: 30px;
+}
+#rosters .add {
+  font-weight: bold;
+  color: green;
+}
+#rosters .rem {
+  font-weight: bold;
+  color: red;
+}
