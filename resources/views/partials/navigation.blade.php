@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg sticky-top bg-white">
     <div class="container">
-        <a class="navbar-brand me-5" href="#">STM</a>
+        <a class="navbar-brand me-5" href="{{ route('home') }}">STM</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-links">
             <span class="navbar-toggler-icon"></span>
         </button>
