@@ -16,7 +16,7 @@
                 <div class="time">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
             </div>
 
-            {{-- Game Details --}}
+            {{-- Game Score --}}
             <div class="d-flex justify-content-center align-items-center">
                 <div class="fs-4">{{ $result->homeTeam->name }}</div>
                 <div class="mx-5">
@@ -40,6 +40,17 @@
                 <div class="fs-4">{{ $result->awayTeam->name }}</div>
             </div>
 
+            {{-- Game Summary --}}
+            <div class="border-top pt-5 mt-5">
+                <div class="fs-4">{{ $result->location->name }}</div>
+                <div>{{ $result->notes }}</div>
+            </div>
+
+            @if(!$result->live)
+                <div class="alert alert-danger mt-3" role="alert">
+                    These result were not recorded live.
+                </div>
+            @endif
         </div>
 
         <div class="row">
@@ -48,27 +59,73 @@
             <div class="col-12 col-md-6">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
                     <h3 class="mb-3">Player Stats</h3>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($playingTime as $playerId => $time)
-                            <tr>
-                                <td>
-                                @if($time['starter'])
-                                    <span class="" data-bs-toggle="tooltip" data-bs-title="Starter">*</span>
-                                @endif
-                                    {{ $time['player']->name }}
-                                </td>
-                                <td>{{ $time['minutes'] }}</td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane" href="#">Stats</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="playing-time-tab" data-bs-toggle="tab" data-bs-target="#playing-time-pane" href="#">Playing Time</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        {{-- Stats --}}
+                        <div class="tab-pane fade show active" id="stats-pane" tabindex="0">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Gls</th>
+                                        <th>Ast</th>
+                                        <th>Shot</th>
+                                        <th>SOT</th>
+                                        <th>Tkl</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($stats['players'] as $playerId => $s)
+                                    <tr>
+                                        <td>{{ $s['player']->name }}</td>
+                                        <td>{{ $s['goals'] }}</td>
+                                        <td>{{ $s['assists'] }}</td>
+                                        <td>{{ $s['shots'] }}</td>
+                                        <td>{{ $s['shots_on'] }}</td>
+                                        <td>{{ $s['tackles'] }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- Playing Time --}}
+                        <div class="tab-pane fade" id="playing-time-pane" tabindex="0">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($playingTime as $playerId => $time)
+                                    <tr>
+                                        <td>
+                                        @if($time['starter'])
+                                            <span class="" data-bs-toggle="tooltip" data-bs-title="Starter">*</span>
+                                        @endif
+                                            {{ $time['player']->name }}
+                                        </td>
+                                        <td>{{ $time['minutes'] }}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                            <i>* Indicates a Starter</i>
+                        </div>
+
+                    </div><!--/.tab-content-->
                 </div>
             </div>
 
@@ -132,6 +189,21 @@ $('#team-stats > .progress').each((index, progress) => {
     let percentage = (goodCount / totalCount) * 100;
 
     $(progress).find('.progress-bar').css('width', percentage + '%');
+});
+
+$('#stats-pane > .table').DataTable({
+    autoWidth: false,
+    paging: false,
+    searching: false,
+    info: false,
+    order: [[0, 'asc']]
+});
+$('#playing-time-pane > .table').DataTable({
+    autoWidth: false,
+    paging: false,
+    searching: false,
+    info: false,
+    order: [[1, 'desc']]
 });
 </script>
 @endsection

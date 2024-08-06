@@ -10,7 +10,7 @@ class ResultEvent extends Model
 {
     use HasFactory;
 
-    protected $with = ['event', 'player'];
+    protected $with = ['event', 'player', 'additionalPlayer'];
 
     protected $appends = ['event_name', 'player_name'];
 
@@ -26,6 +26,11 @@ class ResultEvent extends Model
     public function player(): HasOne
     {
         return $this->hasOne(Player::class, 'id', 'player_id');
+    }
+
+    public function additionalplayer(): HasOne
+    {
+        return $this->hasOne(Player::class, 'id', 'additional');
     }
 
     //
