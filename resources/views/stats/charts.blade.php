@@ -13,7 +13,8 @@
                             labels: ['Win', 'Draw', 'Loss'],
                             datasets: [{
                                 data: [{{ $chartData['wdl']['w'] }}, {{ $chartData['wdl']['d'] }}, {{ $chartData['wdl']['l'] }}],
-                                backgroundColor: ['#009669', '#555559', '#d94000'],
+                                //backgroundColor: ['#009669', '#555559', '#d94000'],
+                                backgroundColor: [$winColor, $drawColor, $lossColor],
                             }]
                         },
                         options: {
@@ -52,7 +53,8 @@
                             labels: [{!! $chartData['goals']['labels'] !!}],
                             datasets: [{
                                 data: [{!! $chartData['goals']['data'] !!}],
-                                backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
+                                //backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
+                                backgroundColor: $chartColors,
                             }]
                         },
                         options: {
@@ -63,10 +65,9 @@
                     });
                     </script>
                     <div class="d-flex text-center justify-content-center">
-                    @php $colors = ['dark', 'primary', 'info']; @endphp
                     @foreach($chartData['goals']['players'] as $player => $goals)
                         <div>
-                            <span class="d-inline-block border-top border-5 border-{{ $colors[$loop->index] }} p-2 pb-0 mx-2">{{ $player }}</span>
+                            <span class="d-inline-block border-top border-5 border-chart{{ $loop->index+1 }} p-2 pb-0 mx-2">{{ $player }}</span>
                             <div class="text-secondary">{{ $goals }}</div>
                         </div>
                         @break($loop->index >= 2)
@@ -87,7 +88,8 @@
                             labels: [{!! $chartData['assists']['labels'] !!}],
                             datasets: [{
                                 data: [{!! $chartData['assists']['data'] !!}],
-                                backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
+                                //backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
+                                backgroundColor: $chartColors,
                             }]
                         },
                         options: {
@@ -98,10 +100,9 @@
                     });
                     </script>
                     <div class="d-flex text-center justify-content-center">
-                    @php $colors = ['dark', 'primary', 'info']; @endphp
                     @foreach($chartData['assists']['players'] as $player => $assists)
                         <div>
-                            <span class="d-inline-block border-top border-5 border-{{ $colors[$loop->index] }} p-2 pb-0 mx-2">{{ $player }}</span>
+                            <span class="d-inline-block border-top border-5 border-chart{{ $loop->index+1 }} p-2 pb-0 mx-2">{{ $player }}</span>
                             <div class="text-secondary">{{ $assists }}</div>
                         </div>
                         @break($loop->index >= 2)

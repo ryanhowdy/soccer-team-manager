@@ -2,22 +2,75 @@
 
 $font-family-sans-serif: 'Roboto', 'Arial', sans-serif;
 
-$primary:       #860038;
-$secondary:     #555559;
-$success:       #009669;
-$info:          #007cb0;
-$warning:       #cecd00;
-$danger:        #d94000;
-$light:         #d0d4d4;
-$dark:          #212529;
+// Colors
+$blue:     #1F87FF;
+$purple:   #9D61D9;
+$pink:     #FFC7CA;
+$red:      #FA5F69;
+$orange:   #FF9A4A;
+$yellow:   #FAD155;
+$green:    #7BC75B;
+$teal:     #53D1BF;
+$cyan:     #13B3F2;
+
+
+$primary:   $blue;
+$secondary: #003282;
+$success:   $green;
+$info:      $purple;
+$warning:   $yellow;
+$danger:    $red;
+$light:     #F0EFF2;
+$dark:      #212529;
+
+$chart1:    $blue;
+$chart2:    $secondary;
+$chart3:    #B5D7FF;
+$chart4:    $yellow;
+$chart5:    $green;
+$chart6:    $purple;
+$chart7:    $orange;
+$chart8:    $teal;
+$chart9:    #005E85;
+$chart10:   #B257A0;
+$chart11:   #FFDBBF;
+$chart12:   #13B3F2;
+$chart13:   #5A8A46;
+$chart14:   $red;
+$chart15:   #73205F;
+$chart16:   #B6E5FA;
+$chart17:   #A38423;
+$chart18:   #DAC4F2;
+$chart19:   #1D7A67;
+$chart20:   #FFC7CA;
 
 $theme-colors: (
-    "primary":          $primary,
-    "secondary":        $secondary,
-    "success":          $success,
-    "info":             $info,
-    "warning":          $warning,
-    "danger":           $danger,
-    "light":            $light,
-    "dark":             $dark,
+    "primary":   $primary,
+    "secondary": $secondary,
+    "success":   $success,
+    "info":      $info,
+    "warning":   $warning,
+    "danger":    $danger,
+    "light":     $light,
+    "dark":      $dark,
+    "chart1":    $chart1,
+    "chart2":    $chart2,
+    "chart3":    $chart3,
+    "chart4":    $chart4,
+    "chart5":    $chart5,
+    "chart6":    $chart6,
+    "chart7":    $chart7,
+    "chart8":    $chart8,
+    "chart9":    $chart9,
+    "chart10":   $chart10,
+    "chart11":   $chart11,
+    "chart12":   $chart12,
+    "chart13":   $chart13,
+    "chart14":   $chart14,
+    "chart15":   $chart15,
+    "chart16":   $chart16,
+    "chart17":   $chart17,
+    "chart18":   $chart18,
+    "chart19":   $chart19,
+    "chart20":   $chart20,
 );
