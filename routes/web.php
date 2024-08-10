@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Games
     Route::get( '/games',              [\App\Http\Controllers\GameController::class, 'index'])->name('games.index');
+    Route::post('/games',              [\App\Http\Controllers\GameController::class, 'store'])->name('games.store');
     Route::get( '/games/{id}',         [\App\Http\Controllers\GameController::class, 'show'])->name('games.show');
     Route::get( '/games/{id}/live',    [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
     Route::get( '/games/{id}/preview', [\App\Http\Controllers\GameController::class, 'preview'])->name('games.preview');

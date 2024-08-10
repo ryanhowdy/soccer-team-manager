@@ -7,37 +7,81 @@
 @section('content')
     <div class="container main-content">
 
-        <form id="filter" class="row row-cols-md-auto gx-3 align-items-center justify-content-end">
-            <div class="col-12 mb-3">
-                <select class="form-select" id="filter-seasons" name="filter-seasons">
-                    <option value="">All Seasons</option>
-            @foreach ($seasons as $i => $season)
-                @if ($loop->first)
-                    <optgroup label="{{ $season->year }}">
-                @else
-                    @if ($seasons[$i]->year !== $seasons[$i-1]->year)
-                    <optgroup label="{{ $season->year }}">
-                    @endif
-                @endif
-                    <option value="{{ $season->id }}" @selected($selectedSeason == $season->id)>{{ $season->season }} {{ $season->year }}</option>
-            @endforeach
-                </select>
-            </div>
-            <div class="col-12 mb-3">
-                <select class="form-select search-select" id="filter-teams" name="filter-teams">
-                    <option value="">All Teams</option>
-            @foreach ($teamsByClub as $clubName => $teams)
-                    <optgroup label="{{ $clubName }}">
-                @foreach ($teamsByClub[$clubName] as $team)
-                    <option value="{{ $team['id'] }}" @selected($selectedTeam == $team['id'])>{{ $team['name'] }}</option>
-                @endforeach
-            @endforeach
-                </select>
-            </div>
-            <div class="col-12 mb-3">
-                <button type="submit" class="btn btn-info">Filter</button>
-            </div>
-        </form>
+        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2">
+            <div class="row row-cols-md-auto gx-2 align-items-center justify-content-end">
+                <div class="col-12 d-inline-flex gap-1">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
+                            Sort<span class="bi-chevron-expand ps-1"></span>
+                        </button>
+                        <div class="dropdown-menu p-3">
+                            <button type="button" class="btn btn-secondary">
+                                <span class="bi-sort-down"></span>
+                            </button>
+                            <button type="button" class="btn btn-secondary">
+                                <span class="bi-sort-up"></span>
+                            </button>
+                        </div>
+                    </div><!--/.dropdown-->
+                </div>
+                <div class="col-12 d-inline-flex gap-1">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
+                            Filter<span class="bi-filter ps-1"></span>
+                        </button>
+                        <div class="dropdown-menu p-3">
+                            <form id="filter" class="">
+                                <div class="mb-3">
+                                    <select class="form-select" id="filter-seasons" name="filter-seasons">
+                                        <option value="">All Seasons</option>
+                                @foreach ($seasons as $i => $season)
+                                    @if ($loop->first)
+                                        <optgroup label="{{ $season->year }}">
+                                    @else
+                                        @if ($seasons[$i]->year !== $seasons[$i-1]->year)
+                                        <optgroup label="{{ $season->year }}">
+                                        @endif
+                                    @endif
+                                        <option value="{{ $season->id }}" @selected($selectedSeason == $season->id)>{{ $season->season }} {{ $season->year }}</option>
+                                @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <select class="form-select search-select" style="width:100%" id="filter-teams" name="filter-teams">
+                                        <option value="">All Teams</option>
+                                @foreach ($teamsByClub as $clubName => $teams)
+                                        <optgroup label="{{ $clubName }}">
+                                    @foreach ($teamsByClub[$clubName] as $team)
+                                        <option value="{{ $team['id'] }}" @selected($selectedTeam == $team['id'])>{{ $team['name'] }}</option>
+                                    @endforeach
+                                @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-secondary">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div><!--/.dropdown-->
+                </div>
+                <div class="col-12">
+                    <div class="vr"></div>
+                </div>
+                <div class="col-12">
+                    <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#create-game">
+                        <span class="bi-plus-lg pe-2"></span>Add Game
+                    </a>
+                </div>
+            </div><!--/.row-->
+            <div class="row row-cols-md-auto gx-2 align-items-center justify-content-end">
+                <div class="col-12 d-inline-flex gap-1">
+                    <div id="sort-options" class="collapse mt-3">
+                    </div>
+                    <div id="filter-options" class="collapse mt-3">
+                    </div>
+                </div>
+            </div><!--/.row-->
+        </div><!--/.rounded-->
 
         <div class="game-listing rounded rounded-3 bg-white p-4 mb-1">
         @foreach($results as $result)
@@ -79,4 +123,29 @@
         </div>
 
     </div><!--/container-->
+
+
+    <div id="create-game" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Schedule New Game</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('games.create-form')
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+$(document).ready(function() {
+    $('#opponent_team_id').select2({
+        dropdownParent: $('#create-game'),
+        matcher:optgroupMatcher
+    });
+});
+</script>
+
 @endsection
