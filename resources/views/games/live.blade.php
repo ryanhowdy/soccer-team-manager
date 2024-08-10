@@ -19,9 +19,9 @@
                         <div id="home-score" class="ms-4 actions-against">
                             <div class="score display-4 fw-bold">0</div>
                         @if($result->awayTeam->managed)
-                            <span class="goal_against material-symbols-outlined" data-event-id="3">sports_soccer</span>
-                            <span class="shot_against material-symbols-outlined" data-event-id="9">block</span>
-                            <span class="corner_kick_against material-symbols-outlined" data-event-id="11">flag</span>
+                            <span class="goal_against material-symbols-outlined" data-event-id="5">sports_soccer</span>
+                            <span class="shot_against material-symbols-outlined" data-event-id="11">block</span>
+                            <span class="corner_kick_against material-symbols-outlined" data-event-id="13">flag</span>
                         @endif
                         </div>
                     </div>
@@ -60,9 +60,9 @@
                         <div id="away-score" class="me-4 actions-against">
                             <div class="score display-4 fw-bold">0</div>
                         @if($result->homeTeam->managed)
-                            <span class="goal_against material-symbols-outlined" data-event-id="3">sports_soccer</span>
-                            <span class="shot_against material-symbols-outlined" data-event-id="9">block</span>
-                            <span class="corner_kick_against material-symbols-outlined" data-event-id="11">flag</span>
+                            <span class="goal_against material-symbols-outlined" data-event-id="5">sports_soccer</span>
+                            <span class="shot_against material-symbols-outlined" data-event-id="11">block</span>
+                            <span class="corner_kick_against material-symbols-outlined" data-event-id="13">flag</span>
                         @endif
                         </div>
                         <div class="mx-auto">
