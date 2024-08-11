@@ -282,7 +282,7 @@ class GameController extends Controller
                         'seconds'  => 0,
                         'spans' => [
                             [
-                                'start' => '00:00:00',
+                                'start' => $e->time,
                                 'end'   => null,
                             ],
                         ],
