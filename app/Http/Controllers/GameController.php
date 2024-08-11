@@ -209,6 +209,7 @@ class GameController extends Controller
 
         foreach($resultEvents as $e)
         {
+            // create a record for any players with stats that we track
             if (in_array($e->event_id, $playerStatsWeTrack))
             {
                 if (!isset($stats['players'][$e->player_id]))
@@ -222,7 +223,7 @@ class GameController extends Controller
                         'tackles'  => 0,
                     ];
                 }
-                if ($e->additional && !isset($stats['players'][$e->additional]))
+                if ($e->event_id == EnumEvent::goal->value && $e->additional && !isset($stats['players'][$e->additional]))
                 {
                     $stats['players'][$e->additional] = [
                         'player'   => $e->additionalPlayer,
@@ -234,6 +235,7 @@ class GameController extends Controller
                     ];
                 }
             }
+
             if ($e->event_id == EnumEvent::start->value)
             {
                 $playingTime[$e->player_id] = [
