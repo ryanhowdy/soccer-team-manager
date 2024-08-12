@@ -13,7 +13,6 @@
                             labels: ['Win', 'Draw', 'Loss'],
                             datasets: [{
                                 data: [{{ $chartData['wdl']['w'] }}, {{ $chartData['wdl']['d'] }}, {{ $chartData['wdl']['l'] }}],
-                                //backgroundColor: ['#009669', '#555559', '#d94000'],
                                 backgroundColor: [$winColor, $drawColor, $lossColor],
                             }]
                         },
@@ -30,7 +29,7 @@
                             <div class="text-secondary">{{ $chartData['wdl']['w'] }}</div>
                         </div>
                         <div>
-                            <span class="d-inline-block border-top border-5 border-secondary p-2 pb-0 mx-2">Draw</span>
+                            <span class="d-inline-block border-top border-5 border-primary-dark p-2 pb-0 mx-2">Draw</span>
                             <div class="text-secondary">{{ $chartData['wdl']['d'] }}</div>
                         </div>
                         <div>
@@ -53,7 +52,6 @@
                             labels: [{!! $chartData['goals']['labels'] !!}],
                             datasets: [{
                                 data: [{!! $chartData['goals']['data'] !!}],
-                                //backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
                                 backgroundColor: $chartColors,
                             }]
                         },
@@ -88,7 +86,6 @@
                             labels: [{!! $chartData['assists']['labels'] !!}],
                             datasets: [{
                                 data: [{!! $chartData['assists']['data'] !!}],
-                                //backgroundColor: ['#212529', '#860038', '#007cb0', '#009669', '#555559', '#d94000'],
                                 backgroundColor: $chartColors,
                             }]
                         },
