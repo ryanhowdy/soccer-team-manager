@@ -7,6 +7,22 @@
 @section('content')
     <div class="container main-content">
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 text-end">
+            <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#create-team">
+                <span class="bi-plus-lg pe-2"></span>Add Team
+            </a>
+        </div>
+
         <div class="rounded rounded-3 bg-white p-4 mb-1">
             <table class="table align-middle">
                 <thead class="">
@@ -102,4 +118,31 @@
     @endforeach
 
     </div><!--/container-->
+
+    <div id="create-team" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Team</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('teams.create-form')
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="create-club" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Club</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('teams.create-club-form')
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

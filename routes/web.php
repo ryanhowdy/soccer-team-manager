@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Teams
     Route::get( '/teams',      [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
+    Route::post('/teams',      [\App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
+    Route::post('/clubs',      [\App\Http\Controllers\ClubController::class, 'store'])->name('clubs.store');
     Route::get( '/teams/{id}', [\App\Http\Controllers\TeamController::class, 'show'])->name('teams.show');
 
     // Stats
