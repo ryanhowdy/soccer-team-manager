@@ -14,17 +14,18 @@ $teal:     #53D1BF;
 $cyan:     #13B3F2;
 
 
-$primary:   $blue;
-$secondary: #A2A6AB;
-$success:   $green;
-$info:      $purple;
-$warning:   $yellow;
-$danger:    $red;
-$light:     #F0EFF2;
-$dark:      #212529;
+$primary:       $blue;
+$primary-dark:  #003282;
+$secondary:     #A2A6AB;
+$success:       $green;
+$info:          $purple;
+$warning:       $yellow;
+$danger:        $red;
+$light:         #F0EFF2;
+$dark:          #212529;
 
 $chart1:    $blue;
-$chart2:    #003282;
+$chart2:    $primary-dark;
 $chart3:    #B5D7FF;
 $chart4:    $yellow;
 $chart5:    $green;
@@ -45,32 +46,33 @@ $chart19:   #1D7A67;
 $chart20:   #FFC7CA;
 
 $theme-colors: (
-    "primary":   $primary,
-    "secondary": $secondary,
-    "success":   $success,
-    "info":      $info,
-    "warning":   $warning,
-    "danger":    $danger,
-    "light":     $light,
-    "dark":      $dark,
-    "chart1":    $chart1,
-    "chart2":    $chart2,
-    "chart3":    $chart3,
-    "chart4":    $chart4,
-    "chart5":    $chart5,
-    "chart6":    $chart6,
-    "chart7":    $chart7,
-    "chart8":    $chart8,
-    "chart9":    $chart9,
-    "chart10":   $chart10,
-    "chart11":   $chart11,
-    "chart12":   $chart12,
-    "chart13":   $chart13,
-    "chart14":   $chart14,
-    "chart15":   $chart15,
-    "chart16":   $chart16,
-    "chart17":   $chart17,
-    "chart18":   $chart18,
-    "chart19":   $chart19,
-    "chart20":   $chart20,
+    "primary":      $primary,
+    "primary-dark": $primary-dark,
+    "secondary":    $secondary,
+    "success":      $success,
+    "info":         $info,
+    "warning":      $warning,
+    "danger":       $danger,
+    "light":        $light,
+    "dark":         $dark,
+    "chart1":       $chart1,
+    "chart2":       $chart2,
+    "chart3":       $chart3,
+    "chart4":       $chart4,
+    "chart5":       $chart5,
+    "chart6":       $chart6,
+    "chart7":       $chart7,
+    "chart8":       $chart8,
+    "chart9":       $chart9,
+    "chart10":      $chart10,
+    "chart11":      $chart11,
+    "chart12":      $chart12,
+    "chart13":      $chart13,
+    "chart14":      $chart14,
+    "chart15":      $chart15,
+    "chart16":      $chart16,
+    "chart17":      $chart17,
+    "chart18":      $chart18,
+    "chart19":      $chart19,
+    "chart20":      $chart20,
 );

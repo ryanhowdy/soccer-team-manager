@@ -68,17 +68,9 @@
                     <div class="vr"></div>
                 </div>
                 <div class="col-12">
-                    <a href="#" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#create-game">
+                    <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#create-game">
                         <span class="bi-plus-lg pe-2"></span>Add Game
                     </a>
-                </div>
-            </div><!--/.row-->
-            <div class="row row-cols-md-auto gx-2 align-items-center justify-content-end">
-                <div class="col-12 d-inline-flex gap-1">
-                    <div id="sort-options" class="collapse mt-3">
-                    </div>
-                    <div id="filter-options" class="collapse mt-3">
-                    </div>
                 </div>
             </div><!--/.row-->
         </div><!--/.rounded-->
