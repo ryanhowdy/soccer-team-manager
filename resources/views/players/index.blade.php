@@ -7,7 +7,23 @@
 @section('content')
     <div class="container main-content">
 
+        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 text-end">
+            <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-player">
+                <span class="bi-plus-lg pe-2"></span>Add Player
+            </a>
+        </div>
+
         <div class="rounded rounded-3 bg-white position-relative p-4 mb-3">
+
+        @if ($errors->any())
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
             <ul id="managed-teams" class="nav nav-underline">
             @foreach($managedTeams as $team)
@@ -45,16 +61,16 @@
                         @foreach($activePlayers[$team->id] as $p)
                             <tr class="active">
                                 <td>
-                                    <a class="d-block text-decoration-none" href="{{ route('players.show', ['id' => $p->player->id]) }}">
+                                    <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['id' => $p->player->id]) }}">
                                         <img src="/{{ $p->player->photo }}" class="img-fluid rounded-circle" style="width:50px"/>
                                         {{ $p->player->name }}
                                     </a>
                                 </td>
                                 <td>
                                 @foreach($p->player->positions as $pos)
-                                    <span class="pe-2 fw-bold">{{ $pos->position->position }}</span>
+                                    <span class="pe-2 fw-bold">{{ $pos->position_name }}</span>
                                 @endforeach
-                                    <select class="position form-select w-auto" data-id="{{ $p->player->id }}">
+                                    <select class="position form-select w-auto float-end" data-id="{{ $p->player->id }}">
                                         <option></option>
                                 @foreach($positions as $pos)
                                         <option value="{{ $pos->id }}">{{ $pos->position }}</span>
@@ -71,7 +87,7 @@
                         @foreach($inactivePlayers[$team->id] as $p)
                             <tr class="inactive">
                                 <td>
-                                    <a class="d-block text-decoration-none" href="{{ route('players.show', ['id' => $p->id]) }}">
+                                    <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['id' => $p->id]) }}">
                                         <img src="/{{ $p->photo }}" class="img-fluid rounded-circle" style="width:50px"/>
                                         {{ $p->name }}
                                     </a>
@@ -92,43 +108,21 @@
 
     </div><!--/container-->
 
+    <div id="create-player" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Player</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('players.create-form')
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
-showHideStatuses();
-
-$('.table').DataTable({
-    autoWidth: false,
-    paging: false,
-    searching: false,
-    info: false,
-    order: [[0, 'asc']]
-});
-
-$('select.position').on('change', function(e) {
-    let $input     = $(this);
-    let playerId   = $input.data('id');
-    let positionId = $input.val();
-    let position   = $input.find('option:selected').text();
-
-    $.ajax({
-        url: '{{ route('ajax-create-player-position') }}',
-        type : 'POST',
-        data : {
-            player_id   : playerId,
-            position_id : positionId
-        },
-    }).done(function(ret) {
-        let $td = $input.parent('td');
-
-        $td.prepend('<span class="pe-2 fw-bold">' + position + '</span>');
-
-        $input.find('option:selected').prop('selected', false);
-    });
-});
-
-$('.btn-group > input').on('click', function() {
-    showHideStatuses();
-});
-
 function showHideStatuses()
 {
     // hide every table row
@@ -140,5 +134,50 @@ function showHideStatuses()
         $('tbody > tr.' + status).show();
     });
 }
+
+$(document).ready(function() {
+    showHideStatuses();
+
+    $('.table').DataTable({
+        autoWidth: false,
+        paging: false,
+        searching: false,
+        info: false,
+        order: [[0, 'asc']]
+    });
+
+    $('select.position').on('change', function(e) {
+        let $input     = $(this);
+        let playerId   = $input.data('id');
+        let positionId = $input.val();
+        let position   = $input.find('option:selected').text();
+
+        $.ajax({
+            url: '{{ route('ajax-create-player-position') }}',
+            type : 'POST',
+            data : {
+                player_id   : playerId,
+                position_id : positionId
+            },
+        }).done(function(ret) {
+            let $td = $input.parent('td');
+
+            $td.prepend('<span class="pe-2 fw-bold">' + position + '</span>');
+
+            $input.find('option:selected').prop('selected', false);
+        });
+    });
+
+    $('.btn-group > input').on('click', function() {
+        showHideStatuses();
+    });
+
+    $('#player_id').select2({
+        placeholder: 'Choose',
+        dropdownParent: $('#create-player'),
+        allowClear: true,
+        matcher:optgroupMatcher
+    });
+});
 </script>
 @endsection

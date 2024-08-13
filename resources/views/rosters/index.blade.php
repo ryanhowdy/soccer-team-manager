@@ -7,10 +7,13 @@
 @section('content')
     <div class="container main-content">
 
+        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 text-end">
+            <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-season">
+                <span class="bi-plus-lg pe-2"></span>Add Season
+            </a>
+        </div>
+
         <div class="rounded rounded-3 bg-white position-relative p-4 mb-3">
-            <div class="text-end">
-                <a href="#" class="btn btn-success text-white" data-bs-toggle="modal" data-bs-target="#create-season">Create New Season</a>
-            </div>
 
         @if ($errors->any())
             <div class="alert alert-danger mt-3">

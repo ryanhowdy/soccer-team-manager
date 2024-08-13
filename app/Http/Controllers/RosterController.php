@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Player;
+use App\Models\PlayerTeam;
 use App\Models\ClubTeamSeason;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +18,7 @@ class RosterController extends Controller
     {
         // Get all the rosters grouped by team, then by season
         $rosters = ClubTeamSeason::from('club_team_seasons as cts')
-            ->select('p.id as player_id', 'p.name', 'p.nickname', 'r.number', 'cts.id as club_team_season_id', 't.name as team_name', DB::raw("concat(s.season, ' ', s.year) as 'season_year'"))
+            ->select('p.id as player_id', 'p.name', 'p.nickname', 'r.number', 'cts.id as club_team_season_id', 't.id as club_team_id', 't.name as team_name', DB::raw("concat(s.season, ' ', s.year) as 'season_year'"))
             ->join('club_teams as t', 'cts.club_team_id', '=', 't.id')
             ->join('seasons as s', 'cts.season_id', '=', 's.id')
             ->leftJoin('rosters as r', 'r.club_team_season_id', '=', 'cts.id')
@@ -27,12 +27,15 @@ class RosterController extends Controller
             ->get()
             ->groupBy(['season_year', 'team_name'], preserveKeys: true);
 
-        $playersByTeam = Player::from('players as p')
-            ->select('p.*', 't.name as team_name')
-            ->join('club_teams as t', 'p.club_team_id', '=', 't.id')
+        $playersByTeam = PlayerTeam::from('player_teams as pt')
+            ->select('p.*', 'pt.club_team_id', 't.name as team_name')
+            ->join('players as p', 'pt.player_id', '=', 'p.id')
+            ->join('club_teams as t', 'pt.club_team_id', '=', 't.id')
             ->orderBy('name')
             ->get()
-            ->keyBy('id')
+            ->keyBy(function ($item) {
+                return $item->id . '-' . $item->club_team_id;
+            })
             ->groupBy('team_name', preserveKeys: true);
 
         $clubTeamSeasonLkup = ClubTeamSeason::from('club_team_seasons as cts')
@@ -50,6 +53,8 @@ class RosterController extends Controller
         {
             foreach($teams as $teamName => $players)
             {
+                $playersBySeasonTeam[$seasonName][$teamName] = [];
+
                 $prevRoster = [];
                 if (isset($prevSeason[$teamName]))
                 {
@@ -66,7 +71,7 @@ class RosterController extends Controller
                         continue;
                     }
 
-                    unset($availablePlayers[$player->player_id]);
+                    unset($availablePlayers[ $player->player_id . '-' . $player->club_team_id ]);
 
                     $class = '';
 

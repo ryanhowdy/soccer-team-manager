@@ -116,8 +116,16 @@ return new class extends Migration
             $table->string('name');
             $table->string('nickname')->nullable();
             $table->smallInteger('birth_year');
-            $table->foreignId('club_team_id');
             $table->string('photo')->default('img/photo_none.png');
+            $table->foreignId('created_user_id');
+            $table->foreignId('updated_user_id');
+            $table->timestamps();
+        });
+
+        Schema::create('player_teams', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('player_id');
+            $table->foreignId('club_team_id');
             $table->foreignId('created_user_id');
             $table->foreignId('updated_user_id');
             $table->timestamps();

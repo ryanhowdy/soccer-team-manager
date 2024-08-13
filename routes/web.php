@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Players
     Route::get( '/players',      [\App\Http\Controllers\PlayerController::class, 'index'])->name('players.index');
+    Route::post('/players',      [\App\Http\Controllers\PlayerController::class, 'store'])->name('players.store');
     Route::get( '/players/{id}', [\App\Http\Controllers\PlayerController::class, 'show'])->name('players.show');
 
     // Rosters

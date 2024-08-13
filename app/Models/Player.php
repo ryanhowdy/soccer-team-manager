@@ -11,6 +11,11 @@ class Player extends Model
 {
     use HasFactory;
 
+    public function teams(): HasMany
+    {
+        return $this->hasMany(PlayerTeam::class);
+    }
+
     public function positions(): HasMany
     {
         return $this->hasMany(PlayerPosition::class);
