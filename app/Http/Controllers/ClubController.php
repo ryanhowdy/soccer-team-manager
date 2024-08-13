@@ -16,7 +16,7 @@ class ClubController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'    => 'required|string|max:255|unique:clubs',
+            'name'    => 'required|string|max:255|unique:clubs,name',
             'city'    => 'nullable|string|max:255',
             'state'   => 'nullable|string|max:2',
             'logo'    => 'nullable|image',
@@ -30,11 +30,11 @@ class ClubController extends Controller
         $club->created_user_id = Auth()->user()->id;
         $club->updated_user_id = Auth()->user()->id;
 
-        if ($request->has('city'))
+        if ($request->filled('city'))
         {
             $club->city = $request->city;
         }
-        if ($request->has('state'))
+        if ($request->filled('state'))
         {
             $club->state = $request->state;
         }
@@ -54,11 +54,11 @@ class ClubController extends Controller
             // set the logo url in the db
             $club->logo = 'storage/logos/' . $filename;
         }
-        if ($request->has('website'))
+        if ($request->filled('website'))
         {
             $club->website = $request->website;
         }
-        if ($request->has('notes'))
+        if ($request->filled('notes'))
         {
             $club->notes = $request->notes;
         }
