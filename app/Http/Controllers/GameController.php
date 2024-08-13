@@ -393,7 +393,7 @@ class GameController extends Controller
      *
      * @return Illuminate\View\View
      */
-    public function preview(Request $request, $gameId)
+    public function preview($gameId)
     {
         $result = Result::find($gameId);
 
