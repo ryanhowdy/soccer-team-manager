@@ -36,7 +36,7 @@ class TeamController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'club_id'    => 'required|exists:club_teams,id',
+            'club_id'    => 'required|exists:clubs,id',
             'managed'    => 'sometimes|accepted',
             'name'       => 'required|string|max:255',
             'birth_year' => 'required|date_format:Y',
