@@ -4,7 +4,8 @@ import './bootstrap';
 /**
  * Bootstrap 
  */
-import bootstrap from 'bootstrap'
+import * as bootstrap from 'bootstrap'
+window.bootstrap = bootstrap;
 
 /**
  * Chart Js
