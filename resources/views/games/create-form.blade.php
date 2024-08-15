@@ -1,7 +1,10 @@
 <form method="post" action="{{ $action }}">
     @csrf
     <div class="mb-3">
-        <label class="form-label" for="season_id">Season</label>
+        <div class="d-flex justify-content-between">
+            <label class="form-label" for="season_id">Season</label>
+            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Add Season</a>
+        </div>
         <select class="form-select" id="season_id" name="season_id">
     @foreach ($seasons as $i => $season)
         @if ($loop->first)
@@ -16,7 +19,10 @@
         </select>
     </div>
     <div class="mb-3">
-        <label class="form-label" for="competition_id">Competition</label>
+        <div class="d-flex justify-content-between">
+            <label class="form-label" for="competition_id">Competition</label>
+            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Add Competition</a>
+        </div>
         <select class="form-select" id="competition_id" name="competition_id">
             <option></option>
     @foreach ($competitions as $type => $comps)
@@ -30,7 +36,10 @@
         </select>
     </div>
     <div class="mb-3">
-        <label class="form-label" for="location_id">Location</label>
+        <div class="d-flex justify-content-between">
+            <label class="form-label" for="location_id">Location</label>
+            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Add Location</a>
+        </div>
         <select class="form-select" id="location_id" name="location_id">
     @foreach ($locations as $type => $locs)
             <optgroup label="{{ $type }}">
@@ -69,7 +78,10 @@
         </div>
     </div>
     <div class="mb-3">
-        <label class="form-label" for="opponent_team_id">Opponent</label>
+        <div class="d-flex justify-content-between">
+            <label class="form-label" for="opponent_team_id">Opponent</label>
+            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Add Team</a>
+        </div>
         <div>
             <select class="form-select" style="width:100%" id="opponent_team_id" name="opponent_team_id">
         @foreach ($teamsByClub as $clubName => $teams)
