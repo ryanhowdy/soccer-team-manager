@@ -6,11 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
+use App\Models\Player;
 use App\Models\ClubTeam;
+use App\Models\ClubTeamSeason;
 use App\Models\Competition;
 use App\Models\Location;
 use App\Models\ResultEvent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 use App\Enums\Event as EnumEvent;
 use App\Enums\CompetitionStatus;
 use App\Enums\ResultStatus;
@@ -158,12 +161,31 @@ class GameController extends Controller
      */
     public function show($gameId)
     {
-        $result = Result::find($gameId);
+        $result = Result::with('formation')
+            ->with('homeTeam.club')
+            ->with('awayTeam.club')
+            ->find($gameId);
 
         $resultEvents = ResultEvent::where('result_id', $gameId)
             ->orderBy('time')
             ->orderBy('id')
             ->get();
+
+        $clubTeamSeasonIds = ClubTeamSeason::whereIn('club_team_id', [$result->homeTeam->id, $result->awayTeam->id])
+            ->where('season_id', $result->season_id)
+            ->get()
+            ->pluck('id')
+            ->toArray();
+
+        $players = Player::select('players.*', 'rosters.number')
+            ->with('positions')
+            ->orderBy('name')
+            ->join('rosters', function (JoinClause $join) use ($clubTeamSeasonIds) {
+                $join->on('rosters.player_id', '=', 'players.id')
+                    ->whereIn('club_team_season_id', $clubTeamSeasonIds);
+            })
+            ->get()
+            ->keyBy('id');
 
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
@@ -190,8 +212,11 @@ class GameController extends Controller
             ],
         ];
 
+        $starters    = [];
         $playingTime = [];
         $fulltime    = 0;
+
+        $havePlayingTimeStats = 0;
 
         $playerStatsWeTrack = [
             EnumEvent::goal->value,
@@ -238,6 +263,8 @@ class GameController extends Controller
 
             if ($e->event_id == EnumEvent::start->value)
             {
+                $starters[$e->player_id] = $e->additional;
+
                 $playingTime[$e->player_id] = [
                     'player'   => $e->player,
                     'starter'  => true,
@@ -252,6 +279,8 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_out->value)
             {
+                $havePlayingTimeStats = 1;
+
                 foreach($playingTime[$e->player_id]['spans'] as $i => $span)
                 {
                     if ($span['end'] === null)
@@ -269,6 +298,8 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_in->value)
             {
+                $havePlayingTimeStats = 1;
+
                 if (isset($playingTime[$e->player_id]))
                 {
                     $playingTime[$e->player_id]['spans'][] = [
@@ -382,9 +413,15 @@ class GameController extends Controller
         }
 
         return view('games.show', [
-            'result'      => $result,
-            'playingTime' => $playingTime,
-            'stats'       => $stats,
+            'result'               => $result,
+            'resultEvents'         => $resultEvents,
+            'goodGuys'             => $goodGuys,
+            'badGuys'              => $badGuys,
+            'playingTime'          => $playingTime,
+            'stats'                => $stats,
+            'havePlayingTimeStats' => $havePlayingTimeStats,
+            'players'              => $players,
+            'starters'             => $starters,
         ]);
     }
 

@@ -68,7 +68,7 @@
                     <div class="vr"></div>
                 </div>
                 <div class="col-12">
-                    <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#create-game">
+                    <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-game">
                         <span class="bi-plus-lg pe-2"></span>Add Game
                     </a>
                 </div>

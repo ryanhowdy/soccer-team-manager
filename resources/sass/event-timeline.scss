@@ -59,6 +59,21 @@
             color: #555;
         }
 
+        &.sub_in .icon
+        {
+            color: $danger;
+            font-size: 18px;
+            right: 20px;
+            top: calc(50% - 10px);
+        }
+        &.sub_out .icon
+        {
+            color: $success;
+            font-size: 18px;
+            right: 20px;
+            top: calc(50% - 10px);
+        }
+
         &.home
         {
             left: 0;

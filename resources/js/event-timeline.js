@@ -6,6 +6,8 @@ export default class EventTimeline
 
         this.eventToIcon = {
             'goal'                 : 'sports_soccer',
+            'sub_in'               : 'arrow_right_alt',
+            'sub_out'              : 'arrow_left_alt',
             'goal_against'         : 'sports_soccer',
             'shot_on_target'       : 'target',
             'shot_off_target'      : 'block',
@@ -26,6 +28,8 @@ export default class EventTimeline
             'free_kick_goal'       : 'sports_soccer',
             'free_kick_on_target'  : 'target',
             'free_kick_off_target' : 'block',
+            'halftime'             : 'timer_pause',
+            'fulltime'             : 'timer',
         };
 
         this.eventToName = {
@@ -50,6 +54,8 @@ export default class EventTimeline
             'free_kick_goal'       : 'Free Kick Goal',
             'free_kick_on_target'  : 'Free Kick On Target',
             'free_kick_off_target' : 'Free Kick Off Target',
+            'halftime'             : 'Half',
+            'fulltime'             : 'Full',
         };
     }
 
@@ -73,7 +79,7 @@ export default class EventTimeline
         let detailsDiv   = document.createElement('div');
         let eventNameDiv = document.createElement('div');
 
-        eventDiv.className = 'event ' + side;
+        eventDiv.className = 'event ' + side + ' ' + eventData.event_name;
 
         let t = eventData.time;
         t = t.substring(0, 2);

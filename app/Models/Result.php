@@ -49,7 +49,7 @@ class Result extends Model
 
     public function formation(): HasOne
     {
-        return $this->hasOne(Formation::class);
+        return $this->hasOne(Formation::class, 'id', 'formation_id');
     }
 
     //

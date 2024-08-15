@@ -22365,82 +22365,6 @@ th.dt-ordering-asc:after {
 #live #game-controls #current-formation > span.badge {
   cursor: pointer;
 }
-#live #field {
-  height: 682px;
-  max-width: 452px;
-}
-#live #field.formation-rows-4 {
-  padding-top: 100px;
-}
-#live #field.formation-rows-3 {
-  padding-top: 200px;
-}
-#live #field.formation-rows-2 {
-  padding-top: 300px;
-}
-#live #field .position {
-  width: 80px;
-  min-height: 80px;
-  margin: 0 auto;
-  padding: 5px;
-  position: relative;
-}
-#live #field .position button.btn-close {
-  position: absolute;
-  top: 0;
-  left: 0;
-  cursor: pointer;
-  z-index: 3;
-}
-#live #field .position .dropdown {
-  display: none;
-}
-#live #field .position .dropdown .player-picker {
-  cursor: pointer;
-  display: block;
-}
-#live #field .position .dropdown .player-picker:hover {
-  color: white;
-}
-#live #field .position .dropdown .dropdown-menu {
-  z-index: 1100; /* make it go over top the top nav */
-}
-#live #field .position .dropdown .dropdown-menu .dropdown-item {
-  margin: 4px 0;
-}
-#live #field .position h4, #live #field .position .h4 {
-  display: none;
-}
-#live #field .position .event-picker {
-  cursor: pointer;
-  display: block;
-  width: 80px;
-  text-align: center;
-}
-#live #field .position .event-picker img {
-  background: #fff;
-  max-height: 65px;
-}
-#live #field .position .event-picker .name {
-  width: 80px;
-  padding: 6px;
-}
-#live #field .position.empty {
-  background: rgba(0, 0, 0, 0.3);
-  margin: 15px auto;
-}
-#live #field .position.empty button.btn-close {
-  display: none;
-}
-#live #field .position.empty .dropdown {
-  display: block;
-}
-#live #field .position.empty h4, #live #field .position.empty .h4 {
-  display: block;
-}
-#live #field .position.empty .event-picker {
-  display: none;
-}
 #live #additional-modal #player_id > option[disabled] {
   display: none;
 }
@@ -22513,6 +22437,83 @@ th.dt-ordering-asc:after {
   }
 }
 
+#field {
+  height: 682px;
+  max-width: 452px;
+}
+#field.formation-rows-4 {
+  padding-top: 100px;
+}
+#field.formation-rows-3 {
+  padding-top: 200px;
+}
+#field.formation-rows-2 {
+  padding-top: 300px;
+}
+#field .position {
+  width: 80px;
+  min-height: 80px;
+  margin: 0 auto;
+  padding: 5px;
+  position: relative;
+}
+#field .position button.btn-close {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+#field .position .dropdown {
+  display: none;
+}
+#field .position .dropdown .player-picker {
+  cursor: pointer;
+  display: block;
+}
+#field .position .dropdown .player-picker:hover {
+  color: white;
+}
+#field .position .dropdown .dropdown-menu {
+  z-index: 1100; /* make it go over top the top nav */
+}
+#field .position .dropdown .dropdown-menu .dropdown-item {
+  margin: 4px 0;
+}
+#field .position h4, #field .position .h4 {
+  display: none;
+}
+#field .position .event-picker {
+  cursor: pointer;
+  display: block;
+  width: 80px;
+  text-align: center;
+}
+#field .position .event-picker img {
+  background: #fff;
+  max-height: 65px;
+}
+#field .position .event-picker .name {
+  width: 80px;
+  padding: 6px;
+}
+#field .position.empty {
+  background: rgba(0, 0, 0, 0.3);
+  margin: 15px auto;
+}
+#field .position.empty button.btn-close {
+  display: none;
+}
+#field .position.empty .dropdown {
+  display: block;
+}
+#field .position.empty h4, #field .position.empty .h4 {
+  display: block;
+}
+#field .position.empty .event-picker {
+  display: none;
+}
+
 .event-timeline {
   position: relative;
   margin: 0 auto;
@@ -22560,6 +22561,18 @@ th.dt-ordering-asc:after {
   display: inline-block;
   top: calc(50% - 12px);
   color: #555;
+}
+.event-timeline .event.sub_in .icon {
+  color: #FA5F69;
+  font-size: 18px;
+  right: 20px;
+  top: calc(50% - 10px);
+}
+.event-timeline .event.sub_out .icon {
+  color: #7BC75B;
+  font-size: 18px;
+  right: 20px;
+  top: calc(50% - 10px);
 }
 .event-timeline .event.home {
   left: 0;

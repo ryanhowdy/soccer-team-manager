@@ -183,12 +183,12 @@ export default class FormationDrawer
         // Loop through the already drawn positions on the field
         $(selector + ' .row .col .position.empty').each((index, positionDiv) => {
             let $positionDiv = $(positionDiv);
-            let thisPosition = $positionDiv.data('playerPosition');
+            let thisPosition = $positionDiv.attr('data-player-position');
 
             for (let playerId in starters)
             {
                 // this starter, starts in this position
-                if (starters[playerId] = thisPosition)
+                if (starters[playerId] == thisPosition)
                 {
                     this.addPlayer($positionDiv, playerId);
                     delete starters[playerId];

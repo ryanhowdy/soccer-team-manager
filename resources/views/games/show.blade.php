@@ -1,8 +1,6 @@
 @extends('layouts.main')
 
 @section('body-id', 'game')
-@section('page-title', 'Game')
-@section('page-desc', 'Game details')
 
 @section('content')
     <div class="container main-content">
@@ -43,7 +41,19 @@
             {{-- Game Summary --}}
             <div class="border-top pt-5 mt-5">
                 <div class="fs-4">{{ $result->location->name }}</div>
-                <div>{{ $result->notes }}</div>
+                <div class="rounded p-3 text-bg-light">
+                @if($result->notes)
+                    {{ $result->notes }}
+                @else
+                    <a id="add-notes-link" href="#notes-form" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" data-bs-toggle="collapse">Add Notes</a>
+                    <form id="notes-form" class="collapse mt-2">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary text-white">Submit</button>
+                    </form>
+                @endif
+                </div>
             </div>
 
             @if(!$result->live)
@@ -51,159 +61,137 @@
                     These result were not recorded live.
                 </div>
             @endif
+
+        @if($result->live)
+            <div class="nav nav-underline mt-5">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane">Stats</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-pane">Timeline</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="lineup-tab" data-bs-toggle="tab" data-bs-target="#lineup-pane">Lineup</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="h2h-tab" data-bs-toggle="tab" data-bs-target="#h2h-pane">Head-to-head</a>
+                </li>
+            </div>
+        @endif
         </div>
 
-        <div class="row">
+    @if($result->live)
+        <div class="tab-content">
 
-            {{-- Player Stats --}}
-            <div class="col-12 col-md-6">
+            <div class="tab-pane fade show active" id="stats-pane">
+        @include('games.game-stats')
+            </div><!--/#stats-pane-->
+
+            <div class="tab-pane fade" id="timeline-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
-                    <h3 class="mb-3">Player Stats</h3>
-
-                    <ul class="nav nav-tabs mb-3">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane" href="#">Stats</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="playing-time-tab" data-bs-toggle="tab" data-bs-target="#playing-time-pane" href="#">Playing Time</a>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-
-                        {{-- Stats --}}
-                        <div class="tab-pane fade show active" id="stats-pane" tabindex="0">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Gls</th>
-                                        <th>Ast</th>
-                                        <th>Shot</th>
-                                        <th>SOT</th>
-                                        <th>Tkl</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($stats['players'] as $playerId => $s)
-                                    <tr>
-                                        <td>{{ $s['player']->name }}</td>
-                                        <td>{{ $s['goals'] }}</td>
-                                        <td>{{ $s['assists'] }}</td>
-                                        <td>{{ $s['shots'] }}</td>
-                                        <td>{{ $s['shots_on'] }}</td>
-                                        <td>{{ $s['tackles'] }}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {{-- Playing Time --}}
-                        <div class="tab-pane fade" id="playing-time-pane" tabindex="0">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($playingTime as $playerId => $time)
-                                    <tr>
-                                        <td>
-                                        @if($time['starter'])
-                                            <span class="" data-bs-toggle="tooltip" data-bs-title="Starter">*</span>
-                                        @endif
-                                            {{ $time['player']->name }}
-                                        </td>
-                                        <td>{{ $time['minutes'] }}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                            <i>* Indicates a Starter</i>
-                        </div>
-
-                    </div><!--/.tab-content-->
+                    <h3 class="mb-3">Timeline</h3>
+                    <div id="game-timeline" class="event-timeline small"></div>
                 </div>
-            </div>
+            </div><!--/#timeline-pane-->
 
-            {{-- Team Stats --}}
-            <div class="col-12 col-md-6">
-                <div id="team-stats" class="rounded rounded-3 bg-white p-4 mb-3">
-                    <h3 class="mb-3">Team Stats</h3>
-                    <div class="d-flex justify-content-between pb-1 mb-2 border-bottom">
-                        <div class="pe-3 text-secondary">{{ $result->homeTeam->name }}</div>
-                        <div class="ps-3 text-secondary text-end">{{ $result->awayTeam->name }}</div>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <div id="game-goals-good-guys">{{ $stats['home']['goals'] }}</div>
-                        <div>Goals</div>
-                        <div id="game-goals-bad-guys">{{ $stats['away']['goals'] }}</div>
-                    </div>
-                    <div class="progress game-goals-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
-                    <div class="d-flex justify-content-between">
-                        <div id="game-shots-good-guys">{{ $stats['home']['shots'] }}</div>
-                        <div>Shots</div>
-                        <div id="game-shots-bad-guys">{{ $stats['away']['shots'] }}</div>
-                    </div>
-                    <div class="progress game-shots-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
-                    <div class="d-flex justify-content-between">
-                        <div id="game-shots-on-good-guys">{{ $stats['home']['shots_on'] }}</div>
-                        <div>(On Target)</div>
-                        <div id="game-shots-on-bad-guys">{{ $stats['away']['shots_on'] }}</div>
-                    </div>
-                    <div class="progress game-shots-on-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
-                    <div class="d-flex justify-content-between">
-                        <div id="game-shots-off-good-guys">{{ $stats['home']['shots_off'] }}</div>
-                        <div>(Off Target)</div>
-                        <div id="game-shots-off-bad-guys">{{ $stats['away']['shots_off'] }}</div>
-                    </div>
-                    <div class="progress game-shots-off-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
-                    <div class="d-flex justify-content-between">
-                        <div id="game-corners-good-guys">{{ $stats['home']['corners'] }}</div>
-                        <div>Corners</div>
-                        <div id="game-corners-bad-guys">{{ $stats['away']['corners'] }}</div>
-                    </div>
-                    <div class="progress game-corners-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
-                    <div class="d-flex justify-content-between">
-                        <div id="game-fouls-good-guys">{{ $stats['home']['fouls'] }}</div>
-                        <div>Fouls</div>
-                        <div id="game-fouls-bad-guys">{{ $stats['away']['fouls'] }}</div>
-                    </div>
-                    <div class="progress game-fouls-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
+            <div class="tab-pane fade" id="lineup-pane">
+                <div class="rounded rounded-3 bg-white p-4 mb-3">
+                    <h3 class="mb-3">Lineup</h3>
+                    <div id="field" class="mx-auto text-center position-relative">
+                        <img class="position-absolute start-0 top-0" src="{{ asset('img/field.svg') }}" />
+                    </div><!--/#field-->
                 </div>
-            </div>
+            </div><!--/#lineup-pane-->
 
-        </div><!--/.row-->
+            <div class="tab-pane fade" id="h2h-pane">
+        @include('games.game-h2h')
+            </div><!--/#h2h-pane-->
+
+        </div><!--/.tab-content-->
+    @endif
 
     </div><!--/container-->
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 <script>
-$('#team-stats > .progress').each((index, progress) => {
-    let $parent = $(progress).prev();
+$(document).ready(function() {
+    $('#team-stats > .progress').each((index, progress) => {
+        let $parent = $(progress).prev();
 
-    let goodCount  = parseInt($parent.find('div').first().text());
-    let badCount   = parseInt($parent.find('div').eq(2).text());
-    let totalCount = goodCount + badCount;
-    let percentage = (goodCount / totalCount) * 100;
+        let goodCount  = parseInt($parent.find('div').first().text());
+        let badCount   = parseInt($parent.find('div').eq(2).text());
+        let totalCount = goodCount + badCount;
 
-    $(progress).find('.progress-bar').css('width', percentage + '%');
+        if (totalCount > 0) {
+            let percentage = (goodCount / totalCount) * 100;
+
+            $(progress).find('.progress-bar').css('width', percentage + '%');
+        }
+    });
+
+    $('#player-stats-pane > .table').DataTable({
+        autoWidth: false,
+        paging: false,
+        searching: false,
+        info: false,
+        order: [[1, 'desc']]
+    });
+    $('#playing-time-pane > .table').DataTable({
+        autoWidth: false,
+        paging: false,
+        searching: false,
+        info: false,
+        order: [[1, 'desc']]
+    });
+
+    $('#notes-form').on('submit', function(e) {
+        e.preventDefault();
+        let notes = $('#notes').val();
+        $.ajax({
+            url: '{{ route('ajax.results.update', ['result' => $result->id]) }}',
+            type : 'POST',
+            data : {
+                id: {{ $result->id }},
+                notes: notes
+            },
+        }).done(function(ret) {
+            $('#add-notes-link').after(notes).remove();
+            $('#notes-form').remove();
+        });
+    });
+
+@if($resultEvents->isNotEmpty())
+    let resultEvents = {{ Js::from($resultEvents) }};
+    let players = {{ Js::from($players) }};
+    let formation = {{ Js::from($result->formation) }};
+    let starters  = {{ Js::from($starters) }};
+
+    let goodGuys = '{{ $goodGuys }}';
+    let badGuys  = '{{ $badGuys }}';
+
+    let drawer   = new FormationDrawer(players, {});
+    drawer.drawFormation(formation);
+    drawer.addPlayerStarters(starters);
+
+
+    let timeline = new EventTimeline('#game-timeline');
+
+    for (let [i, data] of Object.entries(resultEvents))
+    {
+        let side = goodGuys;
+
+        let badGuyEventIds = [
+            5, 11, 13
+        ];
+
+        if ($.inArray(data.event_id, badGuyEventIds) >= 0) {
+            side = badGuys;
+        }
+
+        timeline.addEvent(data, side);
+    }
+@endif
 });
 
-$('#stats-pane > .table').DataTable({
-    autoWidth: false,
-    paging: false,
-    searching: false,
-    info: false,
-    order: [[0, 'asc']]
-});
-$('#playing-time-pane > .table').DataTable({
-    autoWidth: false,
-    paging: false,
-    searching: false,
-    info: false,
-    order: [[1, 'desc']]
-});
 </script>
 @endsection

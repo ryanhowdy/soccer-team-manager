@@ -7,7 +7,7 @@ export default class Live
         this.playersByPosition = playersByPosition;
         this.starters          = {};
 
-        this.us   = $('#field').data('goodGuys');
+        this.us   = $('#field').attr('data-good-guys');
         this.them = this.us == 'home' ? 'away' : 'home';
 
         this.timerStartDate;
@@ -30,7 +30,7 @@ export default class Live
 
         // Resume an existing game if available
         let savedResultId = localStorage.getItem('resultId');
-        if (savedResultId !== null && savedResultId == $('#field').data('resultId'))
+        if (savedResultId !== null && savedResultId == $('#field').attr('data-result-id'))
         {
             this.resumeExistingGame();
         }
@@ -111,7 +111,7 @@ export default class Live
      */
     clickStartGame(event)
     {
-        let resultId      = $('#field').data('resultId');
+        let resultId      = $('#field').attr('data-result-id');
         let savedResultId = localStorage.getItem('resultId');
         let period        = localStorage.getItem('period');
 
@@ -155,7 +155,7 @@ export default class Live
 
         // Save the starters and formation
         $.ajax({
-            url  : $('#field').data('startGameRoute'),
+            url  : $('#field').attr('data-start-game-route'),
             type : 'POST',
             data : {
                 resultId    : resultId,
@@ -242,10 +242,10 @@ export default class Live
     {
         // Save the final score
         $.ajax({
-            url  : $('#field').data('endGameRoute'),
+            url  : $('#field').attr('data-end-game-route'),
             type : 'POST',
             data : {
-                resultId  : $('#field').data('resultId'),
+                resultId  : $('#field').attr('data-result-id'),
                 time      : $('#timer > span').text(),
                 homeScore : $('#home-score > .score').text(),
                 awayScore : $('#away-score > .score').text(),
@@ -461,24 +461,24 @@ export default class Live
 
         let $anchor   = $(event.target);
         let $position = $anchor.parents('.position').first();
-        let playerId  = $anchor.data('playerId');
+        let playerId  = $anchor.attr('data-player-id');
 
         this.drawer.addPlayer($position, playerId);
 
-        this.starters[playerId] = $position.data('playerPosition');
+        this.starters[playerId] = $position.attr('data-player-position');
 
         // Save this as a sub_in event
         if ($('#field').hasClass('ready'))
         {
             $.ajax({
-                url  : $('#field').data('createEventRoute'),
+                url  : $('#field').attr('data-create-event-route'),
                 type : 'POST',
                 data : {
-                    result_id  : $('#field').data('resultId'),
+                    result_id  : $('#field').attr('data-result-id'),
                     player_id  : playerId,
                     time       : $('#timer > span').text(),
                     event_id   : '3',
-                    additional : $position.data('playerPosition')
+                    additional : $position.attr('data-player-position')
                 },
             }).done((data) => {
                 // do nothing on success
@@ -506,7 +506,7 @@ export default class Live
     {
         let $anchor   = $(event.target);
         let $position = $anchor.parents('.position').first();
-        let playerId  = $position.find('img').data('playerId');
+        let playerId  = $position.find('img').attr('data-player-id');
 
         // remove player photo
         $position.find('img').remove();
@@ -522,10 +522,10 @@ export default class Live
         if ($('#field').hasClass('ready'))
         {
             $.ajax({
-                url  : $('#field').data('createEventRoute'),
+                url  : $('#field').attr('data-create-event-route'),
                 type : 'POST',
                 data : {
-                    result_id  : $('#field').data('resultId'),
+                    result_id  : $('#field').attr('data-result-id'),
                     player_id  : playerId,
                     time       : $('#timer > span').text(),
                     event_id   : '4'
@@ -561,9 +561,9 @@ export default class Live
 
         let $eventPickerDiv = $(event.currentTarget);
 
-        let playerId = $eventPickerDiv.find('img').data('playerId');
+        let playerId = $eventPickerDiv.find('img').attr('data-player-id');
 
-        $('#event-modal').data('playerId', playerId)
+        $('#event-modal').attr('data-player-id', playerId)
             .modal('show');
     }
 
@@ -584,7 +584,7 @@ export default class Live
         $('.dropdown-menu.player a').each((index, el) => {
             for (let id in this.starters)
             {
-                if ($(el).data('playerId') == id)
+                if ($(el).attr('data-player-id') == id)
                 {
                     $(el).hide();
                 }
@@ -616,10 +616,10 @@ export default class Live
     {
         let $eventButton = $(event.target);
 
-        let resultId = $('#field').data('resultId');
-        let playerId = $('#event-modal').data('playerId');
+        let resultId = $('#field').attr('data-result-id');
+        let playerId = $('#event-modal').attr('data-player-id');
         let time     = $('#timer > span').text();
-        let eventId  = $eventButton.data('eventId');
+        let eventId  = $eventButton.attr('data-event-id');
 
         // reset the additional form
         document.getElementById('additional-form').reset();
@@ -637,10 +637,10 @@ export default class Live
         $('#additional-modal .modal-title').text(eventText);
 
         // show the addition info modal, and pass data to it
-        $('#additional-modal').data('resultId', resultId)
-            .data('playerId', playerId)
-            .data('time', time)
-            .data('eventId', eventId)
+        $('#additional-modal').attr('data-result-id', resultId)
+            .attr('data-player-id', playerId)
+            .attr('data-time', time)
+            .attr('data-event-id', eventId)
             .modal('show');
     }
 
@@ -654,9 +654,9 @@ export default class Live
     {
         let $eventSpan = $(event.target);
 
-        let resultId = $('#field').data('resultId');
+        let resultId = $('#field').attr('data-result-id');
         let time     = $('#timer > span').text();
-        let eventId  = $eventSpan.data('eventId');
+        let eventId  = $eventSpan.attr('data-event-id');
 
         // reset the additional form
         document.getElementById('additional-form').reset();
@@ -682,9 +682,9 @@ export default class Live
         $('#additional-modal .modal-title').text(eventText);
 
         // show the addition info modal, and pass data to it
-        $('#additional-modal').data('resultId', resultId)
-            .data('time', time)
-            .data('eventId', eventId)
+        $('#additional-modal').attr('data-result-id', resultId)
+            .attr('data-time', time)
+            .attr('data-event-id', eventId)
             .modal('show');
     }
 
@@ -721,13 +721,13 @@ export default class Live
         }
 
         $.ajax({
-            url  : $('#field').data('createEventRoute'),
+            url  : $('#field').attr('data-create-event-route'),
             type : 'POST',
             data : {
-                result_id  : $('#additional-modal').data('resultId'),
-                player_id  : $('#additional-modal').data('playerId'),
-                time       : $('#additional-modal').data('time'),
-                event_id   : $('#additional-modal').data('eventId'),
+                result_id  : $('#additional-modal').attr('data-result-id'),
+                player_id  : $('#additional-modal').attr('data-player-id'),
+                time       : $('#additional-modal').attr('data-time'),
+                event_id   : $('#additional-modal').attr('data-event-id'),
                 additional : additional,
                 pk_fk      : $('#additional-modal input[name=pk_fk]:checked').val(),
                 xg         : $('input[name=xg]:checked').val(),
