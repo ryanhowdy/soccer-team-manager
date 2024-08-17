@@ -8,7 +8,7 @@
         <label class="form-label" for="logo">Logo</label>
         <input type="file" class="form-control" id="logo" name="logo">
     </div>
-    <div class="row g-3">
+    <div class="row g-3 mb-3">
         <div class="col-8">
             <label class="form-label" for="city">City</label>
             <input type="text" class="form-control" name="city" id="city">

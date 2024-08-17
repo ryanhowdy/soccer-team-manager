@@ -1,8 +1,6 @@
 @extends('layouts.main')
 
 @section('body-id', 'games')
-@section('page-title', 'Games')
-@section('page-desc', "See the scores of past games")
 
 @section('content')
     <div class="container main-content">

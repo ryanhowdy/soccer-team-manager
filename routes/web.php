@@ -37,15 +37,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/games/{id}/preview', [\App\Http\Controllers\GameController::class, 'preview'])->name('games.preview');
 
     // Teams
-    Route::get( '/teams',      [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
-    Route::post('/teams',      [\App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
-    Route::post('/clubs',      [\App\Http\Controllers\ClubController::class, 'store'])->name('clubs.store');
-    Route::get( '/teams/{id}', [\App\Http\Controllers\TeamController::class, 'show'])->name('teams.show');
+    Route::get( '/teams',           [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
+    Route::post('/teams',           [\App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
+    Route::get( '/teams/{id}',      [\App\Http\Controllers\TeamController::class, 'show'])->name('teams.show');
+    Route::get( '/teams/{id}/edit', [\App\Http\Controllers\TeamController::class, 'edit'])->name('teams.edit');
+    Route::post('/teams/{id}/edit', [\App\Http\Controllers\TeamController::class, 'update'])->name('teams.update');
+
+    // Clubs
+    Route::post('/clubs',             [\App\Http\Controllers\ClubController::class, 'store'])->name('clubs.store');
+    Route::get( '/clubs/{club}/edit', [\App\Http\Controllers\ClubController::class, 'edit'])->name('clubs.edit');
+    Route::post('/clubs/{club}/edit', [\App\Http\Controllers\ClubController::class, 'update'])->name('clubs.update');
 
     // Stats
-    Route::get( '/stats/teams',            [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.teams.index');
-    Route::get( '/stats/teams/{id}',       [\App\Http\Controllers\StatsTeamController::class, 'show'])->name('stats.teams.show');
-    Route::get( '/stats/players',          [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.players.index');
+    Route::get( '/stats/teams',      [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.teams.index');
+    Route::get( '/stats/teams/{id}', [\App\Http\Controllers\StatsTeamController::class, 'show'])->name('stats.teams.show');
+    Route::get( '/stats/players',    [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.players.index');
 
     // Competitions
     Route::get( '/compeitions',               [\App\Http\Controllers\CompetitionController::class, 'index'])->name('competitions.index');

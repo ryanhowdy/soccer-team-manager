@@ -22623,6 +22623,12 @@ th.dt-ordering-asc:after {
   width: 50px;
 }
 
+@media (max-width: 767.98px) {
+  #teams table th.club-name,
+  #teams table th.teams {
+    width: auto;
+  }
+}
 #stats img.logo {
   height: 40px;
 }

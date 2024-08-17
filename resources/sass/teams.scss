@@ -38,3 +38,22 @@
         width: 50px;
     }
 }
+
+@include media-breakpoint-down(lg) {
+    #teams
+    {
+        table 
+        {
+            th.club-name,
+            th.teams
+            {
+                width: auto;
+            }
+        }
+
+        img.logo
+        {
+            width: 35px;
+        }
+    }
+}
