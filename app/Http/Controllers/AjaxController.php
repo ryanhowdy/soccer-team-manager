@@ -91,19 +91,21 @@ class AjaxController extends Controller
             }
         }
 
-        if ($request->has('additional'))
+        if ($request->filled('additional'))
         {
             $event->additional = $request->additional;
         }
-
-        if ($request->has('xg'))
+        if ($request->filled('xg'))
         {
             $event->xg = $request->xg;
         }
-
-        if ($request->has('player_id'))
+        if ($request->filled('player_id'))
         {
             $event->player_id  = $request->player_id;
+        }
+        if ($request->filled('notes'))
+        {
+            $event->notes  = $request->notes;
         }
 
         $event->result_id  = $request->result_id;
@@ -118,7 +120,7 @@ class AjaxController extends Controller
 
         $response['event_name'] = EnumEvent::from($eventId)->name;
 
-        $response['player_name'] = Player::find($event->player_id)->name;
+        $response['player_name'] = $request->filled('player_id') ? Player::find($event->player_id)->name : '';
 
         return response()->json([
             'success' => true,
@@ -157,6 +159,7 @@ class AjaxController extends Controller
 
         $existingResult->home_team_score = $request->homeScore;
         $existingResult->away_team_score = $request->awayScore;
+        $existingResult->live            = 1;
         $existingResult->status          = 'D';
 
         $existingResult->save();

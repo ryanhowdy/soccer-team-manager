@@ -15,27 +15,37 @@
             </div>
 
             {{-- Game Score --}}
-            <div class="d-flex justify-content-center align-items-center">
-                <div class="fs-4">{{ $result->homeTeam->name }}</div>
-                <div class="mx-5">
-                    <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}"
-                        src="{{ asset($result->homeTeam->club->logo) }}"/>
+            <div class="row">
+                <div class="col-4 col-lg-5">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div class="fs-4 d-none d-lg-block">{{ $result->homeTeam->name }}</div>
+                        <div class="mx-3">
+                            <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}"
+                                src="{{ asset($result->homeTeam->club->logo) }}"/>
+                        </div>
+                    </div>
                 </div>
-                <div @class([
-                    'd-flex justify-content-center border border-3 py-1 px-3',
-                    'border-success text-success' => ($result->win_draw_loss == 'W'),
-                    'border-secondary-subtle text-secondary' => ($result->win_draw_loss == 'D'),
-                    'border-danger text-danger' => ($result->win_draw_loss == 'L'),
-                ])>
-                    <div class="fs-1 me-3">{{ $result->home_team_score }}</div>
-                    <div class="fs-1 ">-</div>
-                    <div class="fs-1 ms-3">{{ $result->away_team_score }}</div>
+                <div class="col-4 col-lg-2">
+                    <div @class([
+                        'd-flex justify-content-center border border-3 py-1 px-3',
+                        'border-success text-success' => ($result->win_draw_loss == 'W'),
+                        'border-secondary-subtle text-secondary' => ($result->win_draw_loss == 'D'),
+                        'border-danger text-danger' => ($result->win_draw_loss == 'L'),
+                    ])>
+                        <div class="fs-1 me-3">{{ $result->home_team_score }}</div>
+                        <div class="fs-1 ">-</div>
+                        <div class="fs-1 ms-3">{{ $result->away_team_score }}</div>
+                    </div>
                 </div>
-                <div class="mx-5">
-                    <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
-                        src="{{ asset($result->awayTeam->club->logo) }}"/>
+                <div class="col-4 col-lg-5">
+                    <div class="d-flex justify-content-star align-items-center">
+                        <div class="mx-3">
+                            <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
+                                src="{{ asset($result->awayTeam->club->logo) }}"/>
+                        </div>
+                        <div class="fs-4 d-none d-lg-block">{{ $result->awayTeam->name }}</div>
+                    </div>
                 </div>
-                <div class="fs-4">{{ $result->awayTeam->name }}</div>
             </div>
 
             {{-- Game Summary --}}

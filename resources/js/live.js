@@ -257,7 +257,7 @@ export default class Live
             localStorage.removeItem('starters');
             localStorage.removeItem('period');
 
-            window.location.href = data.redirect;
+            window.location.href = data.data.redirect;
         }).fail(() => {
             $('#field').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save game.</p>');
         });
