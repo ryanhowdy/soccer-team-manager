@@ -126,10 +126,12 @@ class HomeController extends Controller
         }
 
         // Get the most recent League competition for this team
-        $activeCompetitionId = Competition::where('club_team_id', $selectedManagedTeam->id)
+        $competition = Competition::where('club_team_id', $selectedManagedTeam->id)
             ->where('type', 'League')
             ->orderByDesc('started_at')
-            ->value('id');
+            ->first();
+
+        $activeCompetitionId = $competition->id;
 
         // Get all the results for the currently selected managed teams' most recent non tournament competition
         $results = Result::where('status', 'D')
@@ -232,6 +234,7 @@ class HomeController extends Controller
             'scheduled'               => $scheduled,
             'lastResultsByTeam'       => $lastResultsByTeam,
             'managedTeams'            => $managedTeams,
+            'competition'             => $competition,
             'selectedManagedTeamId'   => $selectedManagedTeam->id,
             'selectedManagedTeamName' => $selectedManagedTeam->name,
             'results'                 => $results,

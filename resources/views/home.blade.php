@@ -15,8 +15,11 @@
             @include('home.scheduled')
         @endif
 
-        <div id="filter" class="text-end mb-3">
+        <div id="filter" class="d-flex justify-content-end align-items-center mb-3">
         @if($managedTeams->isNotEmpty())
+            <div class="me-3 text-secondary fst-italic">
+                {{ $competition->name }}
+            </div>
             <div class="dropdown">
                 <button class="btn bg-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     {{ $selectedManagedTeamName }}

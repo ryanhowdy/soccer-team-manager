@@ -11,8 +11,8 @@
         <div class="row game-listing-details mb-5">
             <div class="col-4">
                 <div class="competition text-uppercase small">{{ $result->competition->name }}</div>
-                <div class="date fw-bold">{{ $result->date->format('M. jS, Y') }}</div>
-                <div class="time small">{{ $result->date->format('g:i a') }}</div>
+                <div class="date fw-bold">{{ $result->date->inUserTimezone()->format('M. jS, Y') }}</div>
+                <div class="time small">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
             </div>
             <div class="col-5 text-center">
                 <div class="home-v-away d-grid align-items-center justify-content-center mb-3 text-decoration-none rounded rounded-2 text-dark">
@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="col-3 d-flex align-items-center justify-content-end">
-                <a class="btn btn-primary btn-sm py-1" href="{{ route('games.preview', ['id' => $result->id]) }}">
+                <a class="btn btn-primary text-white btn-sm py-1" href="{{ route('games.preview', ['id' => $result->id]) }}">
                     Game Details
                     <span class="bi-arrow-right-short"></span>
                 </a>
