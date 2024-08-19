@@ -29,8 +29,12 @@
                         <li><a class="dropdown-item" href="{{ route('players.index') }}">Players</a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Locations</a>
+                <li class="nav-item me-2 dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">More</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('locations.index') }}">Locations</a></li>
+                        <li><a class="dropdown-item" href="#">Formations</a></li>
+                    </ul>
                 </li>
             </ul>
         </div>

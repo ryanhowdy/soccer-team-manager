@@ -69,6 +69,10 @@ Route::middleware(['auth'])->group(function () {
     // Seasons
     Route::post('/seasons', [\App\Http\Controllers\SeasonController::class, 'store'])->name('seasons.store');
 
+    // Locations
+    Route::get( '/locations', [\App\Http\Controllers\LocationController::class, 'index'])->name('locations.index');
+    Route::post('/locations', [\App\Http\Controllers\LocationController::class, 'store'])->name('locations.store');
+
     // AJAX
     Route::post('/ajax/game/start',      [\App\Http\Controllers\AjaxController::class, 'gameStart'])->name('ajax-start-game');
     Route::post('/ajax/game/event',      [\App\Http\Controllers\AjaxController::class, 'saveEvent'])->name('ajax-create-event');

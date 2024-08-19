@@ -180,3 +180,31 @@ if (!function_exists('secondsToMinutes'))
         return ceil($time / 60);
     }
 }
+
+if (!function_exists('createGoogleMapsUrlFromAddress'))
+{
+    /**
+     * createGoogleMapsUrlFromAddress 
+     * 
+     * @param string  $address 
+     * @return string
+     */
+    function createGoogleMapsUrlFromAddress($address)
+    {
+        $url = $address;
+
+        // Fix percent sign - needs to be done first
+        $url = str_replace("%", "%25", $url);
+
+        // Fix spaces
+        $url = str_replace(" ", "%20", $url);
+        // Fix double quotes
+        $url = str_replace('"', "%22", $url);
+        $url = str_replace("<", "%3C", $url);
+        $url = str_replace(">", "%3E", $url);
+        $url = str_replace("#", "%23", $url);
+        $url = str_replace("|", "%7C", $url);
+
+        return 'https://www.google.com/maps/dir/?api=1&destination='.$url;
+    }
+}
