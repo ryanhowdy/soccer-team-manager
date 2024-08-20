@@ -132,10 +132,15 @@ class GameController extends Controller
 
         $result = new Result;
 
+        $datetime = $request->date . ' ' . $request->time;
+
+        $date = Carbon::createFromFormat('Y-m-d H:i', $datetime, config('stm.timezone_display'));
+        $date->tz('UTC');
+
         $result->season_id       = $request->season_id;
         $result->competition_id  = $request->competition_id;
         $result->location_id     = $request->location_id;
-        $result->date            = Carbon::parse($request->date . ' ' . $request->time);
+        $result->date            = $date;
         $result->status          = ResultStatus::Scheduled;
         $result->created_user_id = Auth()->user()->id;
         $result->updated_user_id = Auth()->user()->id;
