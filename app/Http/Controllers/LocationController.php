@@ -35,6 +35,15 @@ class LocationController extends Controller
             'address' => 'required|string|max:255',
         ]);
 
+        $location = new Location;
+
+        $location->name            = $request->name;
+        $location->address         = $request->address;
+        $location->created_user_id = Auth()->user()->id;
+        $location->updated_user_id = Auth()->user()->id;
+
+        $location->save();
+
         return redirect()->route('locations.index');
     }
 }
