@@ -10,7 +10,7 @@
 
         <div class="row game-listings-cards">
     @foreach ($scheduledToday as $sched)
-            <div class="col-6">
+            <div class="col-12 col-lg-6">
                 <div class="rounded rounded-3 border p-3 mb-4">
                     <div class="small mb-3">
                         <a class="link-secondary link-offset-2 link-underline-opacity-0 link-underline-opacity-100-hover" 
