@@ -74,7 +74,9 @@
         </div><!--/.rounded-->
 
         <div class="game-listing rounded rounded-3 bg-white p-4 mb-1">
-        @foreach($results as $result)
+        @foreach($results as $status => $rs)
+            <h3>{{ \App\Enums\ResultStatus::tryFrom($status)->name }}</h3>
+            @foreach($rs as $result)
             <div class="home-v-away position-relative d-grid align-items-center justify-content-center mb-3 border p-2 rounded rounded-2">
                 <div class="position-absolute top-0 start-0 small p-2">
                     {{ $result->date->inUserTimezone()->format('M j, Y') }}
@@ -91,6 +93,7 @@
                     </div>
                 </div>
                 <div class="score text-center">
+                @if($status == 'D')
                     <a href="{{ route('games.show', ['id' => $result->id]) }}">
                         <span @class([
                             'badge',
@@ -101,6 +104,9 @@
                             'bg-danger' => ($result->win_draw_loss == 'L'),
                         ])>{{ $result->home_team_score }} - {{ $result->away_team_score }}</span>
                     </a>
+                @else
+                    <a class="btn btn-sm btn-primary text-white" href="{{ route('games.preview', ['id' => $result->id]) }}">Preview</a>
+                @endif
                 </div>
                 <div class="away-team d-flex align-items-center">
                     <div class="ms-4 text-center w-25">
@@ -109,6 +115,7 @@
                     </div>
                 </div>
             </div>
+            @endforeach
         @endforeach
         </div>
 

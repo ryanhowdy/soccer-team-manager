@@ -31,7 +31,7 @@
             </div>
             <div class="col-3 d-flex align-items-center justify-content-end">
                 <a class="btn btn-primary text-white btn-sm py-1" href="{{ route('games.preview', ['id' => $result->id]) }}">
-                    Game Details
+                    Game Preview
                     <span class="bi-arrow-right-short"></span>
                 </a>
             </div>

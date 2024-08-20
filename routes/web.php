@@ -35,6 +35,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/games/{id}',         [\App\Http\Controllers\GameController::class, 'show'])->name('games.show');
     Route::get( '/games/{id}/live',    [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
     Route::get( '/games/{id}/preview', [\App\Http\Controllers\GameController::class, 'preview'])->name('games.preview');
+    Route::get( '/games/{id}/edit',    [\App\Http\Controllers\GameController::class, 'edit'])->name('games.edit');
+    Route::post('/games/{id}',         [\App\Http\Controllers\GameController::class, 'update'])->name('games.update');
 
     // Teams
     Route::get( '/teams',           [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');

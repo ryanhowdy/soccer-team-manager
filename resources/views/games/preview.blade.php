@@ -9,6 +9,10 @@
 
         <div class="rounded rounded-3 bg-white p-4 mb-3">
 
+            <a class="float-end btn btn-sm btn-light" href="{{ route('games.edit', ['id' => $result->id]) }}">
+                <span class="bi bi-pencil pe-2"></span>Edit
+            </a>
+
             {{-- Competition & Date/time --}}
             <div class="text-center mb-5">
                 <div class="competition text-uppercase">{{ $result->competition->name }}</div>
@@ -110,6 +114,7 @@
             {{-- Head 2 Head Results --}}
             <div class="col-12 col-md-6">
                 <div id="previous-stats" class="rounded rounded-3 bg-white p-4 mb-3">
+                    <h3>Previous Stats</h3>
                     <div class="d-flex justify-content-between pb-1 mb-2 border-bottom">
                         <div class="pe-3 text-secondary">{{ $result->{$goodGuys . 'Team'}->name }}</div>
                         <div class="ps-3 text-secondary text-end">{{ $result->{$badGuys . 'Team'}->name }}</div>

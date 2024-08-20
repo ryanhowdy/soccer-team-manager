@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
@@ -12,8 +15,6 @@ use App\Models\ClubTeamSeason;
 use App\Models\Competition;
 use App\Models\Location;
 use App\Models\ResultEvent;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\JoinClause;
 use App\Enums\Event as EnumEvent;
 use App\Enums\CompetitionStatus;
 use App\Enums\ResultStatus;
@@ -81,12 +82,12 @@ class GameController extends Controller
         $teamId   = $request->has('filter-teams')   ? $request->input('filter-teams')   : null;
 
         // Get all the results
-        $query = Result::query()->where('status', 'D');
-
-        if (!empty($seasonId))
-        {
-            $query->where('season_id', $seasonId);
-        }
+        $query = Result::query()
+            ->where('status', ResultStatus::Scheduled)
+            ->orWhere(function (Builder $q) use ($seasonId) {
+                $q->where('season_id', $seasonId)
+                  ->where('status', ResultStatus::Done);
+            });
 
         if (!empty($teamId))
         {
@@ -96,7 +97,9 @@ class GameController extends Controller
             });
         }
 
-        $results = $query->get();
+        $results = $query->orderBy('date', 'desc')
+            ->get()
+            ->groupBy('status');
 
         return view('games', [
             'selectedSeason' => $seasonId,
@@ -567,5 +570,117 @@ class GameController extends Controller
             'head2HeadResults' => $head2HeadResults,
             'stats'            => $stats,
         ]);
+    }
+
+    /**
+     * edit
+     *
+     * @param string  $gameId 
+     * @return Illuminate\View\View
+     */
+    public function edit($gameId)
+    {
+        $result = Result::find($gameId);
+
+        $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
+        $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
+
+        // Get all seasons
+        $seasons = Season::all()->keyBy('id');
+
+        // Get all active competitions grouped by type
+        $competitions = Competition::orderBy('started_at', 'desc')
+            ->get()
+            ->groupBy('type');
+
+        // Get all locations
+        $locations = Location::orderBy('name')
+            ->get();
+
+        // Get only managed teams
+        $managedTeams = ClubTeam::from('club_teams as t')
+            ->select('t.*', 'c.name as club_name')
+            ->join('clubs as c', 't.club_id', '=', 'c.id')
+            ->where('managed', 1)
+            ->orderBy('club_name')
+            ->orderBy('t.name')
+            ->get();
+
+        // Get all non managed teams, group them by club
+        $teams = ClubTeam::from('club_teams as t')
+            ->select('t.*', 'c.name as club_name')
+            ->join('clubs as c', 't.club_id', '=', 'c.id')
+            ->whereNot('managed', 1)
+            ->orderBy('club_name')
+            ->orderBy('t.name')
+            ->get()
+            ->keyBy('id');
+
+        $teamsByClub = [];
+        foreach ($teams as $team)
+        {
+            $teamsByClub[$team->club_name][] = $team->toArray();
+        }
+
+        return view('games.edit', [
+            'result'       => $result,
+            'goodGuys'     => $goodGuys,
+            'badGuys'      => $badGuys,
+            'seasons'      => $seasons,
+            'competitions' => $competitions,
+            'locations'    => $locations,
+            'managedTeams' => $managedTeams,
+            'teamsByClub'  => $teamsByClub,
+        ]);
+    }
+
+    /**
+     * update
+     * 
+     * @param string  $id 
+     * @param Request $request 
+     * @return null
+     */
+    public function update($id, Request $request)
+    {
+        $validated = $request->validate([
+            'season_id'         => 'required|exists:seasons,id',
+            'competition_id'    => 'required|exists:competitions,id',
+            'location_id'       => 'required|exists:locations,id',
+            'date'              => 'required|date_format:Y-m-d',
+            'time'              => 'required|date_format:H:i',
+            'my_team_id'        => 'required|exists:club_teams,id',
+            'my_home_away'      => 'required|in:home,away',
+            'opponent_team_id'  => 'required|exists:club_teams,id',
+            'status'            => [Rule::enum(ResultStatus::class)],
+        ]);
+
+        $result = Result::find($id);
+
+        $datetime = $request->date . ' ' . $request->time;
+
+        $date = Carbon::createFromFormat('Y-m-d H:i', $datetime, config('stm.timezone_display'));
+        $date->tz('UTC');
+
+        $result->season_id       = $request->season_id;
+        $result->competition_id  = $request->competition_id;
+        $result->location_id     = $request->location_id;
+        $result->date            = $date;
+        $result->status          = $request->status;
+        $result->created_user_id = Auth()->user()->id;
+        $result->updated_user_id = Auth()->user()->id;
+
+        $result->home_team_id = $request->my_team_id;
+        $result->away_team_id = $request->opponent_team_id;
+
+        if ($request->my_home_away == 'away')
+        {
+            $result->home_team_id = $request->opponent_team_id;
+            $result->away_team_id = $request->my_team_id;
+        }
+
+        $result->save();
+
+        return redirect()->route('games.index');
     }
 }
