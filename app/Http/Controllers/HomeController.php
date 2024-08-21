@@ -51,8 +51,8 @@ class HomeController extends Controller
     public function home($teamId = null)
     {
         // Get all scheduled games for today
-        $todayStart = \Carbon\Carbon::now()->startOfDay();
-        $todayEnd   = \Carbon\Carbon::now()->endOfDay();
+        $todayStart = \Carbon\Carbon::now()->inUserTimezone()->startOfDay()->tz('UTC');
+        $todayEnd   = \Carbon\Carbon::now()->inUserTimezone()->endOfDay()->tz('UTC');
 
         $scheduledTeamIds = [];
 
