@@ -16,7 +16,7 @@
         @endif
 
         <div id="filter" class="d-flex justify-content-end align-items-center mb-3">
-        @if($managedTeams->isNotEmpty())
+        @if($managedTeams->isNotEmpty() && !is_null($competition))
             <div class="me-3 text-secondary fst-italic">
                 {{ $competition->name }}
             </div>

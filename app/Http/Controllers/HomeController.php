@@ -27,7 +27,15 @@ class HomeController extends Controller
         {
             return redirect()->route('register');
         }
-        else if (!Auth()->user())
+
+        $managedTeam = ClubTeam::first();
+
+        if (is_null($managedTeam))
+        {
+            return redirect()->route('teams.index')->withErrors(['You must create at least 1 managed team.']);
+        }
+
+        if (!Auth()->user())
         {
             return redirect()->route('login');
         }
@@ -111,6 +119,11 @@ class HomeController extends Controller
             ->orderBy('t.name')
             ->get();
 
+        if ($managedTeams->count() <= 0)
+        {
+            return redirect()->route('teams.index')->withErrors(['You must create at least 1 managed team.']);
+        }
+
         // Get selected managed team
         $selectedManagedTeam = [];
         if ($teamId)
@@ -131,16 +144,21 @@ class HomeController extends Controller
             ->orderByDesc('started_at')
             ->first();
 
-        $activeCompetitionId = $competition->id;
+        $results = collect([]);
 
-        // Get all the results for the currently selected managed teams' most recent non tournament competition
-        $results = Result::where('status', 'D')
-            ->where('competition_id', $activeCompetitionId)
-            ->orWhere(function (Builder $query) use ($selectedManagedTeam) {
-                $query->where('home_team_id', $selectedManagedTeam->id)
-                    ->where('away_team_id', $selectedManagedTeam->id);
-            })
-            ->get();
+        if (!is_null($competition))
+        {
+            $activeCompetitionId = $competition->id;
+
+            // Get all the results for the currently selected managed teams' most recent non tournament competition
+            $results = Result::where('status', 'D')
+                ->where('competition_id', $activeCompetitionId)
+                ->orWhere(function (Builder $query) use ($selectedManagedTeam) {
+                    $query->where('home_team_id', $selectedManagedTeam->id)
+                        ->where('away_team_id', $selectedManagedTeam->id);
+                })
+                ->get();
+        }
 
         // Figure out the chart data based on the results
         $chartData = [

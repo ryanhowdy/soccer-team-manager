@@ -28,6 +28,11 @@ class StatsTeamController extends Controller
             ->orderBy('t.name')
             ->get();
 
+        if ($managedTeams->count() <= 0)
+        {
+            return redirect()->route('teams.index')->withErrors(['You must create at least 1 managed team.']);
+        }
+
         $selectedManagedTeam = $managedTeams->random();
 
         return redirect()->route('stats.teams.show', ['id' => $selectedManagedTeam->id]);
