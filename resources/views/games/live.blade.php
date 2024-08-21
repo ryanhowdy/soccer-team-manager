@@ -76,7 +76,7 @@
 
             <div class="row">
                 <div class="col-12 col-lg-7">
-                    <div id="field" class="mx-auto text-center position-relative" 
+                    <div id="field" class="field mx-auto text-center position-relative" 
                         data-result-id="{{ $result->id }}" data-start-game-route="{{ route('ajax-start-game') }}"
                         data-create-event-route="{{ route('ajax-create-event') }}"
                         data-end-game-route="{{ route('ajax-end-game') }}"

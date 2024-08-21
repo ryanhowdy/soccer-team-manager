@@ -107,7 +107,7 @@
             <div class="tab-pane fade" id="lineup-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
                     <h3 class="mb-3">Lineup</h3>
-                    <div id="field" class="mx-auto text-center position-relative">
+                    <div id="field" class="field mx-auto text-center position-relative">
                         <img class="position-absolute start-0 top-0" src="{{ asset('img/field.svg') }}" />
                     </div><!--/#field-->
                 </div>

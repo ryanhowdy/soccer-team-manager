@@ -87,6 +87,11 @@ class LiveGameController extends Controller
         $formations = Formation::all()
             ->keyBy('id');
 
+        if ($formations->isEmpty())
+        {
+            return redirect()->route('formations.index')->withErrors(['You must create at least 1 formation.']);
+        }
+
         $groupedFormations = [];
 
         foreach ($formations as $formation)

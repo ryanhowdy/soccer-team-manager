@@ -33,7 +33,7 @@
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">More</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ route('locations.index') }}">Locations</a></li>
-                        <li><a class="dropdown-item" href="#">Formations</a></li>
+                        <li><a class="dropdown-item" href="{{ route('formations.index') }}">Formations</a></li>
                     </ul>
                 </li>
             </ul>
