@@ -38,6 +38,11 @@ class RosterController extends Controller
             })
             ->groupBy('team_name', preserveKeys: true);
 
+        if ($playersByTeam->isEmpty())
+        {
+            return redirect()->route('players.index')->withErrors(['You must create at least 1 player fore every managed team.']);
+        }
+
         $clubTeamSeasonLkup = ClubTeamSeason::from('club_team_seasons as cts')
             ->select('cts.id', DB::raw("concat(s.season, ' ', s.year, '-', t.name) as 'name'"))
             ->join('club_teams as t', 'cts.club_team_id', '=', 't.id')
