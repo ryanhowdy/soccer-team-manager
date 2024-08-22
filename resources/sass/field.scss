@@ -16,96 +16,99 @@
         padding-top: 300px;
     }
 
-    .position
+    .col
     {
-        width: 80px;
-        min-height: 80px;
-        margin: 0 auto;
-        padding: 5px;
-        position: relative;
+        min-height: 116px;
 
-        button.btn-close
+        .position
         {
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: pointer;
-            z-index: 3;
-        }
-
-        .dropdown
-        {
-            display: none;
-
-            .player-picker
-            {
-                cursor: pointer;
-                display: block;
-
-                &:hover
-                {
-                    color: white;
-                }
-            }
-
-            .dropdown-menu
-            {
-                z-index: 1100; /* make it go over top the top nav */
-
-                .dropdown-item
-                {
-                    margin: 4px 0;
-                }
-            }
-        }
-
-        h4
-        {
-            display: none;
-        }
-
-        .event-picker
-        {
-            cursor: pointer;
-            display: block;
             width: 80px;
-            text-align: center;
-
-            img
-            {
-                background: #fff;
-                max-height: 65px;
-            }
-            .name
-            {
-                width: 80px;
-                padding: 6px;
-            }
-        }
-
-        &.empty
-        {
-            background: rgba(0, 0, 0, 0.3);
-            margin: 15px auto;
+            margin: 5px auto;
+            padding: 5px;
+            position: relative;
 
             button.btn-close
             {
-                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                cursor: pointer;
+                z-index: 3;
             }
 
             .dropdown
             {
-                display: block;
+                display: none;
+
+                .player-picker
+                {
+                    cursor: pointer;
+                    display: block;
+
+                    &:hover
+                    {
+                        color: white;
+                    }
+                }
+
+                .dropdown-menu
+                {
+                    z-index: 1100; /* make it go over top the top nav */
+
+                    .dropdown-item
+                    {
+                        margin: 4px 0;
+                    }
+                }
             }
 
             h4
             {
-                display: block;
+                display: none;
             }
 
             .event-picker
             {
-                display: none;
+                cursor: pointer;
+                display: block;
+                width: 80px;
+                text-align: center;
+
+                img
+                {
+                    background: #fff;
+                    max-height: 65px;
+                }
+                .name
+                {
+                    width: 80px;
+                    padding: 6px;
+                }
+            }
+
+            &.empty
+            {
+                background: rgba(0, 0, 0, 0.3);
+
+                button.btn-close
+                {
+                    display: none;
+                }
+
+                .dropdown
+                {
+                    display: block;
+                }
+
+                h4
+                {
+                    display: block;
+                }
+
+                .event-picker
+                {
+                    display: none;
+                }
             }
         }
     }
@@ -158,5 +161,38 @@
             }
         }
     }
+}
 
+@media only screen and (max-width: 500px)
+{
+    .field
+    {
+        > img
+        {
+            width: calc(100vw - 48px - 24px);
+        }
+
+        &.formation-rows-4
+        {
+            padding-top: 0;
+        }
+        &.formation-rows-3
+        {
+            padding-top: 85px;
+        }
+        &.formation-rows-2
+        {
+            padding-top: 170px;
+        }
+
+        .col
+        {
+            min-height: 116px;
+
+            .position
+            {
+                margin: 2px auto;
+            }
+        }
+    }
 }

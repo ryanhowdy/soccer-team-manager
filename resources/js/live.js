@@ -392,11 +392,23 @@ export default class Live
 
         $('#current-formation > span.badge').text(dashed);
 
+        let state = 'formation';
+        let savedPeriod = localStorage.getItem('period');
+
+        if (savedPeriod !== null)
+        {
+            state = savedPeriod == 'half' ? 'half'
+                  : savedPeriod == '2'    ? 'second'
+                  : 'first';
+        }
+
         $('#game-controls').removeClass();
+        $('#game-controls').addClass(state + ' row text-center mb-3');
 
         // hide the formation select box
+        $('#formation-form').hide();
         // show the current formation badge
-        $('#game-controls').addClass('formation row text-center mb-3');
+        $('#current-formation').show();
 
         // draw the formation on the field
         this.drawer.drawFormation(formation);
@@ -417,17 +429,23 @@ export default class Live
      */
     clickChangeFormation(event)
     {
-        // can't change the formation after game has started
-        if ($('#field').hasClass('ready'))
+        let state = 'initial';
+        let savedPeriod = localStorage.getItem('period');
+
+        if (savedPeriod !== null)
         {
-            return;
+            state = savedPeriod == 'half' ? 'half'
+                  : savedPeriod == '2'    ? 'second'
+                  : 'first';
         }
 
         $('#game-controls').removeClass();
+        $('#game-controls').addClass(state + ' row text-center mb-3');
 
         // Show the formation select
+        $('#formation-form').show();
         // hide the current formation badge
-        $('#game-controls').addClass('initial row text-center mb-3');
+        $('#current-formation').hide();
 
         // empty the current formation
         $('#current-formation > span.badge').empty();
@@ -436,11 +454,37 @@ export default class Live
         $('#field > .row').remove();
 
         // remove the formation classes
+        let ready = $('#field').hasClass('ready') ? 'ready' : '';
         $('#field').removeClass();
-        $('#field').addClass('mx-auto text-center position-relative');
+        $('#field').addClass('field mx-auto text-center position-relative ' + ready);
 
         // removed saved formationId
         localStorage.removeItem('formationId');
+
+        if ($('#field').hasClass('ready'))
+        {
+            let resultId = $('#field').attr('data-result-id');
+            let time     = $('#timer > span').text();
+
+            // send an event that the current starters were subbed out
+            for (let id in this.starters)
+            {
+                $.ajax({
+                    url  : $('#field').attr('data-create-event-route'),
+                    type : 'POST',
+                    data : {
+                        result_id  : resultId,
+                        player_id  : id,
+                        time       : time,
+                        event_id   : '4'
+                    },
+                }).done((data) => {
+                    // do nothing on success
+                }).fail(() => {
+                    $('#field').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save sub out event.</p>');
+                });
+            }
+        }
 
         // reset the starters
         this.starters = {};
@@ -624,12 +668,19 @@ export default class Live
         // reset the additional form
         document.getElementById('additional-form').reset();
         $('input[name=xg] + label').css('opacity', 1);
-        $('#shooting-options').hide();
+        $('#pkfk-details').hide();
+        $('#assist-details').hide();
+        $('#xg-details').hide();
         
-        // shooting event?
-        if ($eventButton.hasClass('shooting'))
+        // show/hide the additional form details
+        let show = $eventButton.attr('data-show');
+        if (show)
         {
-            $('#shooting-options').show();
+            show = JSON.parse(show);
+            for (let i = 0; i < show.length; i++)
+            {
+                $('#' + show[i] + '-details').show();
+            }
         }
 
         // update additional modal title
@@ -658,10 +709,15 @@ export default class Live
         let time     = $('#timer > span').text();
         let eventId  = $eventSpan.attr('data-event-id');
 
+        // reset any player data passed to the additional modal
+        $('#additional-modal').removeAttr('data-player-id');
+
         // reset the additional form
         document.getElementById('additional-form').reset();
         $('input[name=xg] + label').css('opacity', 1);
-        $('#shooting-options').hide();
+        $('#pkfk-details').hide();
+        $('#assist-details').hide();
+        $('#xg-details').hide();
         
         let eventText = '';
 
@@ -669,10 +725,14 @@ export default class Live
         if ($eventSpan.hasClass('goal_against'))
         {
             eventText = 'Goal Against';
+
+            $('#xg-details').show();
         }
         if ($eventSpan.hasClass('shot_against'))
         {
             eventText = 'Shot Against (Off Target)';
+
+            $('#xg-details').show();
         }
         if ($eventSpan.hasClass('corner_kick_against'))
         {
@@ -761,7 +821,6 @@ export default class Live
         $('#no-events-yet').hide();
         $('#game-timeline').show();
 
-        // us events
         if (eventName == 'goal' || eventName == 'penalty_goal' || eventName == 'free_kick_goal')
         {
             // update the score
@@ -776,10 +835,15 @@ export default class Live
             this.timeline.addEvent(data, this.us);
 
             // Players
-            let pSelector = '#players-pane tr#player-' + data.player_id + ' td.goals';
-            $(pSelector).text(parseInt($(pSelector).text()) + 1);
+            let pSelector = '#players-pane tr#player-' + data.player_id + ' td';
+            $(pSelector + '.goals').text(parseInt($(pSelector + '.goals').text()) + 1);
+            $(pSelector + '.shots').text(parseInt($(pSelector + '.shots').text()) + 1);
 
-            $('#players-pane table').DataTable().rows().invalidate().draw();
+            if (data.additional)
+            {
+                let aSelector = '#players-pane tr#player-' + data.additional + ' td.assists';
+                $(aSelector).text(parseInt($(aSelector).text()) + 1);
+            }
         }
         if (eventName == 'shot_on_target' || eventName == 'penalty_on_target' || eventName == 'free_kick_on_target')
         {
@@ -790,8 +854,6 @@ export default class Live
 
             let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
             $(pSelector).text(parseInt($(pSelector).text()) + 1);
-
-            $('#players-pane table').DataTable().rows().invalidate().draw();
         }
         if (eventName == 'shot_off_target' || eventName == 'penalty_off_target' || eventName == 'free_kick_off_target')
         {
@@ -802,8 +864,6 @@ export default class Live
 
             let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
             $(pSelector).text(parseInt($(pSelector).text()) + 1);
-
-            $('#players-pane table').DataTable().rows().invalidate().draw();
         }
         if (eventName == 'corner_kick')
         {
@@ -817,33 +877,21 @@ export default class Live
 
             this.timeline.addEvent(data, this.us);
         }
-        if (eventName == 'save')
-        {
-            $('#game-shots-' + this.us).text(parseInt($('#game-shots-' + this.us).text()) + 1);
-            $('#game-shots-on-' + this.us).text(parseInt($('#game-shots-on-' + this.us).text()) + 1);
-
-            this.timeline.addEvent(data, this.us);
-        }
         if (eventName == 'tackle_won')
         {
             this.timeline.addEvent(data, this.us);
 
             let pSelector = '#players-pane tr#player-' + data.player_id + ' td.tackles';
             $(pSelector).text(parseInt($(pSelector).text()) + 1);
-
-            $('#players-pane table').DataTable().rows().invalidate().draw();
         }
         if (eventName == 'tackle_lost')
         {
             this.timeline.addEvent(data, this.us);
-
-            let pSelector = '#players-pane tr#player-' + data.player_id + ' td.tackles';
-            $(pSelector).text(parseInt($(pSelector).text()) + 1);
-
-            $('#players-pane table').DataTable().rows().invalidate().draw();
         }
         if (eventName == 'offsides')
         {
+            $('#game-offsides-' + this.us).text(parseInt($('#game-offsides-' + this.us).text()) + 1);
+
             this.timeline.addEvent(data, this.us);
         }
         if (eventName == 'yellow_card')
@@ -855,7 +903,6 @@ export default class Live
             this.timeline.addEvent(data, this.us);
         }
 
-        // them events
         if (eventName == 'goal_against')
         {
             $('#' + this.them + '-score > .score').text(parseInt($('#' + this.them + '-score > .score').text()) + 1);
@@ -865,6 +912,14 @@ export default class Live
             $('#game-shots-on-' + this.them).text(parseInt($('#game-shots-on-' + this.them).text()) + 1)
 
             this.timeline.addEvent(data, this.them);
+        }
+        if (eventName == 'save')
+        {
+            $('#game-shots-' + this.them).text(parseInt($('#game-shots-' + this.them).text()) + 1);
+            $('#game-shots-on-' + this.them).text(parseInt($('#game-shots-on-' + this.them).text()) + 1);
+
+             // yes this is right - shots count for them, but show up in timeline as us
+            this.timeline.addEvent(data, this.us);
         }
         if (eventName == 'shot_against')
         {
@@ -885,6 +940,9 @@ export default class Live
 
             this.timeline.addEvent(data, this.them);
         }
+
+        // redraw the datatable so sorting works again
+        $('#players-pane table').DataTable().rows().invalidate().draw();
 
         this.updateSummaryProgressBars();
     }
@@ -950,6 +1008,7 @@ export default class Live
             let clonedStarters = JSON.parse(JSON.stringify(savedStarters));
 
             this.drawer.addPlayerStarters(clonedStarters);
+            this.updatePlayerDropdowns();
         }
 
         // Game/Timer

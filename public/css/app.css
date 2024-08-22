@@ -22292,18 +22292,6 @@ th.dt-ordering-asc:after {
 #live #game-controls.initial #end-game, #live #game-controls.formation #end-game {
   display: none;
 }
-#live #game-controls.initial #formation-form, #live #game-controls.formation #formation-form {
-  display: block;
-}
-#live #game-controls.initial #current-formation, #live #game-controls.formation #current-formation {
-  display: none;
-}
-#live #game-controls.formation #formation-form {
-  display: none;
-}
-#live #game-controls.formation #current-formation {
-  display: block;
-}
 #live #game-controls.first #home-score, #live #game-controls.half #home-score, #live #game-controls.second #home-score {
   display: block;
 }
@@ -22323,12 +22311,6 @@ th.dt-ordering-asc:after {
   display: none;
 }
 #live #game-controls.first #end-game, #live #game-controls.half #end-game, #live #game-controls.second #end-game {
-  display: none;
-}
-#live #game-controls.first #formation-form, #live #game-controls.half #formation-form, #live #game-controls.second #formation-form {
-  display: none;
-}
-#live #game-controls.first #current-formation, #live #game-controls.half #current-formation, #live #game-controls.second #current-formation {
   display: none;
 }
 #live #game-controls.half #timer {
@@ -22420,21 +22402,6 @@ th.dt-ordering-asc:after {
   #live .main-content #formation-form > input {
     width: 100% !important;
   }
-  #live .main-content #field > img {
-    width: calc(100vw - 48px - 24px);
-  }
-  #live .main-content #field.formation-rows-4 {
-    padding-top: 50px;
-  }
-  #live .main-content #field.formation-rows-3 {
-    padding-top: 140px;
-  }
-  #live .main-content #field.formation-rows-2 {
-    padding-top: 170px;
-  }
-  #live .main-content #field .position.empty {
-    margin: 5px auto;
-  }
 }
 
 .field {
@@ -22450,67 +22417,68 @@ th.dt-ordering-asc:after {
 .field.formation-rows-2 {
   padding-top: 300px;
 }
-.field .position {
+.field .col {
+  min-height: 116px;
+}
+.field .col .position {
   width: 80px;
-  min-height: 80px;
-  margin: 0 auto;
+  margin: 5px auto;
   padding: 5px;
   position: relative;
 }
-.field .position button.btn-close {
+.field .col .position button.btn-close {
   position: absolute;
   top: 0;
   left: 0;
   cursor: pointer;
   z-index: 3;
 }
-.field .position .dropdown {
+.field .col .position .dropdown {
   display: none;
 }
-.field .position .dropdown .player-picker {
+.field .col .position .dropdown .player-picker {
   cursor: pointer;
   display: block;
 }
-.field .position .dropdown .player-picker:hover {
+.field .col .position .dropdown .player-picker:hover {
   color: white;
 }
-.field .position .dropdown .dropdown-menu {
+.field .col .position .dropdown .dropdown-menu {
   z-index: 1100; /* make it go over top the top nav */
 }
-.field .position .dropdown .dropdown-menu .dropdown-item {
+.field .col .position .dropdown .dropdown-menu .dropdown-item {
   margin: 4px 0;
 }
-.field .position h4, .field .position .h4 {
+.field .col .position h4, .field .col .position .h4 {
   display: none;
 }
-.field .position .event-picker {
+.field .col .position .event-picker {
   cursor: pointer;
   display: block;
   width: 80px;
   text-align: center;
 }
-.field .position .event-picker img {
+.field .col .position .event-picker img {
   background: #fff;
   max-height: 65px;
 }
-.field .position .event-picker .name {
+.field .col .position .event-picker .name {
   width: 80px;
   padding: 6px;
 }
-.field .position.empty {
+.field .col .position.empty {
   background: rgba(0, 0, 0, 0.3);
-  margin: 15px auto;
 }
-.field .position.empty button.btn-close {
+.field .col .position.empty button.btn-close {
   display: none;
 }
-.field .position.empty .dropdown {
+.field .col .position.empty .dropdown {
   display: block;
 }
-.field .position.empty h4, .field .position.empty .h4 {
+.field .col .position.empty h4, .field .col .position.empty .h4 {
   display: block;
 }
-.field .position.empty .event-picker {
+.field .col .position.empty .event-picker {
   display: none;
 }
 .field.field-sm {
@@ -22548,6 +22516,26 @@ th.dt-ordering-asc:after {
   line-height: 25px;
 }
 
+@media only screen and (max-width: 500px) {
+  .field > img {
+    width: calc(100vw - 48px - 24px);
+  }
+  .field.formation-rows-4 {
+    padding-top: 0;
+  }
+  .field.formation-rows-3 {
+    padding-top: 85px;
+  }
+  .field.formation-rows-2 {
+    padding-top: 170px;
+  }
+  .field .col {
+    min-height: 116px;
+  }
+  .field .col .position {
+    margin: 2px auto;
+  }
+}
 .event-timeline {
   position: relative;
   margin: 0 auto;

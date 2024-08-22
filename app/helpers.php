@@ -169,15 +169,14 @@ if (!function_exists('secondsToMinutes'))
     /**
      * secondsToMinutes
      * 
-     * Will display seconds in whole minutes, rounding up.
-     * So 15 mins and 1 second will be displayed as 16 mins.
+     * Will display seconds in whole minutes, rounded.
      *
      * @param int $seconds
      * @return int
      */
     function secondsToMinutes($time)
     {
-        return ceil($time / 60);
+        return round($time / 60);
     }
 }
 

@@ -1,8 +1,6 @@
 @extends('layouts.main')
 
 @section('body-id', 'live')
-@section('page-title', 'Game')
-@section('page-desc', 'Track games stats live')
 
 @section('content')
     <div class="container main-content">
@@ -110,11 +108,11 @@
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>M</th>
-                                        <th>G</th>
-                                        <th>A</th>
-                                        <th>S</th>
-                                        <th>T</th>
+                                        <th title="Minutes">M</th>
+                                        <th title="Goals">G</th>
+                                        <th title="Assists">A</th>
+                                        <th title="Shots">S</th>
+                                        <th title="Tackles">T</th>
                                     </tr>
                                 </thead>
                                 <tbody>
