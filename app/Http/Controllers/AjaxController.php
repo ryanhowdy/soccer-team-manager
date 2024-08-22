@@ -22,15 +22,16 @@ class AjaxController extends Controller
     public function gameStart(Request $request)
     {
         $validated = $request->validate([
-            'resultId'    => 'required|integer',
+            'resultId'    => 'required|integer|exists:results,id',
             'starters'    => 'required',
-            'formationId' => 'required|integer',
+            'formationId' => 'required|integer|exists:formations,id',
         ]);
 
         $positionLkup = Position::get()
             ->pluck('id', 'position')
             ->toArray();
 
+        // Save the starters
         foreach ($request->starters as $playerId => $positionName)
         {
             $event = new ResultEvent;
@@ -45,6 +46,13 @@ class AjaxController extends Controller
 
             $event->save();
         }
+
+        // Save the formation
+        $result = Result::find($request->resultId);
+
+        $result->formation_id = $request->formationId;
+
+        $result->save();
 
         return response()->json([
             'success' => true,
