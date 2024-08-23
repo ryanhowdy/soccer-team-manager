@@ -240,6 +240,22 @@ class GameController extends Controller
             EnumEvent::free_kick_off_target->value,
         ];
 
+        $goalEvents = [
+            EnumEvent::goal->value, 
+            EnumEvent::penalty_goal->value, 
+            EnumEvent::free_kick_goal->value
+        ];
+        $shotOnEvents = [
+            EnumEvent::shot_on_target->value,
+            EnumEvent::penalty_on_target->value,
+            EnumEvent::free_kick_on_target->value
+        ];
+        $shotOffEvents = [
+            EnumEvent::shot_off_target->value,
+            EnumEvent::penalty_off_target->value,
+            EnumEvent::free_kick_off_target->value,
+        ];
+
         foreach($resultEvents as $e)
         {
             // create a record for any players with stats that we track
@@ -256,7 +272,7 @@ class GameController extends Controller
                         'tackles'  => 0,
                     ];
                 }
-                if ($e->event_id == EnumEvent::goal->value && $e->additional && !isset($stats['players'][$e->additional]))
+                if (in_array($e->event_id, $goalEvents) && $e->additional && !isset($stats['players'][$e->additional]))
                 {
                     $stats['players'][$e->additional] = [
                         'player'   => $e->additionalPlayer,
@@ -334,7 +350,7 @@ class GameController extends Controller
             {
                 $fulltime = $e->time;
             }
-            if ($e->event_id == EnumEvent::goal->value)
+            if (in_array($e->event_id, $goalEvents))
             {
                 $stats[$goodGuys]['goals']++;
                 $stats[$goodGuys]['shots']++;
@@ -349,7 +365,7 @@ class GameController extends Controller
                     $stats['players'][$e->additional]['assists']++;
                 }
             }
-            if ($e->event_id == EnumEvent::shot_on_target->value)
+            if (in_array($e->event_id, $shotOnEvents))
             {
                 $stats[$goodGuys]['shots']++;
                 $stats[$goodGuys]['shots_on']++;
@@ -357,17 +373,31 @@ class GameController extends Controller
                 $stats['players'][$e->player_id]['shots']++;
                 $stats['players'][$e->player_id]['shots_on']++;
             }
-            if ($e->event_id == EnumEvent::shot_off_target->value)
+            if (in_array($e->event_id, $shotOffEvents))
             {
                 $stats[$goodGuys]['shots']++;
                 $stats[$goodGuys]['shots_off']++;
 
                 $stats['players'][$e->player_id]['shots']++;
             }
+            if ($e->event_id == EnumEvent::corner_kick->value)
+            {
+                $stats[$goodGuys]['corners']++;
+            }
+            if ($e->event_id == EnumEvent::foul->value)
+            {
+                $stats[$goodGuys]['fouls']++;
+            }
+            if ($e->event_id == EnumEvent::tackle_won->value)
+            {
+                $stats['players'][$e->player_id]['tackles']++;
+            }
+
             if ($e->event_id == EnumEvent::goal_against->value)
             {
                 $stats[$badGuys]['goals']++;
                 $stats[$badGuys]['shots']++;
+                $stats[$badGuys]['shots_on']++;
             }
             if ($e->event_id == EnumEvent::save->value)
             {
@@ -379,19 +409,11 @@ class GameController extends Controller
                 $stats[$badGuys]['shots']++;
                 $stats[$badGuys]['shots_off']++;
             }
-            if ($e->event_id == EnumEvent::corner_kick->value)
-            {
-                $stats[$goodGuys]['corners']++;
-            }
             if ($e->event_id == EnumEvent::corner_kick_against->value)
             {
                 $stats[$badGuys]['corners']++;
             }
             if ($e->event_id == EnumEvent::fouled->value)
-            {
-                $stats[$goodGuys]['fouls']++;
-            }
-            if ($e->event_id == EnumEvent::foul->value)
             {
                 $stats[$badGuys]['fouls']++;
             }
