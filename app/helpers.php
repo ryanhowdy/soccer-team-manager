@@ -28,9 +28,9 @@ if (!function_exists('getChartDataFromResults'))
     {
         // Figure out the chart data based on the results
         $chartData = [
-            'wdl'     => ['w' => 0, 'd' => 0, 'l' => 0],
-            'gpg'     => ['goals' => 0, 'games' => 0, 'gpg' => 0],
-            'gapg'    => ['allowed' => 0, 'games' => 0, 'gapg' => 0],
+            'wdl'     => ['w'       => 0, 'd'       => 0, 'l'     => 0],
+            'gpg'     => ['goals'   => 0, 'games'   => 0, 'gpg'   => 0],
+            'gapg'    => ['allowed' => 0, 'games'   => 0, 'gapg'  => 0],
             'goals'   => ['players' => [], 'labels' => '', 'data' => ''],
             'assists' => ['players' => [], 'labels' => '', 'data' => ''],
         ];
@@ -42,7 +42,7 @@ if (!function_exists('getChartDataFromResults'))
             $resultIds[$result->id] = $result->id;
 
             $goodGuys = $result->home_team_id == $teamId ? 'home' : 'away';
-            $badGuys  = $goodGuys === 'home'                              ? 'away' : 'home';
+            $badGuys  = $goodGuys === 'home'             ? 'away' : 'home';
 
             // win/draw/loss
             if ($result->{$goodGuys . '_team_score'} > $result->{$badGuys . '_team_score'})
@@ -76,7 +76,11 @@ if (!function_exists('getChartDataFromResults'))
         // Get player goals/assists
         $events = [];
         $events = ResultEvent::whereIn('result_id', $resultIds)
-            ->where('event_id', Event::goal->value)
+            ->whereIn('event_id', [
+                Event::goal->value,
+                Event::penalty_goal->value,
+                Event::free_kick_goal->value,
+            ])
             ->get();
 
         foreach ($events as $event)
@@ -92,12 +96,12 @@ if (!function_exists('getChartDataFromResults'))
             // assists
             if (!empty($event->additional))
             {
-                if (!isset($chartData['assists']['players'][$event->player_name]))
+                if (!isset($chartData['assists']['players'][$event->additionalPlayer->name]))
                 {
-                    $chartData['assists']['players'][$event->player_name] = 0;
+                    $chartData['assists']['players'][$event->additionalPlayer->name] = 0;
                 }
 
-                $chartData['assists']['players'][$event->player_name]++;
+                $chartData['assists']['players'][$event->additionalPlayer->name]++;
             }
 
         }
