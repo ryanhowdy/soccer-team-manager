@@ -2,6 +2,7 @@
 
 use App\Models\ResultEvent;
 use App\Enums\Event;
+use App\Enums\ResultStatus;
 
 /*
  * Helpers
@@ -39,6 +40,11 @@ if (!function_exists('getChartDataFromResults'))
 
         foreach ($results as $result)
         {
+            if ($result->status != ResultStatus::Done->value)
+            {
+                continue;
+            }
+
             $resultIds[$result->id] = $result->id;
 
             $goodGuys = $result->home_team_id == $teamId ? 'home' : 'away';
