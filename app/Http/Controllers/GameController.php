@@ -208,6 +208,8 @@ class GameController extends Controller
                 'corners'   => 0,
                 'offsides'  => 0,
                 'fouls'     => 0,
+                'xg'        => 0,
+                'xgs'       => '',
             ],
             'away' => [
                 'goals'     => 0,
@@ -217,6 +219,8 @@ class GameController extends Controller
                 'corners'   => 0,
                 'offsides'  => 0,
                 'fouls'     => 0,
+                'xg'        => 0,
+                'xgs'       => '',
             ],
         ];
 
@@ -364,6 +368,11 @@ class GameController extends Controller
                 {
                     $stats['players'][$e->additional]['assists']++;
                 }
+                if ($e->xg)
+                {
+                    $stats[$goodGuys]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$goodGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
             }
             if (in_array($e->event_id, $shotOnEvents))
             {
@@ -372,6 +381,12 @@ class GameController extends Controller
 
                 $stats['players'][$e->player_id]['shots']++;
                 $stats['players'][$e->player_id]['shots_on']++;
+
+                if ($e->xg)
+                {
+                    $stats[$goodGuys]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$goodGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
             }
             if (in_array($e->event_id, $shotOffEvents))
             {
@@ -379,6 +394,12 @@ class GameController extends Controller
                 $stats[$goodGuys]['shots_off']++;
 
                 $stats['players'][$e->player_id]['shots']++;
+
+                if ($e->xg)
+                {
+                    $stats[$goodGuys]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$goodGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
             }
             if ($e->event_id == EnumEvent::corner_kick->value)
             {
@@ -398,16 +419,34 @@ class GameController extends Controller
                 $stats[$badGuys]['goals']++;
                 $stats[$badGuys]['shots']++;
                 $stats[$badGuys]['shots_on']++;
+
+                if ($e->xg)
+                {
+                    $stats[$badGuys]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$badGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
             }
             if ($e->event_id == EnumEvent::save->value)
             {
                 $stats[$badGuys]['shots']++;
                 $stats[$badGuys]['shots_on']++;
+
+                if ($e->xg)
+                {
+                    $stats[$badGuys]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$badGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
             }
             if ($e->event_id == EnumEvent::shot_against->value)
             {
                 $stats[$badGuys]['shots']++;
                 $stats[$badGuys]['shots_off']++;
+
+                if ($e->xg)
+                {
+                    $stats[$badGuys]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$badGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
             }
             if ($e->event_id == EnumEvent::corner_kick_against->value)
             {

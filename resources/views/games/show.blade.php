@@ -128,8 +128,8 @@ $(document).ready(function() {
     $('#team-stats > .progress').each((index, progress) => {
         let $parent = $(progress).prev();
 
-        let goodCount  = parseInt($parent.find('div').first().text());
-        let badCount   = parseInt($parent.find('div').eq(2).text());
+        let goodCount  = parseFloat($parent.find('div').first().text());
+        let badCount   = parseFloat($parent.find('div').eq(2).text());
         let totalCount = goodCount + badCount;
 
         if (totalCount > 0) {

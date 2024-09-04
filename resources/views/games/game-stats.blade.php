@@ -22,12 +22,12 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Gls</th>
-                                <th>Ast</th>
-                                <th>Shot</th>
-                                <th>SOT</th>
-                                <th>Tkl</th>
+                                <th title="Player Name">Name</th>
+                                <th title="Goals">Gls</th>
+                                <th title="Assists">Ast</th>
+                                <th title="Total Shots">Shot</th>
+                                <th title="Shots on Target">SOT</th>
+                                <th title="Tackles">Tkl</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,6 +89,12 @@
                 <div id="game-goals-bad-guys">{{ $stats['away']['goals'] }}</div>
             </div>
             <div class="progress game-goals-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
+            <div class="d-flex justify-content-between">
+                <div id="game-xg-good-guys" title="{{ $stats['home']['xgs'] }}">{{ $stats['home']['xg'] }}</div>
+                <div>Expected Goals</div>
+                <div id="game-xg-bad-guys" title="{{ $stats['home']['xgs'] }}">{{ $stats['away']['xg'] }}</div>
+            </div>
+            <div class="progress game-xg-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
             <div class="d-flex justify-content-between">
                 <div id="game-shots-good-guys">{{ $stats['home']['shots'] }}</div>
                 <div>Shots</div>
