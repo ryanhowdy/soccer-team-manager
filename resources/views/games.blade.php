@@ -83,8 +83,11 @@
                     <i class="bi bi-clock"></i>
                 </div>
                 <div class="position-absolute top-0 end-0 small p-2">
-                    <i class="bi bi-tag"></i>
-                    {{ $result->competition->name }}
+                    <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
+                        href="{{ route('competitions.show', ['competition' => $result->competition->id]) }}">
+                        <i class="bi bi-tag"></i>
+                        {{ $result->competition->name }}
+                    </a>
                 </div>
                 <div class="home-team d-flex align-items-center justify-content-end">
                     <div class="me-4 text-center w-25">
@@ -120,7 +123,6 @@
         </div>
 
     </div><!--/container-->
-
 
     <div id="create-game" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">

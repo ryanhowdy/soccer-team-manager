@@ -68,7 +68,7 @@ class GameController extends Controller
             ->get();
 
         // Get 5 most recently created locations
-        $recentLocations = Location::orderBy('created_at')
+        $recentLocations = Location::orderByDesc('created_at')
             ->limit(5)
             ->get();
 
@@ -97,7 +97,7 @@ class GameController extends Controller
             });
         }
 
-        $results = $query->orderBy('date', 'desc')
+        $results = $query->orderByDesc('date')
             ->get()
             ->groupBy('status');
 

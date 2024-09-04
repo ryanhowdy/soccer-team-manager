@@ -60,6 +60,7 @@ class HomeController extends Controller
             ->with('location')
             ->where('status', 'S')
             ->whereBetween('date', [$todayStart, $todayEnd])
+            ->orderBy('date')
             ->get();
 
         foreach ($scheduledToday as $s)
@@ -79,6 +80,7 @@ class HomeController extends Controller
             ->with('location')
             ->where('status', 'S')
             ->whereNotBetween('date', [$todayStart, $todayEnd])
+            ->orderBy('date')
             ->get();
 
         foreach ($scheduled as $s)
