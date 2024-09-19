@@ -42,10 +42,12 @@ class GameController extends Controller
             ->get()
             ->keyBy('id');
 
-        $teamsByClub = [];
+        $teamsByClub   = [];
+        $teamIdsByClub = [];
         foreach ($teams as $team)
         {
             $teamsByClub[$team->club_name][] = $team->toArray();
+            $teamIdsByClub[$team->club_id][] = $team->id;
         }
 
         // Get only managed teams
@@ -78,32 +80,67 @@ class GameController extends Controller
         ]);
 
         // Any filters
-        $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
-        $teamId   = $request->has('filter-teams')   ? $request->input('filter-teams')   : null;
+        $selected = [
+            'seasonId' => $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last(),
+            'clubId'   => $request->has('filter-clubs')   ? $request->input('filter-clubs')   : null,
+            'teamId'   => $request->has('filter-teams')   ? $request->input('filter-teams')   : null,
+        ];
+
+        $seasonIds = [ $seasons->keys()->last() ];
+        $clubIds   = [];
+        $teamIds   = [];
+
+        if ($request->has('filter-seasons'))
+        {
+            if (is_null($request->input('filter-seasons')))
+            {
+                $seasonIds = $seasons->keys();
+            }
+            else
+            {
+                $seasonIds = [ $request->input('filter-seasons') ];
+            }
+        }
+        if ($request->has('filter-clubs') && !is_null($request->input('filter-clubs')))
+        {
+            $clubIds = $teamIdsByClub[ $request->input('filter-clubs') ];
+        }
+        if ($request->has('filter-teams') && !is_null($request->input('filter-teams')))
+        {
+            $teamIds = [ $request->input('filter-teams') ];
+        }
 
         // Get all the results
         $query = Result::query()
             ->where('status', ResultStatus::Scheduled)
-            ->orWhere(function (Builder $q) use ($seasonId) {
-                $q->where('season_id', $seasonId)
-                  ->where('status', ResultStatus::Done);
-            });
+            ->orWhere(function (Builder $q) use ($seasonIds, $clubIds, $teamIds) {
+                $q->where('status', ResultStatus::Done)
+                  ->whereIn('season_id', $seasonIds);
 
-        if (!empty($teamId))
-        {
-            $query->where(function (Builder $q) use ($teamId) {
-                $q->where('home_team_id', $teamId)
-                    ->orWhere('away_team_id', $teamId);
+                if ($clubIds)
+                {
+                    $q->where(function (Builder $b) use ($clubIds) {
+                        $b->whereIn('home_team_id', $clubIds)
+                          ->orWhereIn('away_team_id', $clubIds);
+                    });
+                }
+                else if ($teamIds)
+                {
+                    $q->where(function (Builder $b) use ($teamIds) {
+                        $b->whereIn('home_team_id', $teamIds)
+                          ->orWhereIn('away_team_id', $teamIds);
+                    });
+                }
             });
-        }
 
         $results = $query->orderByDesc('date')
             ->get()
             ->groupBy('status');
 
         return view('games', [
-            'selectedSeason' => $seasonId,
-            'selectedTeam'   => $teamId,
+            'selectedSeason' => $selected['seasonId'],
+            'selectedClub'   => $selected['clubId'],
+            'selectedTeam'   => $selected['teamId'],
             'seasons'        => $seasons,
             'teamsByClub'    => $teamsByClub,
             'results'        => $results,
@@ -206,7 +243,6 @@ class GameController extends Controller
                 'shots_on'  => 0,
                 'shots_off' => 0,
                 'corners'   => 0,
-                'offsides'  => 0,
                 'fouls'     => 0,
                 'xg'        => 0,
                 'xgs'       => '',
@@ -217,7 +253,6 @@ class GameController extends Controller
                 'shots_on'  => 0,
                 'shots_off' => 0,
                 'corners'   => 0,
-                'offsides'  => 0,
                 'fouls'     => 0,
                 'xg'        => 0,
                 'xgs'       => '',
@@ -236,6 +271,7 @@ class GameController extends Controller
             EnumEvent::shot_off_target->value,
             EnumEvent::tackle_won->value,
             EnumEvent::tackle_lost->value,
+            EnumEvent::offsides->value,
             EnumEvent::penalty_goal->value,
             EnumEvent::penalty_on_target->value,
             EnumEvent::penalty_off_target->value,
@@ -273,6 +309,7 @@ class GameController extends Controller
                         'assists'  => 0,
                         'shots'    => 0,
                         'shots_on' => 0,
+                        'offsides' => 0,
                         'tackles'  => 0,
                     ];
                 }
@@ -284,6 +321,7 @@ class GameController extends Controller
                         'assists'  => 0,
                         'shots'    => 0,
                         'shots_on' => 0,
+                        'offsides' => 0,
                         'tackles'  => 0,
                     ];
                 }
@@ -412,6 +450,10 @@ class GameController extends Controller
             if ($e->event_id == EnumEvent::tackle_won->value)
             {
                 $stats['players'][$e->player_id]['tackles']++;
+            }
+            if ($e->event_id == EnumEvent::offsides->value)
+            {
+                $stats['players'][$e->player_id]['offsides']++;
             }
 
             if ($e->event_id == EnumEvent::goal_against->value)

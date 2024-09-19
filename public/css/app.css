@@ -22223,6 +22223,9 @@ th.dt-ordering-asc:after {
   padding: 0;
   display: inline;
 }
+.select2-container .select2-results__option {
+  font-size: small;
+}
 
 #filter-options .select2-selection--single {
   padding: 0.157rem 2.25rem 0.157rem 0.75rem;
@@ -22481,37 +22484,50 @@ th.dt-ordering-asc:after {
 .field .col .position.empty .event-picker {
   display: none;
 }
+.field.field-view .position .btn-close {
+  display: none;
+}
+.field.field-view .position .dropdown {
+  display: none;
+}
 .field.field-sm {
   width: 200px;
   height: 303px;
 }
 .field.field-sm.formation-rows-4 {
-  padding-top: 80px;
+  padding-top: 30px;
 }
 .field.field-sm.formation-rows-3 {
-  padding-top: 125px;
+  padding-top: 85px;
 }
 .field.field-sm.formation-rows-2 {
-  padding-top: 170px;
+  padding-top: 135px;
 }
 .field.field-sm > img {
   width: 200px;
 }
-.field.field-sm .position {
+.field.field-sm .col {
+  min-height: auto !important;
+  margin-bottom: 10px;
+}
+.field.field-sm .col .position {
   width: 25px;
   height: 25px;
   min-height: 25px;
   padding: 0;
 }
-.field.field-sm .position.empty {
+.field.field-sm .col .position.empty {
   margin: 10px auto;
   background: white;
   border-radius: 15px;
 }
-.field.field-sm .position .dropdown {
-  display: none;
+.field.field-sm .col .position .dropdown .player-picker {
+  font-size: 16px !important;
 }
-.field.field-sm .position h4, .field.field-sm .position .h4 {
+.field.field-sm .col .position .dropdown .player-picker:hover {
+  color: black;
+}
+.field.field-sm .col .position h4, .field.field-sm .col .position .h4 {
   font-size: 10px;
   line-height: 25px;
 }

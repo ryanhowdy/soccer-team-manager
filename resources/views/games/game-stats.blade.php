@@ -27,6 +27,7 @@
                                 <th title="Assists">Ast</th>
                                 <th title="Total Shots">Shot</th>
                                 <th title="Shots on Target">SOT</th>
+                                <th title="Offsides">Off</th>
                                 <th title="Tackles">Tkl</th>
                             </tr>
                         </thead>
@@ -38,6 +39,7 @@
                                 <td>{{ $s['assists'] }}</td>
                                 <td>{{ $s['shots'] }}</td>
                                 <td>{{ $s['shots_on'] }}</td>
+                                <td>{{ $s['offsides'] }}</td>
                                 <td>{{ $s['tackles'] }}</td>
                             </tr>
                         @endforeach

@@ -6,7 +6,7 @@
     <div class="container main-content">
 
         <div class="rounded rounded-3 bg-white py-2 px-3 mb-2">
-            <div class="row row-cols-md-auto gx-2 align-items-center justify-content-end">
+            <div class="row row-cols-sm-auto gx-2 align-items-center justify-content-end">
                 <div class="col-12 d-inline-flex gap-1">
                     <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
@@ -27,7 +27,7 @@
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
                             Filter<span class="bi-filter ps-1"></span>
                         </button>
-                        <div class="dropdown-menu p-3">
+                        <div class="dropdown-menu p-3" style="width:300px">
                             <form id="filter" class="">
                                 <div class="mb-3">
                                     <select class="form-select" id="filter-seasons" name="filter-seasons">
@@ -45,12 +45,19 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <select class="form-select search-select" style="width:100%" id="filter-teams" name="filter-teams">
-                                        <option value="">All Teams</option>
+                                    <select class="form-select" id="filter-clubs" name="filter-clubs">
+                                        <option value="">All Clubs</option>
+                                    @foreach ($teamsByClub as $clubName => $teams)
+                                        <option value="{{ $teams[0]['club_id'] }}" @selected($selectedClub == $teams[0]['club_id'])>{{ $clubName }}</option>
+                                    @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <select class="form-select" id="filter-teams" name="filter-teams">
+                                        <option></option>
                                 @foreach ($teamsByClub as $clubName => $teams)
-                                        <optgroup label="{{ $clubName }}">
                                     @foreach ($teamsByClub[$clubName] as $team)
-                                        <option value="{{ $team['id'] }}" @selected($selectedTeam == $team['id'])>{{ $team['name'] }}</option>
+                                        <option value="{{ $team['id'] }}" data-club-id="{{ $team['club_id'] }}" @selected($selectedTeam == $team['id'])>{{ $team['name'] }}</option>
                                     @endforeach
                                 @endforeach
                                     </select>
@@ -144,6 +151,13 @@ $(document).ready(function() {
         dropdownParent: $('#create-game'),
         matcher:optgroupMatcher
     });
+
+    $('#filter-clubs').on('change', function() {
+        let option = this;
+        $('#filter-teams > option').hide();
+        $('#filter-teams > option[data-club-id="' + option.value + '"]').show();
+    });
+    $('#filter-clubs').trigger('change');
 });
 </script>
 

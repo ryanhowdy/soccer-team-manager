@@ -9,7 +9,10 @@
 
             {{-- Competition & Date/time --}}
             <div class="text-center mb-2">
-                <div class="competition text-uppercase">{{ $result->competition->name }}</div>
+                <div class="competition text-uppercase">
+                    <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
+                        href="{{ route('competitions.show', $result->competition->id) }}">{{ $result->competition->name }}</a>
+                </div>
                 <div class="date fw-bold fs-4">{{ $result->date->inUserTimezone()->format('M. jS, Y') }}</div>
                 <div class="time">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
             </div>
@@ -107,7 +110,7 @@
             <div class="tab-pane fade" id="lineup-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
                     <h3 class="mb-3">Lineup</h3>
-                    <div id="field" class="field mx-auto text-center position-relative">
+                    <div id="field" class="field field-view mx-auto text-center position-relative">
                         <img class="position-absolute start-0 top-0" src="{{ asset('img/field.svg') }}" />
                     </div><!--/#field-->
                 </div>
