@@ -5,14 +5,27 @@
 @section('content')
     <div class="container main-content">
 
-        <div class="rounded rounded-3 bg-white p-4 mb-3">
+        <div class="rounded rounded-3 bg-white p-4 mb-3 position-relative">
 
-            {{-- Competition & Date/time --}}
+            {{-- Location --}}
+            <div class="position-absolute top-0 start-0 small p-4">
+                <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
+                    href="https://www.google.com/maps/place/{{ urlencode($result->location->address) }}">
+                    {{ $result->location->name }}
+                    <i class="bi bi-geo-alt"></i>
+                </a>
+            </div>
+
+            {{-- Competition --}}
+            <div class="position-absolute top-0 end-0 small p-4">
+                <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover" href="{{ route('competitions.show', $result->competition->id) }}">
+                    <i class="bi bi-tag"></i>
+                    {{ $result->competition->name }}
+                </a>
+            </div>
+
+            {{-- Date/time --}}
             <div class="text-center mb-2">
-                <div class="competition text-uppercase">
-                    <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
-                        href="{{ route('competitions.show', $result->competition->id) }}">{{ $result->competition->name }}</a>
-                </div>
                 <div class="date fw-bold fs-4">{{ $result->date->inUserTimezone()->format('M. jS, Y') }}</div>
                 <div class="time">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
             </div>
@@ -49,24 +62,50 @@
                         <div class="fs-4 d-none d-lg-block">{{ $result->awayTeam->name }}</div>
                     </div>
                 </div>
-            </div>
+            </div>{{-- /.row --}}
 
             {{-- Game Summary --}}
             <div class="border-top pt-5 mt-5">
-                <div class="fs-4">{{ $result->location->name }}</div>
+                <div class="fs-4">Summary</div>
                 <div class="rounded p-3 text-bg-light">
-                @if($result->notes)
-                    {{ $result->notes }}
-                @else
-                    <a id="add-notes-link" href="#notes-form" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" data-bs-toggle="collapse">Add Notes</a>
-                    <form id="notes-form" class="collapse mt-2">
-                        <div class="mb-3">
-                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    <div class="row g-4">
+                        <div class="col-12 col-lg-6">
+                            <div class="pb-2 small text-muted">Player Summary</div>
+                        @foreach($managedPlayerIds as $id => $name)
+                            <div class="pb-2">
+                                {{ $name }} 
+                            @isset($starters[$id])
+                                started at {{ $starters[$id] }} and 
+                            @endisset
+                                played {{ $playingTime[$id]['minutes'] }} minutes.
+                            </div>
+                            @isset($stats['players'][$id])
+                                <div>{{ $stats['players'][$id]['goals'] }} goals</div>
+                                <div>{{ $stats['players'][$id]['assists'] }} assists</div>
+                                <div>{{ $stats['players'][$id]['shots'] }} shots</div>
+                                <div>{{ $stats['players'][$id]['shots_on'] }} shots on target</div>
+                                <div>{{ $stats['players'][$id]['offsides'] }} offsides</div>
+                                <div>{{ $stats['players'][$id]['tackles'] }} tackles</div>
+                            @endisset
+                        @endforeach
                         </div>
-                        <button type="submit" class="btn btn-sm btn-primary text-white">Submit</button>
-                    </form>
-                @endif
-                </div>
+                        {{-- Game Notes --}}
+                        <div class="col-12 col-lg-6">
+                            <div class="pb-2 small text-muted">Game Notes</div>
+                        @if($result->notes)
+                            {{ $result->notes }}
+                        @else
+                            <a id="add-notes-link" href="#notes-form" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" data-bs-toggle="collapse">Add Notes</a>
+                            <form id="notes-form" class="collapse mt-2">
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary text-white">Submit</button>
+                            </form>
+                        @endif
+                        </div>
+                    </div>{{-- /.row --}}
+                </div>{{-- /.rounded --}}
             </div>
 
             @if(!$result->live)

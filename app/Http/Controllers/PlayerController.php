@@ -12,6 +12,7 @@ use App\Models\Roster;
 use App\Models\Position;
 use App\Models\Result;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PlayerController extends Controller
 {
@@ -227,5 +228,72 @@ class PlayerController extends Controller
         dd($totals);
         return view('players.show', [
         ]);
+    }
+
+    /**
+     * edit 
+     * 
+     * @param Player $player 
+     * @param Request $request 
+     * @return Illuminate\View\View
+     */
+    public function edit(Player $player, Request $request)
+    {
+        $teams = DB::table('rosters as r')
+            ->select('t.*', 'r.number', 's.season', 's.year')
+            ->join('club_team_seasons as cts', 'r.club_team_season_id', '=', 'cts.id')
+            ->join('club_teams as t', 'cts.club_team_id', '=', 't.id')
+            ->join('seasons as s', 'cts.season_id', '=', 's.id')
+            ->where('r.player_id', $player->id)
+            ->orderBy('s.year', 'asc')
+            ->get();
+
+        return view('players.edit', [
+            'player' => $player,
+            'teams'  => $teams,
+        ]);
+    }
+
+    /**
+     * edit 
+     * 
+     * @param Player $player 
+     * @param Request $request 
+     * @return Illuminate\View\View
+     */
+    public function update(Player $player, Request $request)
+    {
+        $validated = $request->validate([
+            'name'       => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('players', 'name')->ignore($player),
+            ],
+            'nickname'   => 'nullable|string|max:255',
+            'birth_year' => 'required|date_format:Y',
+            'photo'      => 'nullable|image',
+            'managed'    => 'nullable|integer',
+        ]);
+
+        $player->name       = $request->name;
+        $player->birth_year = $request->birth_year;
+        $player->managed    = $request->has('managed')     ? 1                  : 0;
+        $player->nickname   = $request->filled('nickname') ? $request->nickname : null;
+
+        if ($request->has('photo'))
+        {
+            $file = $request->file('photo');
+
+            // upload the logo to the filesystem
+            $path = $file->store('photos', 'public');
+
+            // set the logo url in the db
+            $player->photo = 'storage/' . $path;
+        }
+
+        $player->save();
+
+        return redirect()->route('players.index');
     }
 }

@@ -232,6 +232,8 @@ class GameController extends Controller
             ->get()
             ->keyBy('id');
 
+        $managedPlayerIds = $players->where('managed', 1)->pluck('name', 'id')->toArray();
+
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
 
@@ -533,6 +535,7 @@ class GameController extends Controller
             'havePlayingTimeStats' => $havePlayingTimeStats,
             'players'              => $players,
             'starters'             => $starters,
+            'managedPlayerIds'     => $managedPlayerIds,
         ]);
     }
 

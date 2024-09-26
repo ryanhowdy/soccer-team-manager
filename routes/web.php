@@ -61,9 +61,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/compeitions/{competition}', [\App\Http\Controllers\CompetitionController::class, 'show'])->name('competitions.show');
 
     // Players
-    Route::get( '/players',      [\App\Http\Controllers\PlayerController::class, 'index'])->name('players.index');
-    Route::post('/players',      [\App\Http\Controllers\PlayerController::class, 'store'])->name('players.store');
-    Route::get( '/players/{id}', [\App\Http\Controllers\PlayerController::class, 'show'])->name('players.show');
+    Route::get( '/players',               [\App\Http\Controllers\PlayerController::class, 'index'])->name('players.index');
+    Route::post('/players',               [\App\Http\Controllers\PlayerController::class, 'store'])->name('players.store');
+    Route::get( '/players/{player}',      [\App\Http\Controllers\PlayerController::class, 'show'])->name('players.show');
+    Route::get( '/players/{player}/edit', [\App\Http\Controllers\PlayerController::class, 'edit'])->name('players.edit');
+    Route::post('/players/{player}/edit', [\App\Http\Controllers\PlayerController::class, 'update'])->name('players.update');
 
     // Rosters
     Route::get( '/rosters', [\App\Http\Controllers\RosterController::class, 'index'])->name('rosters.index');

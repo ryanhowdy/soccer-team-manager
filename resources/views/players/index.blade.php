@@ -61,10 +61,17 @@
                         @foreach($activePlayers[$team->id] as $p)
                             <tr class="active">
                                 <td>
-                                    <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['id' => $p->player->id]) }}">
-                                        <img src="/{{ $p->player->photo }}" class="img-fluid rounded-circle" style="width:50px"/>
-                                        {{ $p->player->name }}
-                                    </a>
+                                    <div class="d-flex align-items-center">
+                                        <div><img src="/{{ $p->player->photo }}" class="img-fluid rounded-circle" style="width:50px"/></div>
+                                        <div class="ps-2">
+                                            <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['player' => $p->player->id]) }}">
+                                                {{ $p->player->name }}
+                                            </a>
+                                        @if($p->player->managed)
+                                            <div class="fw-bold fst-italic small">* Managed</div>
+                                        @endif
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                 @foreach($p->player->positions as $pos)
@@ -78,7 +85,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <a href="#{{ $p->player->id }}"><span class="bi-pencil"></span></a>
+                                    <a href="{{ route('players.edit', ['player' => $p->player->id]) }}"><span class="bi-pencil"></span></a>
                                 </td>
                             </tr>
                         @endforeach
@@ -87,14 +94,14 @@
                         @foreach($inactivePlayers[$team->id] as $p)
                             <tr class="inactive">
                                 <td>
-                                    <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['id' => $p->id]) }}">
+                                    <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['player' => $p->id]) }}">
                                         <img src="/{{ $p->photo }}" class="img-fluid rounded-circle" style="width:50px"/>
                                         {{ $p->name }}
                                     </a>
                                 </td>
                                 <td>n/a</td>
                                 <td>
-                                    <a href="#{{ $p->id }}"><span class="bi-pencil"></span></a>
+                                    <a href="{{ route('players.edit', ['player' => $p->id]) }}"><span class="bi-pencil"></span></a>
                                 </td>
                             </tr>
                         @endforeach
