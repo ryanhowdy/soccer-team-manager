@@ -1,3 +1,15 @@
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
 #live
 {
     #game-controls
@@ -58,6 +70,16 @@
         #current-formation > span.badge
         {
             cursor: pointer;
+        }
+
+        #timer
+        {
+            cursor: pointer;
+
+            &.paused
+            {
+                animation: pulse 2s infinite;
+            }
         }
     }
 

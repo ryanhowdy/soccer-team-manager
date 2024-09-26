@@ -50,6 +50,11 @@ export default class Live
             this.clickStartSecondHalf(e);
         });
 
+        // Click Timer
+        $('.main-content').on('click', '#timer', (e) => {
+            this.clickPauseTimer(e);
+        });
+
         // Click End Game
         $('.main-content').on('click', '#end-game', (e) => {
             this.clickEndGame(e);
@@ -205,6 +210,28 @@ export default class Live
         // Set the timer time
         $('#timer > span').empty().append(time + ':00');
         this.resumeTimer();
+    }
+
+    /**
+     * clickPauseTimer
+     *
+     * @param {Object} event
+     * return null
+     */
+    clickPauseTimer(event)
+    {
+        if ($('#timer').hasClass('paused'))
+        {
+            $('#timer').removeClass('paused');
+            $('#field').removeClass('paused');
+            this.resumeTimer();
+        }
+        else
+        {
+            $('#timer').addClass('paused');
+            $('#field').addClass('paused');
+            clearInterval(this.timer);
+        }
     }
 
     /**

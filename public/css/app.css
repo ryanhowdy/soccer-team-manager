@@ -22274,6 +22274,17 @@ th.dt-ordering-asc:after {
   height: 50px;
 }
 
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 #live #game-controls.initial #home-score, #live #game-controls.formation #home-score {
   display: none;
 }
@@ -22350,6 +22361,12 @@ th.dt-ordering-asc:after {
 #live #game-controls #current-formation > span.badge {
   cursor: pointer;
 }
+#live #game-controls #timer {
+  cursor: pointer;
+}
+#live #game-controls #timer.paused {
+  animation: pulse 2s infinite;
+}
 #live #additional-modal #player_id > option[disabled] {
   display: none;
 }
@@ -22419,6 +22436,9 @@ th.dt-ordering-asc:after {
 }
 .field.formation-rows-2 {
   padding-top: 300px;
+}
+.field.paused {
+  opacity: 0.3;
 }
 .field .col {
   min-height: 116px;
