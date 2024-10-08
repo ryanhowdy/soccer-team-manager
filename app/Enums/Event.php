@@ -8,15 +8,12 @@ enum Event: int
     case start                = 2;
     case sub_in               = 3;
     case sub_out              = 4;
-    case goal_against         = 5;
     case shot_on_target       = 6;
     case shot_off_target      = 7;
     case tackle_won           = 8;
     case tackle_lost          = 9;
     case save                 = 10;
-    case shot_against         = 11;
     case corner_kick          = 12;
-    case corner_kick_against  = 13;
     case offsides             = 14;
     case foul                 = 15;
     case fouled               = 16;
@@ -30,4 +27,10 @@ enum Event: int
     case free_kick_off_target = 24;
     case halftime             = 25;
     case fulltime             = 26;
+
+    // XXX: Deprecated
+    case goal_against         = 5;
+    case shot_against         = 11;
+    case corner_kick_against  = 13;
+    // XXX: Deprecated
 }

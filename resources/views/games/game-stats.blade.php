@@ -16,7 +16,7 @@
             <div class="d-flex justify-content-between">
                 <div id="game-xg-good-guys" title="{{ $stats['home']['xgs'] }}">{{ $stats['home']['xg'] }}</div>
                 <div>Expected Goals</div>
-                <div id="game-xg-bad-guys" title="{{ $stats['home']['xgs'] }}">{{ $stats['away']['xg'] }}</div>
+                <div id="game-xg-bad-guys" title="{{ $stats['away']['xgs'] }}">{{ $stats['away']['xg'] }}</div>
             </div>
             <div class="progress game-xg-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
             <div class="d-flex justify-content-between">
@@ -44,11 +44,29 @@
             </div>
             <div class="progress game-corners-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
             <div class="d-flex justify-content-between">
+                <div id="game-offsides-good-guys">{{ $stats['home']['offsides'] }}</div>
+                <div>Offsides</div>
+                <div id="game-offsides-bad-guys">{{ $stats['away']['offsides'] }}</div>
+            </div>
+            <div class="progress game-offsides-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
+            <div class="d-flex justify-content-between">
                 <div id="game-fouls-good-guys">{{ $stats['home']['fouls'] }}</div>
                 <div>Fouls</div>
                 <div id="game-fouls-bad-guys">{{ $stats['away']['fouls'] }}</div>
             </div>
             <div class="progress game-fouls-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
+            <div class="d-flex justify-content-between">
+                <div id="game-fouls-good-guys">{{ $stats['home']['yellow_cards'] }}</div>
+                <div>Yellow Cards</div>
+                <div id="game-fouls-bad-guys">{{ $stats['away']['yellow_cards'] }}</div>
+            </div>
+            <div class="progress game-yellow-cards-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
+            <div class="d-flex justify-content-between">
+                <div id="game-fouls-good-guys">{{ $stats['home']['red_cards'] }}</div>
+                <div>Red Cards</div>
+                <div id="game-fouls-bad-guys">{{ $stats['away']['red_cards'] }}</div>
+            </div>
+            <div class="progress game-red-cards-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
         </div>
     </div>
 
@@ -87,7 +105,7 @@
                         <tbody>
                         @foreach($stats['players'] as $playerId => $s)
                             <tr>
-                                <td>{{ $s['player']->name }}</td>
+                                <td>@if($s['player']){{ $s['player']->name }}@endif</td>
                                 <td>{{ $s['goals'] }}</td>
                                 <td>{{ $s['assists'] }}</td>
                                 <td>{{ $s['shots'] }}</td>

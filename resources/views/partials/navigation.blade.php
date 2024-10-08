@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg sticky-top border-5 border-top border-dark bg-white">
+<nav class="navbar navbar-expand-lg sticky-top border-5 border-top border-dark bg-white {{ config('app.env') }}">
     <div class="container">
         <a class="navbar-brand me-5" href="{{ route('home') }}">STM</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-links">

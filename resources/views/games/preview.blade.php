@@ -29,14 +29,15 @@
                         <div class="ms-4">
                             <div class="fs-4">{{ $result->{$goodGuys . 'Team'}->name }}</div>
                         @if($last5Results->count())
-                            <div class="last-5-form" data-bs-toggle="tooltip" data-bs-title="Most Recent Form">
+                            <div class="last-5-form">
                             @foreach($last5Results as $r)
                                 <span @class([
                                     'text-white',
                                     'bg-success'   => ($r->win_draw_loss == 'W'),
                                     'bg-secondary' => ($r->win_draw_loss == 'D'),
                                     'bg-danger' => ($r->win_draw_loss == 'L'),
-                                ])>{{ $r->win_draw_loss }}</span>
+                                    ]) data-bs-toggle="tooltip" 
+                                    data-bs-title="{{ $r->date->inUserTimezone()->format('M. jS, Y') }} [{{ $r->home_team_score }} - {{ $r->away_team_score }}]">{{ $r->win_draw_loss }}</span>
                             @endforeach
                             </div>
                         @endif

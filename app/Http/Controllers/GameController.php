@@ -137,6 +137,12 @@ class GameController extends Controller
             ->get()
             ->groupBy('status');
 
+        // Scheduled game should show oldest first
+        if (isset($results['S']))
+        {
+            $results['S'] = $results['S']->reverse();
+        }
+
         return view('games', [
             'selectedSeason' => $selected['seasonId'],
             'selectedClub'   => $selected['clubId'],
@@ -240,24 +246,30 @@ class GameController extends Controller
         $stats = [
             'players' => [],
             'home'    => [
-                'goals'     => 0,
-                'shots'     => 0,
-                'shots_on'  => 0,
-                'shots_off' => 0,
-                'corners'   => 0,
-                'fouls'     => 0,
-                'xg'        => 0,
-                'xgs'       => '',
+                'goals'        => 0,
+                'shots'        => 0,
+                'shots_on'     => 0,
+                'shots_off'    => 0,
+                'corners'      => 0,
+                'fouls'        => 0,
+                'yellow_cards' => 0,
+                'red_cards'    => 0,
+                'offsides'     => 0,
+                'xg'           => 0,
+                'xgs'          => '',
             ],
             'away' => [
-                'goals'     => 0,
-                'shots'     => 0,
-                'shots_on'  => 0,
-                'shots_off' => 0,
-                'corners'   => 0,
-                'fouls'     => 0,
-                'xg'        => 0,
-                'xgs'       => '',
+                'goals'        => 0,
+                'shots'        => 0,
+                'shots_on'     => 0,
+                'shots_off'    => 0,
+                'corners'      => 0,
+                'fouls'        => 0,
+                'yellow_cards' => 0,
+                'red_cards'    => 0,
+                'offsides'     => 0,
+                'xg'           => 0,
+                'xgs'          => '',
             ],
         ];
 
@@ -300,8 +312,11 @@ class GameController extends Controller
 
         foreach($resultEvents as $e)
         {
+            // keep track of who this event is for (us/good or them/bad)
+            $usOrThem = $e->against == 1 ? $badGuys : $goodGuys;
+
             // create a record for any players with stats that we track
-            if (in_array($e->event_id, $playerStatsWeTrack))
+            if (!$e->against && in_array($e->event_id, $playerStatsWeTrack))
             {
                 if (!isset($stats['players'][$e->player_id]))
                 {
@@ -396,82 +411,97 @@ class GameController extends Controller
             }
             if (in_array($e->event_id, $goalEvents))
             {
-                $stats[$goodGuys]['goals']++;
-                $stats[$goodGuys]['shots']++;
-                $stats[$goodGuys]['shots_on']++;
+                $stats[$usOrThem]['goals']++;
+                $stats[$usOrThem]['shots']++;
+                $stats[$usOrThem]['shots_on']++;
 
-                $stats['players'][$e->player_id]['goals']++;
-                $stats['players'][$e->player_id]['shots']++;
-                $stats['players'][$e->player_id]['shots_on']++;
-
-                if ($e->additional)
-                {
-                    $stats['players'][$e->additional]['assists']++;
-                }
                 if ($e->xg)
                 {
-                    $stats[$goodGuys]['xg'] += number_format($e->xg / 10, 1);
-                    $stats[$goodGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                    $stats[$usOrThem]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$usOrThem]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
+
+                if (!$e->against)
+                {
+                    $stats['players'][$e->player_id]['goals']++;
+                    $stats['players'][$e->player_id]['shots']++;
+                    $stats['players'][$e->player_id]['shots_on']++;
+
+                    if ($e->additional)
+                    {
+                        $stats['players'][$e->additional]['assists']++;
+                    }
                 }
             }
             if (in_array($e->event_id, $shotOnEvents))
             {
-                $stats[$goodGuys]['shots']++;
-                $stats[$goodGuys]['shots_on']++;
-
-                $stats['players'][$e->player_id]['shots']++;
-                $stats['players'][$e->player_id]['shots_on']++;
+                $stats[$usOrThem]['shots']++;
+                $stats[$usOrThem]['shots_on']++;
 
                 if ($e->xg)
                 {
-                    $stats[$goodGuys]['xg'] += number_format($e->xg / 10, 1);
-                    $stats[$goodGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                    $stats[$usOrThem]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$usOrThem]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
+
+                if (!$e->against)
+                {
+                    $stats['players'][$e->player_id]['shots']++;
+                    $stats['players'][$e->player_id]['shots_on']++;
                 }
             }
             if (in_array($e->event_id, $shotOffEvents))
             {
-                $stats[$goodGuys]['shots']++;
-                $stats[$goodGuys]['shots_off']++;
-
-                $stats['players'][$e->player_id]['shots']++;
+                $stats[$usOrThem]['shots']++;
+                $stats[$usOrThem]['shots_off']++;
 
                 if ($e->xg)
                 {
-                    $stats[$goodGuys]['xg'] += number_format($e->xg / 10, 1);
-                    $stats[$goodGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                    $stats[$usOrThem]['xg'] += number_format($e->xg / 10, 1);
+                    $stats[$usOrThem]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                }
+
+                if (!$e->against)
+                {
+                    $stats['players'][$e->player_id]['shots']++;
                 }
             }
             if ($e->event_id == EnumEvent::corner_kick->value)
             {
-                $stats[$goodGuys]['corners']++;
+                $stats[$usOrThem]['corners']++;
             }
             if ($e->event_id == EnumEvent::foul->value)
             {
                 $stats[$goodGuys]['fouls']++;
             }
-            if ($e->event_id == EnumEvent::tackle_won->value)
+            if ($e->event_id == EnumEvent::fouled->value)
+            {
+                $stats[$badGuys]['fouls']++;
+            }
+            if ($e->event_id == EnumEvent::yellow_card->value)
+            {
+                $stats[$usOrThem]['yellow_cards']++;
+            }
+            if ($e->event_id == EnumEvent::red_card->value)
+            {
+                $stats[$usOrThem]['red_cards']++;
+            }
+            if ($e->event_id == EnumEvent::tackle_won->value && !$e->against)
             {
                 $stats['players'][$e->player_id]['tackles']++;
             }
             if ($e->event_id == EnumEvent::offsides->value)
             {
-                $stats['players'][$e->player_id]['offsides']++;
-            }
+                $stats[$usOrThem]['offsides']++;
 
-            if ($e->event_id == EnumEvent::goal_against->value)
-            {
-                $stats[$badGuys]['goals']++;
-                $stats[$badGuys]['shots']++;
-                $stats[$badGuys]['shots_on']++;
-
-                if ($e->xg)
+                if (!$e->against)
                 {
-                    $stats[$badGuys]['xg'] += number_format($e->xg / 10, 1);
-                    $stats[$badGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
+                    $stats['players'][$e->player_id]['offsides']++;
                 }
             }
             if ($e->event_id == EnumEvent::save->value)
             {
+                // NOTE: save is weird, because it is a good guy stat, but also counts as a bad guy shot/shot_on
                 $stats[$badGuys]['shots']++;
                 $stats[$badGuys]['shots_on']++;
 
@@ -480,25 +510,6 @@ class GameController extends Controller
                     $stats[$badGuys]['xg'] += number_format($e->xg / 10, 1);
                     $stats[$badGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
                 }
-            }
-            if ($e->event_id == EnumEvent::shot_against->value)
-            {
-                $stats[$badGuys]['shots']++;
-                $stats[$badGuys]['shots_off']++;
-
-                if ($e->xg)
-                {
-                    $stats[$badGuys]['xg'] += number_format($e->xg / 10, 1);
-                    $stats[$badGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
-                }
-            }
-            if ($e->event_id == EnumEvent::corner_kick_against->value)
-            {
-                $stats[$badGuys]['corners']++;
-            }
-            if ($e->event_id == EnumEvent::fouled->value)
-            {
-                $stats[$badGuys]['fouls']++;
             }
         }
 
@@ -563,6 +574,7 @@ class GameController extends Controller
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get();
+        dump($last5Results);
 
         // Get all the head to head games
         $head2HeadResults = Result::where('status', 'D')
@@ -618,50 +630,38 @@ class GameController extends Controller
 
         foreach ($resultEvents as $e)
         {
+            $goodOrBad = $e->against == 1 ? 'bad' : 'good';
+
             if ($e->event_id == EnumEvent::goal->value)
             {
-                $stats['good']['goals']++;
-                $stats['good']['shots']++;
-                $stats['good']['shots_on']++;
+                $stats[$goodOrBad]['goals']++;
+                $stats[$goodOrBad]['shots']++;
+                $stats[$goodOrBad]['shots_on']++;
             }
             if ($e->event_id == EnumEvent::shot_on_target->value)
             {
-                $stats['good']['shots']++;
-                $stats['good']['shots_on']++;
+                $stats[$goodOrBad]['shots']++;
+                $stats[$goodOrBad]['shots_on']++;
             }
             if ($e->event_id == EnumEvent::shot_off_target->value)
             {
-                $stats['good']['shots']++;
-                $stats['good']['shots_off']++;
-            }
-            if ($e->event_id == EnumEvent::goal_against->value)
-            {
-                $stats['bad']['goals']++;
-                $stats['bad']['shots']++;
+                $stats[$goodOrBad]['shots']++;
+                $stats[$goodOrBad]['shots_off']++;
             }
             if ($e->event_id == EnumEvent::save->value)
             {
                 $stats['bad']['shots']++;
                 $stats['bad']['shots_on']++;
             }
-            if ($e->event_id == EnumEvent::shot_against->value)
-            {
-                $stats['bad']['shots']++;
-                $stats['bad']['shots_off']++;
-            }
             if ($e->event_id == EnumEvent::corner_kick->value)
             {
-                $stats['good']['corners']++;
+                $stats[$goodOrBad]['corners']++;
             }
-            if ($e->event_id == EnumEvent::corner_kick_against->value)
-            {
-                $stats['bad']['corners']++;
-            }
-            if ($e->event_id == EnumEvent::fouled->value)
+            if ($e->event_id == EnumEvent::foul->value)
             {
                 $stats['good']['fouls']++;
             }
-            if ($e->event_id == EnumEvent::foul->value)
+            if ($e->event_id == EnumEvent::fouled->value)
             {
                 $stats['bad']['fouls']++;
             }

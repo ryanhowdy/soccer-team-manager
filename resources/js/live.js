@@ -91,7 +91,12 @@ export default class Live
         });
 
         // Click goal against
-        $('.main-content').on('click', '#game-controls .actions-against span', (e) => {
+        $('.main-content').on('click', '#game-controls .actions-against span.goal_against', (e) => {
+            this.clickGoalAgainst(e);
+        });
+
+        // Click event against
+        $('.main-content').on('click', '#game-controls .actions-against span.more_against', (e) => {
             this.clickEventAgainst(e);
         });
 
@@ -634,7 +639,23 @@ export default class Live
 
         let playerId = $eventPickerDiv.find('img').attr('data-player-id');
 
-        $('#event-modal').attr('data-player-id', playerId)
+        let goodGuysTeamName = $('#game-controls .team-name.good-guys').text();
+
+        // change all buttons to primary for (good guys)
+        $('#event-modal button.btn-secondary')
+            .removeClass('btn-secondary')
+            .addClass('btn-primary-light');
+
+        // Set header for (good guys)
+        $('#event-modal .modal-header .modal-title > span').text(goodGuysTeamName);
+
+        // Show all the event buttons
+        $('#event-modal button').show();
+
+        // show events modal and set player id and remove against flag
+        $('#event-modal')
+            .attr('data-player-id', playerId)
+            .attr('data-against', 0)
             .modal('show');
     }
 
@@ -685,10 +706,11 @@ export default class Live
      */
     clickEvent(event)
     {
-        let $eventButton = $(event.target);
+        let $eventButton = $(event.target).closest('button');
 
         let resultId = $('#field').attr('data-result-id');
         let playerId = $('#event-modal').attr('data-player-id');
+        let against  = $('#event-modal').attr('data-against');
         let time     = $('#timer > span').text();
         let eventId  = $eventButton.attr('data-event-id');
 
@@ -706,6 +728,12 @@ export default class Live
             show = JSON.parse(show);
             for (let i = 0; i < show.length; i++)
             {
+                // don't show assist for bad guys
+                if (against == "1" && show[i] == 'assist')
+                {
+                    continue;
+                }
+
                 $('#' + show[i] + '-details').show();
             }
         }
@@ -717,6 +745,46 @@ export default class Live
         // show the addition info modal, and pass data to it
         $('#additional-modal').attr('data-result-id', resultId)
             .attr('data-player-id', playerId)
+            .attr('data-against', against)
+            .attr('data-time', time)
+            .attr('data-event-id', eventId)
+            .modal('show');
+    }
+
+    /**
+     * clickGoalAgainst
+     *
+     * @param {Object} event
+     * return null
+     */
+    clickGoalAgainst(event)
+    {
+        let $eventSpan = $(event.target);
+
+        let resultId = $('#field').attr('data-result-id');
+        let time     = $('#timer > span').text();
+        let eventId  = $eventSpan.attr('data-event-id');
+
+        // reset any data passed to the additional modal
+        $('#additional-modal')
+            .removeAttr('data-player-id')
+            .removeAttr('data-against');
+
+        // reset the additional form
+        document.getElementById('additional-form').reset();
+        $('input[name=xg] + label').css('opacity', 1);
+
+        // show pk/fk and xg, hide assist
+        $('#pkfk-details').show();
+        $('#assist-details').hide();
+        $('#xg-details').show();
+
+        $('#additional-modal .modal-title').text('Goal Against');
+
+        // show the addition info modal, and pass data to it
+        $('#additional-modal')
+            .attr('data-result-id', resultId)
+            .attr('data-against', 1)
             .attr('data-time', time)
             .attr('data-event-id', eventId)
             .modal('show');
@@ -730,48 +798,25 @@ export default class Live
      */
     clickEventAgainst(event)
     {
-        let $eventSpan = $(event.target);
+        let badGuysTeamName = $('#game-controls .team-name.bad-guys').text();
 
-        let resultId = $('#field').attr('data-result-id');
-        let time     = $('#timer > span').text();
-        let eventId  = $eventSpan.attr('data-event-id');
+        // change all buttons to grey for (bad guys)
+        $('#event-modal button.btn-primary-light')
+            .removeClass('btn-primary-light')
+            .addClass('btn-secondary');
 
-        // reset any player data passed to the additional modal
-        $('#additional-modal').removeAttr('data-player-id');
+        // Set header for (bad guys)
+        $('#event-modal .modal-header .modal-title > span').text(badGuysTeamName);
 
-        // reset the additional form
-        document.getElementById('additional-form').reset();
-        $('input[name=xg] + label').css('opacity', 1);
-        $('#pkfk-details').hide();
-        $('#assist-details').hide();
-        $('#xg-details').hide();
-        
-        let eventText = '';
+        // hide a few events that don't make sense against
+        $('#event-modal #goal').hide();
+        $('#event-modal #save').hide();
+        $('#event-modal #foul').hide();
+        $('#event-modal #fouled').hide();
 
-        // update additional modal title
-        if ($eventSpan.hasClass('goal_against'))
-        {
-            eventText = 'Goal Against';
-
-            $('#xg-details').show();
-        }
-        if ($eventSpan.hasClass('shot_against'))
-        {
-            eventText = 'Shot Against (Off Target)';
-
-            $('#xg-details').show();
-        }
-        if ($eventSpan.hasClass('corner_kick_against'))
-        {
-            eventText = 'Corner Kick Against';
-        }
-
-        $('#additional-modal .modal-title').text(eventText);
-
-        // show the addition info modal, and pass data to it
-        $('#additional-modal').attr('data-result-id', resultId)
-            .attr('data-time', time)
-            .attr('data-event-id', eventId)
+        // show events modal
+        $('#event-modal')
+            .attr('data-against', 1)
             .modal('show');
     }
 
@@ -807,24 +852,37 @@ export default class Live
             additional = $('#additional-modal #player_id').val();
         }
 
+        let eventData = {
+            result_id  : $('#additional-modal').attr('data-result-id'),
+            player_id  : $('#additional-modal').attr('data-player-id'),
+            against    : $('#additional-modal').attr('data-against'),
+            time       : $('#additional-modal').attr('data-time'),
+            event_id   : $('#additional-modal').attr('data-event-id'),
+            additional : additional,
+            pk_fk      : $('#additional-modal input[name=pk_fk]:checked').val(),
+            xg         : $('input[name=xg]:checked').val(),
+            notes      : $('#notes').val(),
+        };
+
         $.ajax({
             url  : $('#field').attr('data-create-event-route'),
             type : 'POST',
-            data : {
-                result_id  : $('#additional-modal').attr('data-result-id'),
-                player_id  : $('#additional-modal').attr('data-player-id'),
-                time       : $('#additional-modal').attr('data-time'),
-                event_id   : $('#additional-modal').attr('data-event-id'),
-                additional : additional,
-                pk_fk      : $('#additional-modal input[name=pk_fk]:checked').val(),
-                xg         : $('input[name=xg]:checked').val(),
-                notes      : $('#notes').val(),
-            },
-        }).done((data) => {
+            data : eventData,
+        }).always(() => {
+            // clear any data saved to either modal
+            $('#event-modal')
+                .removeAttr('data-player-id')
+                .removeAttr('data-against');
+            $('#additional-modal')
+                .removeAttr('data-result-id')
+                .removeAttr('data-player-id')
+                .removeAttr('data-against')
+                .removeAttr('data-time')
+                .removeAttr('data-event-id');
             // close both modals
             $('#event-modal').modal('hide');
             $('#additional-modal').modal('hide');
-
+        }).done((data) => {
             // Update Summary, Events and Player stats
             this.updateSummaryEventPlayerStats(data.data);
         }).fail(() => {
@@ -843,6 +901,7 @@ export default class Live
     updateSummaryEventPlayerStats(data)
     {
         let eventName = data.event_name;
+        let usOrThem  = data.against == 1 ? this.them : this.us;
 
         // Hide the no stats yet message, show the timeline
         $('#no-events-yet').hide();
@@ -851,52 +910,61 @@ export default class Live
         if (eventName == 'goal' || eventName == 'penalty_goal' || eventName == 'free_kick_goal')
         {
             // update the score
-            $('#' + this.us + '-score > .score').text(parseInt($('#' + this.us + '-score > .score').text()) + 1);
+            $('#' + usOrThem + '-score > .score').text(parseInt($('#' + usOrThem + '-score > .score').text()) + 1);
 
             // Summary
-            $('#game-goals-' + this.us).text(parseInt($('#game-goals-' + this.us).text()) + 1);
-            $('#game-shots-' + this.us).text(parseInt($('#game-shots-' + this.us).text()) + 1);
-            $('#game-shots-on-' + this.us).text(parseInt($('#game-shots-on-' + this.us).text()) + 1);
+            $('#game-goals-' + usOrThem).text(parseInt($('#game-goals-' + usOrThem).text()) + 1);
+            $('#game-shots-' + usOrThem).text(parseInt($('#game-shots-' + usOrThem).text()) + 1);
+            $('#game-shots-on-' + usOrThem).text(parseInt($('#game-shots-on-' + usOrThem).text()) + 1);
 
             // Events
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
 
-            // Players
-            let pSelector = '#players-pane tr#player-' + data.player_id + ' td';
-            $(pSelector + '.goals').text(parseInt($(pSelector + '.goals').text()) + 1);
-            $(pSelector + '.shots').text(parseInt($(pSelector + '.shots').text()) + 1);
-
-            if (data.additional)
+            // Players (only for us)
+            if (data.against == 0)
             {
-                let aSelector = '#players-pane tr#player-' + data.additional + ' td.assists';
-                $(aSelector).text(parseInt($(aSelector).text()) + 1);
+                let pSelector = '#players-pane tr#player-' + data.player_id + ' td';
+                $(pSelector + '.goals').text(parseInt($(pSelector + '.goals').text()) + 1);
+                $(pSelector + '.shots').text(parseInt($(pSelector + '.shots').text()) + 1);
+
+                if (data.additional)
+                {
+                    let aSelector = '#players-pane tr#player-' + data.additional + ' td.assists';
+                    $(aSelector).text(parseInt($(aSelector).text()) + 1);
+                }
             }
         }
         if (eventName == 'shot_on_target' || eventName == 'penalty_on_target' || eventName == 'free_kick_on_target')
         {
-            $('#game-shots-' + this.us).text(parseInt($('#game-shots-' + this.us).text()) + 1);
-            $('#game-shots-on-' + this.us).text(parseInt($('#game-shots-on-' + this.us).text()) + 1);
+            $('#game-shots-' + usOrThem).text(parseInt($('#game-shots-' + usOrThem).text()) + 1);
+            $('#game-shots-on-' + usOrThem).text(parseInt($('#game-shots-on-' + usOrThem).text()) + 1);
 
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
 
-            let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
-            $(pSelector).text(parseInt($(pSelector).text()) + 1);
+            if (data.against == 0)
+            {
+                let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
+                $(pSelector).text(parseInt($(pSelector).text()) + 1);
+            }
         }
         if (eventName == 'shot_off_target' || eventName == 'penalty_off_target' || eventName == 'free_kick_off_target')
         {
-            $('#game-shots-' + this.us).text(parseInt($('#game-shots-' + this.us).text()) + 1);
-            $('#game-shots-off-' + this.us).text(parseInt($('#game-shots-off-' + this.us).text()) + 1);
+            $('#game-shots-' + usOrThem).text(parseInt($('#game-shots-' + usOrThem).text()) + 1);
+            $('#game-shots-off-' + usOrThem).text(parseInt($('#game-shots-off-' + usOrThem).text()) + 1);
 
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
 
-            let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
-            $(pSelector).text(parseInt($(pSelector).text()) + 1);
+            if (data.against == 0)
+            {
+                let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
+                $(pSelector).text(parseInt($(pSelector).text()) + 1);
+            }
         }
         if (eventName == 'corner_kick')
         {
-            $('#game-corners-' + this.us).text(parseInt($('#game-corners-' + this.us).text()) + 1);
+            $('#game-corners-' + usOrThem).text(parseInt($('#game-corners-' + usOrThem).text()) + 1);
 
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
         }
         if (eventName == 'foul')
         {
@@ -904,68 +972,47 @@ export default class Live
 
             this.timeline.addEvent(data, this.us);
         }
+        if (eventName == 'fouled')
+        {
+            $('#game-fouls-' + this.them).text(parseInt($('#game-fouls-' + this.them).text()) + 1)
+
+            this.timeline.addEvent(data, this.them);
+        }
         if (eventName == 'tackle_won')
         {
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
 
-            let pSelector = '#players-pane tr#player-' + data.player_id + ' td.tackles';
-            $(pSelector).text(parseInt($(pSelector).text()) + 1);
+            if (data.against == 0)
+            {
+                let pSelector = '#players-pane tr#player-' + data.player_id + ' td.tackles';
+                $(pSelector).text(parseInt($(pSelector).text()) + 1);
+            }
         }
         if (eventName == 'tackle_lost')
         {
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
         }
         if (eventName == 'offsides')
         {
-            $('#game-offsides-' + this.us).text(parseInt($('#game-offsides-' + this.us).text()) + 1);
+            $('#game-offsides-' + usOrThem).text(parseInt($('#game-offsides-' + usOrThem).text()) + 1);
 
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
         }
         if (eventName == 'yellow_card')
         {
-            this.timeline.addEvent(data, this.us);
+            this.timeline.addEvent(data, usOrThem);
         }
         if (eventName == 'red_card')
         {
-            this.timeline.addEvent(data, this.us);
-        }
-
-        if (eventName == 'goal_against')
-        {
-            $('#' + this.them + '-score > .score').text(parseInt($('#' + this.them + '-score > .score').text()) + 1);
-
-            $('#game-goals-' + this.them).text(parseInt($('#game-goals-' + this.them).text()) + 1)
-            $('#game-shots-' + this.them).text(parseInt($('#game-shots-' + this.them).text()) + 1)
-            $('#game-shots-on-' + this.them).text(parseInt($('#game-shots-on-' + this.them).text()) + 1)
-
-            this.timeline.addEvent(data, this.them);
+            this.timeline.addEvent(data, usOrThem);
         }
         if (eventName == 'save')
         {
             $('#game-shots-' + this.them).text(parseInt($('#game-shots-' + this.them).text()) + 1);
             $('#game-shots-on-' + this.them).text(parseInt($('#game-shots-on-' + this.them).text()) + 1);
 
-             // yes this is right - shots count for them, but show up in timeline as us
+            // yes this is right - shots count for them, but show up in timeline as us
             this.timeline.addEvent(data, this.us);
-        }
-        if (eventName == 'shot_against')
-        {
-            $('#game-shots-' + this.them).text(parseInt($('#game-shots-' + this.them).text()) + 1)
-            $('#game-shots-off-' + this.them).text(parseInt($('#game-shots-off-' + this.them).text()) + 1)
-
-            this.timeline.addEvent(data, this.them);
-        }
-        if (eventName == 'corner_kick_against')
-        {
-            $('#game-corners-' + this.them).text(parseInt($('#game-corners-' + this.them).text()) + 1)
-
-            this.timeline.addEvent(data, this.them);
-        }
-        if (eventName == 'fouled')
-        {
-            $('#game-fouls-' + this.them).text(parseInt($('#game-fouls-' + this.them).text()) + 1)
-
-            this.timeline.addEvent(data, this.them);
         }
 
         // redraw the datatable so sorting works again
@@ -975,7 +1022,7 @@ export default class Live
     }
 
     /**
-     * clickEvent
+     * updateSummaryProgressBars
      *
      * return null
      */

@@ -8,6 +8,7 @@ use App\Models\Result;
 use App\Models\Season;
 use App\Models\ClubTeam;
 use App\Models\Competition;
+use App\Enums\ResultStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 
@@ -103,21 +104,15 @@ class CompetitionController extends Controller
      */
     public function show(Competition $competition, Request $request)
     {
-        // Get all competitions
-        $competitions = Competition::where('club_team_id', $competition->club_team_id)
-            ->orderBy('type')
-            ->orderBy('started_at', 'desc')
-            ->get();
-
         // Get all the results for this competition
         $results = Result::where('competition_id', $competition->id)
+            ->where('status', ResultStatus::Done->value)
             ->get();
 
         $chartData = getChartDataFromResults($results, $competition->club_team_id);
 
         return view('competitions.show', [
             'selectedCompetition' => $competition,
-            'competitions'        => $competitions,
             'results'             => $results,
             'chartData'           => $chartData,
         ]);

@@ -12,14 +12,17 @@
                     <div class="d-flex">
                         <div class="mx-auto">
                             <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}"/>
-                            <div class="team-name pt-2 pb-1">{{ $result->homeTeam->name }}</div>
+                            <div @class([
+                                    'team-name pt-2 pb-1',
+                                    'good-guys' => $result->homeTeam->managed,
+                                    'bad-guys' => $result->awayTeam->managed,
+                                ])>{{ $result->homeTeam->name }}</div>
                         </div>
                         <div id="home-score" class="ms-4 actions-against">
                             <div class="score display-4 fw-bold">0</div>
                         @if($result->awayTeam->managed)
-                            <span class="goal_against material-symbols-outlined" data-event-id="5">sports_soccer</span>
-                            <span class="shot_against material-symbols-outlined" data-event-id="11">block</span>
-                            <span class="corner_kick_against material-symbols-outlined" data-event-id="13">flag</span>
+                            <span class="goal_against material-symbols-outlined" data-event-id="1">sports_soccer</span>
+                            <span class="more_against material-symbols-outlined">more_horiz</span>
                         @endif
                         </div>
                     </div>
@@ -58,14 +61,17 @@
                         <div id="away-score" class="me-4 actions-against">
                             <div class="score display-4 fw-bold">0</div>
                         @if($result->homeTeam->managed)
-                            <span class="goal_against material-symbols-outlined" data-event-id="5">sports_soccer</span>
-                            <span class="shot_against material-symbols-outlined" data-event-id="11">block</span>
-                            <span class="corner_kick_against material-symbols-outlined" data-event-id="13">flag</span>
+                            <span class="goal_against material-symbols-outlined" data-event-id="1">sports_soccer</span>
+                            <span class="more_against material-symbols-outlined">more_horiz</span>
                         @endif
                         </div>
                         <div class="mx-auto">
                             <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}"/>
-                            <div class="team-name pt-2 pb-1">{{ $result->awayTeam->name }}</div>
+                            <div @class([
+                                    'team-name pt-2 pb-1',
+                                    'good-guys' => $result->awayTeam->managed,
+                                    'bad-guys' => $result->homeTeam->managed,
+                                ])>{{ $result->awayTeam->name }}</div>
                         </div>
                     </div>
                 </div>

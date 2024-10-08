@@ -73,6 +73,7 @@ class AjaxController extends Controller
         $validated = $request->validate([
             'result_id'   => 'required|integer',
             'player_id'   => 'sometimes|integer',
+            'against'     => 'sometimes|integer',
             'time'        => 'required|regex:/^\d?\d?\d:\d\d$/',
             'event_id'    => 'required|integer',
             'pk_fk'       => 'nullable|in:penalty,free_kick',
@@ -109,7 +110,11 @@ class AjaxController extends Controller
         }
         if ($request->filled('player_id'))
         {
-            $event->player_id  = $request->player_id;
+            $event->player_id = $request->player_id;
+        }
+        if ($request->filled('against'))
+        {
+            $event->against = $request->against;
         }
         if ($request->filled('notes'))
         {

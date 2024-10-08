@@ -75,9 +75,13 @@
                             <div class="pb-2">
                                 {{ $name }} 
                             @isset($starters[$id])
-                                started at {{ $starters[$id] }} and 
+                                started at {{ $starters[$id] }}
+                            @else
+                                was a substitute
                             @endisset
-                                played {{ $playingTime[$id]['minutes'] }} minutes.
+                            @if($havePlayingTimeStats)
+                                and played {{ $playingTime[$id]['minutes'] }} minutes.
+                            @endisset
                             </div>
                             @isset($stats['players'][$id])
                                 <div>{{ $stats['players'][$id]['goals'] }} goals</div>
@@ -225,20 +229,11 @@ $(document).ready(function() {
     drawer.drawFormation(formation);
     drawer.addPlayerStarters(starters);
 
-
     let timeline = new EventTimeline('#game-timeline');
 
     for (let [i, data] of Object.entries(resultEvents))
     {
-        let side = goodGuys;
-
-        let badGuyEventIds = [
-            5, 11, 13
-        ];
-
-        if ($.inArray(data.event_id, badGuyEventIds) >= 0) {
-            side = badGuys;
-        }
+        let side = data.against ? badGuys : goodGuys;
 
         timeline.addEvent(data, side);
     }
