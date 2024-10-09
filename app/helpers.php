@@ -91,6 +91,11 @@ if (!function_exists('getChartDataFromResults'))
 
         foreach ($events as $event)
         {
+            if ($event->against)
+            {
+                continue;
+            }
+
             // goals
             if (!isset($chartData['goals']['players'][$event->player_name]))
             {
