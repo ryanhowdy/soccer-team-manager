@@ -99,7 +99,7 @@ class StatsTeamController extends Controller
 
         $results = $query->get();
 
-        $chartData = getChartDataFromResults($results, $selectedManagedTeam->id);
+        $chartData = \Chart::getData(['standard', 'homeaway'], $selectedManagedTeam->id, $results);
 
         return view('stats.team', [
             'selectedManagedTeam'     => $selectedManagedTeam,

@@ -109,7 +109,7 @@ class CompetitionController extends Controller
             ->where('status', ResultStatus::Done->value)
             ->get();
 
-        $chartData = getChartDataFromResults($results, $competition->club_team_id);
+        $chartData = \Chart::getData(['standard', 'homeaway'], $competition->club_team_id, $results);
 
         return view('competitions.show', [
             'selectedCompetition' => $competition,

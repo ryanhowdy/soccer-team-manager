@@ -142,18 +142,131 @@
                 </div>
             </div>
 
-            <div class="col-6 col-md-3">
-                <div class="rounded rounded-3 bg-white p-4 mb-3">
-                    <h5>Goals Per Game</h5>
-                    <h1>{{ $chartData['gpg']['gpg'] }}</h1>
-                </div>
-            </div>
+            <div class="col-12 col-md-6">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="rounded rounded-3 bg-white p-4 mb-3">
+                            <h5>Goals Per Game</h5>
+                            <h1>{{ $chartData['gpg']['gpg'] }}</h1>
+                        </div>
+                    </div>
 
-            <div class="col-6 col-md-3">
-                <div class="rounded rounded-3 bg-white p-4 mb-3">
-                    <h5>Goals Allowed Per Game</h5>
-                    <h1>{{ $chartData['gapg']['gapg'] }}</h1>
+                    <div class="col-6">
+                        <div class="rounded rounded-3 bg-white p-4 mb-3">
+                            <h5>Goals Allowed Per Game</h5>
+                            <h1>{{ $chartData['gapg']['gapg'] }}</h1>
+                        </div>
+                    </div>
                 </div>
+
+            @isset($chartData['homeaway'])
+                <div class="row">
+                    <div class="col">
+                        <div class="rounded rounded-3 bg-white p-4 mb-3">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-center">
+                                            <span data-bs-toggle="tooltip" data-bs-title="Win-Draw-Loss">Results</span>
+                                        </th>
+                                        <th class="text-center"><span data-bs-toggle="tooltip" data-bs-title="Goals Per Game">GPG</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold">Overall</td>
+                                        <td class="text-center">
+                                            {{ $chartData['homeaway']['overall']['wins'] }}-{{ $chartData['homeaway']['overall']['draws'] }}-{{ $chartData['homeaway']['overall']['losses'] }}
+                                        </td>
+                                        <td class="text-center">
+                                            <span @class([
+                                                "badge bg-success",
+                                                "opacity-100" => $chartData['homeaway']['overall']['gpg'] >= 2.5,
+                                                "opacity-75" => $chartData['homeaway']['overall']['gpg'] >= 1.5,
+                                                "opacity-50" => $chartData['homeaway']['overall']['gpg'] >= .5,
+                                                "opacity-25",
+                                                ])>{{ number_format($chartData['homeaway']['overall']['gpg'], 2) }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Home</td>
+                                        <td class="text-center">
+                                            {{ $chartData['homeaway']['home']['wins'] }}-{{ $chartData['homeaway']['home']['draws'] }}-{{ $chartData['homeaway']['home']['losses'] }}
+                                        </td>
+                                        <td class="text-center">
+                                            <span @class([
+                                                "badge bg-success",
+                                                "opacity-100" => $chartData['homeaway']['home']['gpg'] >= 2.5,
+                                                "opacity-75" => $chartData['homeaway']['home']['gpg'] >= 1.5,
+                                                "opacity-50" => $chartData['homeaway']['home']['gpg'] >= .5,
+                                                "opacity-25",
+                                                ])>{{ number_format($chartData['homeaway']['home']['gpg'], 2) }}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Away</td>
+                                        <td class="text-center">
+                                            {{ $chartData['homeaway']['away']['wins'] }}-{{ $chartData['homeaway']['away']['draws'] }}-{{ $chartData['homeaway']['away']['losses'] }}
+                                        </td>
+                                        <td class="text-center">
+                                            <span @class([
+                                                "badge bg-success",
+                                                "opacity-100" => $chartData['homeaway']['away']['gpg'] >= 2.5,
+                                                "opacity-75" => $chartData['homeaway']['away']['gpg'] >= 1.5,
+                                                "opacity-50" => $chartData['homeaway']['away']['gpg'] >= .5,
+                                                "opacity-25",
+                                                ])>{{ number_format($chartData['homeaway']['away']['gpg'], 2) }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="fw-bold text-muted">Stats</th>
+                                        <th class="text-center table-success">Overall</th>
+                                        <th class="text-center">Home</th>
+                                        <th class="text-center">Away</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold">Win %</td>
+                                        <td class="text-center table-success">{{ $chartData['homeaway']['overall']['win_percent'] }}&#37;</td>
+                                        <td class="text-center">{{ $chartData['homeaway']['home']['win_percent'] }}&#37;</td>
+                                        <td class="text-center">{{ $chartData['homeaway']['away']['win_percent'] }}&#37;</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Goals</td>
+                                        <td class="text-center table-success">{{ $chartData['homeaway']['overall']['goals'] }}</td>
+                                        <td class="text-center">{{ $chartData['homeaway']['home']['goals'] }}</td>
+                                        <td class="text-center">{{ $chartData['homeaway']['away']['goals'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Goals Against</td>
+                                        <td class="text-center table-success">{{ $chartData['homeaway']['overall']['goals_against'] }}</td>
+                                        <td class="text-center">{{ $chartData['homeaway']['home']['goals_against'] }}</td>
+                                        <td class="text-center">{{ $chartData['homeaway']['away']['goals_against'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">xG</td>
+                                        <td class="text-center table-success"></td>
+                                        <td class="text-center"></td>
+                                        <td class="text-center"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">xG Against</td>
+                                        <td class="table-success"></td>
+                                        <td class="text-center"></td>
+                                        <td class="text-center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endisset
             </div>
 
         </div><!--/.row-->

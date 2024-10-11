@@ -163,7 +163,7 @@ class HomeController extends Controller
         }
 
         // Figure out the chart data based on the results
-        $chartData = getChartDataFromResults($results, $selectedManagedTeam->id);
+        $chartData = \Chart::getData(['standard'], $selectedManagedTeam->id, $results);
 
         return view('home', [
             'scheduledToday'          => $scheduledToday,
