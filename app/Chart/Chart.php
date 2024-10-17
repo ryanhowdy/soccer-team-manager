@@ -183,6 +183,16 @@ class Chart
      */
     private function getGoalsPerPlayer($event)
     {
+        if (!in_array('goals', $this->options) && !in_array('standard', $this->options))
+        {
+            return;
+        }
+
+        if (!isset($this->chartData['goals']))
+        {
+            $this->chartData['goals'] = ['players' => [], 'labels' => '', 'data' => ''];
+        }
+
         if (!in_array($event->event_id, $this->goalEvents))
         {
             return;
@@ -205,16 +215,19 @@ class Chart
      */
     private function formatGoalsPerPlayer()
     {
-        array_multisort(
-            array_values($this->chartData['goals']['players']), 
-            SORT_DESC, 
-            array_keys($this->chartData['goals']['players']), 
-            SORT_ASC, 
-            $this->chartData['goals']['players']
-        );
+        if (isset($this->chartData['goals']))
+        {
+            array_multisort(
+                array_values($this->chartData['goals']['players']), 
+                SORT_DESC, 
+                array_keys($this->chartData['goals']['players']), 
+                SORT_ASC, 
+                $this->chartData['goals']['players']
+            );
 
-        $this->chartData['goals']['labels'] = "'" . implode("','", array_keys($this->chartData['goals']['players'])) . "'";
-        $this->chartData['goals']['data']   = implode(',', array_values($this->chartData['goals']['players']));
+            $this->chartData['goals']['labels'] = "'" . implode("','", array_keys($this->chartData['goals']['players'])) . "'";
+            $this->chartData['goals']['data']   = implode(',', array_values($this->chartData['goals']['players']));
+        }
     }
 
     /**
@@ -225,6 +238,16 @@ class Chart
      */
     private function getAssistsPerPlayer($event)
     {
+        if (!in_array('assists', $this->options) && !in_array('standard', $this->options))
+        {
+            return;
+        }
+
+        if (!isset($this->chartData['assists']))
+        {
+            $this->chartData['assists'] = ['players' => [], 'labels' => '', 'data' => ''];
+        }
+
         if (!in_array($event->event_id, $this->goalEvents))
         {
             return;
@@ -250,16 +273,19 @@ class Chart
      */
     private function formatAssistsPerPlayer()
     {
-        array_multisort(
-            array_values($this->chartData['assists']['players']), 
-            SORT_DESC, 
-            array_keys($this->chartData['assists']['players']), 
-            SORT_ASC, 
-            $this->chartData['assists']['players']
-        );
+        if (isset($this->chartData['assists']))
+        {
+            array_multisort(
+                array_values($this->chartData['assists']['players']), 
+                SORT_DESC, 
+                array_keys($this->chartData['assists']['players']), 
+                SORT_ASC, 
+                $this->chartData['assists']['players']
+            );
 
-        $this->chartData['assists']['labels'] = "'" . implode("','", array_keys($this->chartData['assists']['players'])) . "'";
-        $this->chartData['assists']['data']   = implode(',', array_values($this->chartData['assists']['players']));
+            $this->chartData['assists']['labels'] = "'" . implode("','", array_keys($this->chartData['assists']['players'])) . "'";
+            $this->chartData['assists']['data']   = implode(',', array_values($this->chartData['assists']['players']));
+        }
     }
 
     /**

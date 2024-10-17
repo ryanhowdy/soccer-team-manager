@@ -1,6 +1,7 @@
 
         <div class="row">
 
+        @isset($chartData['wdl'])
             <div class="col-12 col-md-6 col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
                     <h3>Results</h3>
@@ -39,7 +40,9 @@
                     </div>
                 </div><!--/.rounded-->
             </div><!--/.col-->
+        @endisset
 
+        @isset($chartData['goals'])
             <div class="col-12 col-md-6 col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
                     <h3>Goals</h3>
@@ -73,7 +76,9 @@
                     </div>
                 </div><!--/.rounded-->
             </div><!--/.col-->
+        @endisset
 
+        @isset($chartData['assists'])
             <div class="col-12 d-md-none d-lg-block col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
                     <h3>Assists</h3>
@@ -107,6 +112,7 @@
                     </div>
                 </div><!--/.rounded-->
             </div><!--/.col-->
+        @endisset
 
         </div><!--/.row-->
 
@@ -143,6 +149,8 @@
             </div>
 
             <div class="col-12 col-md-6">
+
+            @isset($chartData['gpg'])
                 <div class="row">
                     <div class="col-6">
                         <div class="rounded rounded-3 bg-white p-4 mb-3">
@@ -158,6 +166,7 @@
                         </div>
                     </div>
                 </div>
+            @endisset
 
             @isset($chartData['homeaway'])
                 <div class="row">
