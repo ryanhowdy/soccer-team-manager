@@ -574,7 +574,6 @@ class GameController extends Controller
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get();
-        dump($last5Results);
 
         // Get all the head to head games
         $head2HeadResults = Result::where('status', 'D')
@@ -750,15 +749,17 @@ class GameController extends Controller
     public function update($id, Request $request)
     {
         $validated = $request->validate([
-            'season_id'         => 'required|exists:seasons,id',
-            'competition_id'    => 'required|exists:competitions,id',
-            'location_id'       => 'required|exists:locations,id',
-            'date'              => 'required|date_format:Y-m-d',
-            'time'              => 'required|date_format:H:i',
-            'my_team_id'        => 'required|exists:club_teams,id',
-            'my_home_away'      => 'required|in:home,away',
-            'opponent_team_id'  => 'required|exists:club_teams,id',
-            'status'            => [Rule::enum(ResultStatus::class)],
+            'season_id'           => 'required|exists:seasons,id',
+            'competition_id'      => 'required|exists:competitions,id',
+            'location_id'         => 'required|exists:locations,id',
+            'date'                => 'required|date_format:Y-m-d',
+            'time'                => 'required|date_format:H:i',
+            'my_team_id'          => 'required|exists:club_teams,id',
+            'my_home_away'        => 'required|in:home,away',
+            'my_team_score'       => 'nullable|integer',
+            'opponent_team_id'    => 'required|exists:club_teams,id',
+            'opponent_team_score' => 'nullable|integer',
+            'status'              => [Rule::enum(ResultStatus::class)],
         ]);
 
         $result = Result::find($id);
@@ -768,21 +769,33 @@ class GameController extends Controller
         $date = Carbon::createFromFormat('Y-m-d H:i', $datetime, config('stm.timezone_display'));
         $date->tz('UTC');
 
+        $home = 'my';
+        $away = 'opponent';
+
+        if ($request->my_home_away == 'away')
+        {
+            $home = 'opponent';
+            $away = 'my';
+        }
+
         $result->season_id       = $request->season_id;
         $result->competition_id  = $request->competition_id;
         $result->location_id     = $request->location_id;
         $result->date            = $date;
+        $result->home_team_id    = $request->{$home."_team_id"};
+        $result->away_team_id    = $request->{$away."_team_id"};
         $result->status          = $request->status;
         $result->created_user_id = Auth()->user()->id;
         $result->updated_user_id = Auth()->user()->id;
 
-        $result->home_team_id = $request->my_team_id;
-        $result->away_team_id = $request->opponent_team_id;
-
-        if ($request->my_home_away == 'away')
+        if ($request->filled('my_team_score') && $request->filled('opponent_team_score'))
         {
-            $result->home_team_id = $request->opponent_team_id;
-            $result->away_team_id = $request->my_team_id;
+            $result->home_team_score = $request->{$home."_team_score"};
+            $result->away_team_score = $request->{$away."_team_score"};
+        }
+        if ($request->filled('notes'))
+        {
+            $result->notes = $request->notes;
         }
 
         $result->save();
