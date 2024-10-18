@@ -75,7 +75,20 @@
                                     </div>
                                     <span class="smaller fw-bold text-primary">{{ $comp->division }}</span>
                                 </td>
-                                <td></td>
+                                <td class="text-center">
+                                @isset($comp->place)
+                                    <div class="fs-1">{{ $comp->place }}</div>
+                                @else
+                                    <div class="row g-1">
+                                        <div class="col-auto">
+                                            <input class="form-control" type="number" data-id="{{ $comp->id }}" min="1" max="99"/>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button class="btn btn-outline-light"><i class="bi bi-check-lg"></i></button>
+                                        </div>
+                                    </div>
+                                @endisset
+                                </td>
                                 <td>
                                 @if($comp->total_levels)
                                     <div class="progress bg-light mb-1" style="max-width: 75px;" title="{{ $comp->level }} out of {{ $comp->total_levels }}">
@@ -94,14 +107,14 @@
                                 </td>
                                 <td>{{ $comp->started_at->format('Y-m-d') }}</td>
                                 <td>{{ $comp->ended_at->format('Y-m-d') }}</td>
-                                <td>
+                                <td class="text-center">
                                 @if($comp->website)
                                     <a class="fs-3" href="{{ $comp->website }}" target="_blank">
                                         <span class="bi-link"></span>
                                     </a>
                                 @endif
                                 </td>
-                                <td>
+                                <td class="text-center">
                                 @if($comp->notes)
                                     <a href="#" class="d-inline-block pt-2" data-bs-toggle="popover" data-bs-title="Notes" data-bs-content="{{ $comp->notes }}">
                                         <span class="bi-file-text"></span>
