@@ -25,7 +25,7 @@
             </div>
 
             {{-- Date/time --}}
-            <div class="text-center mb-2">
+            <div class="text-center mt-4 mb-2">
                 <div class="date fw-bold fs-4">{{ $result->date->inUserTimezone()->format('M. jS, Y') }}</div>
                 <div class="time">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
             </div>

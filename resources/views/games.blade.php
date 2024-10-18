@@ -6,8 +6,8 @@
     <div class="container main-content">
 
         <div class="rounded rounded-3 bg-white py-2 px-3 mb-2">
-            <div class="row row-cols-sm-auto gx-2 align-items-center justify-content-end">
-                <div class="col-12 d-inline-flex gap-1">
+            <div class="d-flex align-items-center justify-content-end">
+                <div class="pe-2">
                     <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
                             Sort<span class="bi-chevron-expand ps-1"></span>
@@ -22,7 +22,7 @@
                         </div>
                     </div><!--/.dropdown-->
                 </div>
-                <div class="col-12 d-inline-flex gap-1">
+                <div class="pe-2">
                     <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
                             Filter<span class="bi-filter ps-1"></span>
@@ -69,10 +69,10 @@
                         </div>
                     </div><!--/.dropdown-->
                 </div>
-                <div class="col-12">
+                <div class="">
                     <div class="vr"></div>
                 </div>
-                <div class="col-12">
+                <div class="ps-2">
                     <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-game">
                         <span class="bi-plus-lg pe-2"></span>Add Game
                     </a>
@@ -97,10 +97,11 @@
                     </a>
                 </div>
                 <div class="home-team d-flex align-items-center justify-content-end">
-                    <div class="me-4 text-center w-25">
-                        <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}"/>
-                        <div>{{ $result->homeTeam->name }}</div>
+                    <div class="d-none d-md-block text-end pe-2">
+                        <div class="club-name pe-2 text-uppercase small text-muted">{{ $result->homeTeam->club->name }}</div>
+                        <div class="team-name pe-2">{{ $result->homeTeam->name }}</div>
                     </div>
+                    <div class="pe-4"><img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}"/></div>
                 </div>
                 <div class="score text-center">
                 @if($status == 'D')
@@ -119,9 +120,10 @@
                 @endif
                 </div>
                 <div class="away-team d-flex align-items-center">
-                    <div class="ms-4 text-center w-25">
-                        <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}"/>
-                        <div>{{ $result->awayTeam->name }}</div>
+                    <div class="ps-4"><img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}"/></div>
+                    <div class="d-none d-md-block ps-4">
+                        <div class="club-name pe-2 text-uppercase small text-muted">{{ $result->awayTeam->club->name }}</div>
+                        <div class="team-name">{{ $result->awayTeam->name }}</div>
                     </div>
                 </div>
             </div>

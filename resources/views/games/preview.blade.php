@@ -21,8 +21,8 @@
             </div>
 
             {{-- Game Details --}}
-            <div class="row scheduled-game mb-5 mx-3">
-                <div class="col-4">
+            <div class="row scheduled-game mb-2 mx-3">
+                <div class="col-12 col-lg-4 mb-3">
                     <div class="home-team d-flex align-items-center">
                         <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->{$goodGuys . 'Team'}->club->name }}"
                             src="{{ asset($result->{$goodGuys . 'Team'}->club->logo) }}"/>
@@ -44,19 +44,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-1 text-center">
+                <div class="col-4 col-lg-1 mb-3 text-center">
                     <div class="mb-1">Wins</div>
                     <span class="bg-light px-4 py-2">{{ $counts['W'] }}</span>
                 </div>
-                <div class="col-2 text-center">
+                <div class="col-4 col-lg-2 mb-3 text-center">
                     <div class="mb-1">Draws</div>
                     <span class="bg-light px-4 py-2">{{ $counts['D'] }}</span>
                 </div>
-                <div class="col-1 text-center">
+                <div class="col-4 col-lg-1 mb-3 text-center">
                     <div class="mb-1">Loses</div>
                     <span class="bg-light px-4 py-2">{{ $counts['L'] }}</span>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-lg-4 mb-3">
                     <div class="away-team d-flex align-items-center justify-content-end">
                         <div class="me-4">
                             <div class="fs-4 mb-3">{{ $result->{$badGuys . 'Team'}->name }}</div>

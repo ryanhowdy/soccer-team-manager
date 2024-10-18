@@ -22368,6 +22368,11 @@ th.dt-ordering-asc:after {
 .game-listing .home-v-away:hover {
   background: #eee;
 }
+.game-listing .home-v-away .home-team,
+.game-listing .home-v-away .score,
+.game-listing .home-v-away .away-team {
+  padding-top: 30px;
+}
 .game-listing .home-v-away img.logo {
   height: 50px;
 }

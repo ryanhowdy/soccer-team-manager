@@ -54,10 +54,10 @@
                     <table id="{{ $compType }}-table" class="table table-bordered">
                         <thead>
                             <th>Name</th>
-                            <th>Place</th>
-                            <th>Level</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
+                            <th class="d-none d-md-table-cell">Place</th>
+                            <th class="d-none d-md-table-cell">Level</th>
+                            <th class="d-none d-md-table-cell">Start Date</th>
+                            <th class="d-none d-md-table-cell">End Date</th>
                             <th>Website</th>
                             <th>Notes</th>
                         </thead>
@@ -75,7 +75,7 @@
                                     </div>
                                     <span class="smaller fw-bold text-primary">{{ $comp->division }}</span>
                                 </td>
-                                <td class="text-center">
+                                <td class="d-none d-md-table-cell text-center">
                                 @isset($comp->place)
                                     <div class="fs-1">{{ $comp->place }}</div>
                                 @else
@@ -89,7 +89,7 @@
                                     </div>
                                 @endisset
                                 </td>
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                 @if($comp->total_levels)
                                     <div class="progress bg-light mb-1" style="max-width: 75px;" title="{{ $comp->level }} out of {{ $comp->total_levels }}">
                                         <div @class([
@@ -105,8 +105,8 @@
                                     </div>
                                 @endif
                                 </td>
-                                <td>{{ $comp->started_at->format('Y-m-d') }}</td>
-                                <td>{{ $comp->ended_at->format('Y-m-d') }}</td>
+                                <td class="d-none d-md-table-cell">{{ $comp->started_at->format('Y-m-d') }}</td>
+                                <td class="d-none d-md-table-cell">{{ $comp->ended_at->format('Y-m-d') }}</td>
                                 <td class="text-center">
                                 @if($comp->website)
                                     <a class="fs-3" href="{{ $comp->website }}" target="_blank">
