@@ -28,9 +28,30 @@ enum Event: int
     case halftime             = 25;
     case fulltime             = 26;
 
-    // XXX: Deprecated
-    case goal_against         = 5;
-    case shot_against         = 11;
-    case corner_kick_against  = 13;
-    // XXX: Deprecated
+    public static function getGoalValues()
+    {
+        return [
+            Event::goal->value, 
+            Event::penalty_goal->value, 
+            Event::free_kick_goal->value
+        ];
+    }
+
+    public static function getShotOnTargetValues()
+    {
+        return [
+            Event::shot_on_target->value,
+            Event::penalty_on_target->value,
+            Event::free_kick_on_target->value
+        ];
+    }
+
+    public static function getShotOffTargetValues()
+    {
+        return [
+            Event::shot_off_target->value,
+            Event::penalty_off_target->value,
+            Event::free_kick_off_target->value,
+        ];
+    }
 }
