@@ -217,10 +217,14 @@ class PlayerController extends Controller
             ->join('seasons as s', 'r.season_id', '=', 's.id')
             ->where(function (Builder $query) use ($playerId) {
                 return $query->where('e.player_id', $playerId)
-                    ->orWhere('e.additional', $playerId);
+                    ->orWhere('e.additional', $playerId)
+                    ->orWhere('e.event_id', Event::fulltime->value);
             })
             ->whereIn('r.season_id', $seasonIds)
-            ->get();
+            ->orderBy('e.time')
+            ->orderBy('e.id')
+            ->get()
+            ->groupBy('result_id');
 
         $defaults = [
             'games'     => 0,
@@ -229,8 +233,14 @@ class PlayerController extends Controller
             'shots'     => 0,
             'shots_on'  => 0,
             'starts'    => 0,
+            'playingTime' => [
+                'possible_secs' => 0,
+                'possible_mins' => 0,
+                'seconds'       => 0,
+                'minutes'       => 0,
+                'spans'         => [],
+            ],
             'position'  => [],
-            '_games'    => [],
         ];
 
         $stats = [
@@ -253,94 +263,183 @@ class PlayerController extends Controller
             ],
         ];
 
-        foreach ($resultEvents as $e)
+        foreach ($resultEvents as $resultId => $events)
         {
-            $type   = $e->competition_type;
-            $season = $e->season . ' ' . $e->year;
+            $type   = $events[0]->competition_type;
+            $season = $events[0]->season . ' ' . $events[0]->year;
+
+            $fulltime = 0;
+
+            $keyArr = [
+                ['key1' => 'seasons', 'key2' => $season],
+                ['key1' => 'totals',  'key2' => 'all'],
+                ['key1' => 'totals',  'key2' => $type],
+            ];
 
             if (!isset($stats['seasons'][$season]))
             {
                 $stats['seasons'][$season] = $defaults;
             }
 
-            // any event for this player counts as the player playing in that game
-            if (!isset($stats['seasons'][$season]['_games'][$e->result_id]))
-            {
-                $stats['seasons'][$season]['games']++;
-                $stats['seasons'][$season]['_games'][$e->result_id] = 1;
+            $stats['seasons'][$season]['games']++;
+            $stats['totals']['all']['games']++;
+            $stats['totals'][$type]['games']++;
 
-            }
-            if (!isset($stats['totals']['all']['_games'][$e->result_id]))
+            foreach ($events as $e)
             {
-                $stats['totals']['all']['games']++;
-                $stats['totals']['all']['_games'][$e->result_id] = 1;
-            }
-            if (!isset($stats['totals'][$type]['_games'][$e->result_id]))
-            {
-                $stats['totals'][$type]['games']++;
-                $stats['totals'][$type]['_games'][$e->result_id] = 1;
-            }
-
-            if (in_array($e->event_id, Event::getGoalValues()))
-            {
-                if ($e->player_id == $playerId)
+                // goal/assist
+                if (in_array($e->event_id, Event::getGoalValues()))
                 {
-                    $stats['seasons'][$season]['goals']++;
+                    if ($e->player_id == $playerId)
+                    {
+                        $stats['seasons'][$season]['goals']++;
+                        $stats['seasons'][$season]['shots']++;
+                        $stats['seasons'][$season]['shots_on']++;
+
+                        $stats['totals']['all']['goals']++;
+                        $stats['totals']['all']['shots']++;
+                        $stats['totals']['all']['shots_on']++;
+
+                        $stats['totals'][$type]['goals']++;
+                        $stats['totals'][$type]['shots']++;
+                        $stats['totals'][$type]['shots_on']++;
+                    }
+                    if ($e->additional == $playerId)
+                    {
+                        $stats['seasons'][$season]['assists']++;
+                        $stats['totals']['all']['assists']++;
+                        $stats['totals'][$type]['assists']++;
+                    }
+                }
+
+                // full time
+                if ($e->event_id == Event::fulltime->value)
+                {
+                    $secs = eventTimeToSeconds($e->time);
+
+                    $fulltime = $e->time;
+
+                    $stats['seasons'][$season]['playingTime']['possible_secs'] += $secs;
+                    $stats['totals']['all']['playingTime']['possible_secs'] += $secs;
+                    $stats['totals'][$type]['playingTime']['possible_secs'] += $secs;
+                }
+
+                // now skip any events where the player_id isn't this player
+                if ($e->player_id != $playerId)
+                {
+                    continue;
+                }
+
+                // starter
+                if ($e->event_id == Event::start->value)
+                {
+                    $span = [
+                        'game'  => $resultId,
+                        'start' => '00:00:00',
+                        'end'   => null,
+                    ];
+
+                    $stats['seasons'][$season]['playingTime']['spans'][] = $span;
+                    $stats['totals']['all']['playingTime']['spans'][] = $span;
+                    $stats['totals'][$type]['playingTime']['spans'][] = $span;
+
+                    $stats['seasons'][$season]['starts']++;
+                    $stats['totals']['all']['starts']++;
+                    $stats['totals'][$type]['starts']++;
+
+                    $stats['seasons'][$season]['position'][ $e['additional'] ] = isset($stats['seasons'][$season]['position'][ $e['additional'] ]) 
+                        ? ++$stats['seasons'][$season]['position'][ $e['additional'] ] : 1;
+
+                    $stats['totals']['all']['position'][ $e['additional'] ] = isset($stats['totals']['all']['position'][ $e['additional'] ]) 
+                        ? ++$stats['totals']['all']['position'][ $e['additional'] ] : 1;
+
+                    $stats['totals'][$type]['position'][ $e['additional'] ] = isset($stats['totals'][$type]['position'][ $e['additional'] ]) 
+                        ? ++$stats['totals'][$type]['position'][ $e['additional'] ] : 1;
+                }
+
+                // sub in
+                if ($e->event_id == Event::sub_in->value)
+                {
+                    $span = [
+                        'game'  => $resultId,
+                        'start' => $e->time,
+                        'end'   => null,
+                    ];
+
+                    $stats['seasons'][$season]['playingTime']['spans'][] = $span;
+                    $stats['totals']['all']['playingTime']['spans'][] = $span;
+                    $stats['totals'][$type]['playingTime']['spans'][] = $span;
+                }
+
+                // sub out
+                if ($e->event_id == Event::sub_out->value)
+                {
+                    foreach ($keyArr as $keys)
+                    {
+                        $k1 = $keys['key1'];
+                        $k2 = $keys['key2'];
+
+                        foreach ($stats[$k1][$k2]['playingTime']['spans'] as $i => $span)
+                        {
+                            if ($span['end'] === null && $span['game'] == $resultId)
+                            {
+                                $stats[$k1][$k2]['playingTime']['spans'][$i]['end'] = $e->time;
+
+                                $start = eventTimeToSeconds($span['start']);
+                                $end   = eventTimeToSeconds($e->time);
+
+                                $secs = $end - $start;
+
+                                $stats[$k1][$k2]['playingTime']['seconds'] += $secs;
+                            }
+                        }
+                    }
+                }
+
+                // shots on target
+                if (in_array($e->event_id, Event::getShotOnTargetValues()))
+                {
                     $stats['seasons'][$season]['shots']++;
                     $stats['seasons'][$season]['shots_on']++;
-
-                    $stats['totals']['all']['goals']++;
                     $stats['totals']['all']['shots']++;
                     $stats['totals']['all']['shots_on']++;
-
-                    $stats['totals'][$type]['goals']++;
                     $stats['totals'][$type]['shots']++;
                     $stats['totals'][$type]['shots_on']++;
                 }
-                if ($e->additional == $playerId)
+
+                // shots
+                if (in_array($e->event_id, Event::getShotOffTargetValues()))
                 {
-                    $stats['seasons'][$season]['assists']++;
-                    $stats['totals']['all']['assists']++;
-                    $stats['totals'][$type]['assists']++;
+                    $stats['seasons'][$season]['shots']++;
+                    $stats['totals']['all']['shots']++;
+                    $stats['totals'][$type]['shots']++;
                 }
             }
 
-            // now skip any events where the player_id isn't this player
-            if ($e->player_id != $playerId)
+            // cleanup playing time for this game
+            foreach ($keyArr as $keys)
             {
-                continue;
-            }
+                $k1 = $keys['key1'];
+                $k2 = $keys['key2'];
 
-            if ($e->event_id == Event::start->value)
-            {
-                $stats['seasons'][$season]['starts']++;
-                $stats['totals']['all']['starts']++;
-                $stats['totals'][$type]['starts']++;
+                foreach ($stats[$k1][$k2]['playingTime']['spans'] as $i => $span)
+                {
+                    if ($span['end'] === null && $span['game'] == $resultId)
+                    {
+                        $stats[$k1][$k2]['playingTime']['spans'][$i]['end'] = $fulltime;
 
-                $stats['seasons'][$season]['position'][ $e['additional'] ] = isset($stats['seasons'][$season]['position'][ $e['additional'] ]) 
-                    ? ++$stats['seasons'][$season]['position'][ $e['additional'] ] : 1;
+                        $start = eventTimeToSeconds($span['start']);
+                        $end   = eventTimeToSeconds($fulltime);
 
-                $stats['totals']['all']['position'][ $e['additional'] ] = isset($stats['totals']['all']['position'][ $e['additional'] ]) 
-                    ? ++$stats['totals']['all']['position'][ $e['additional'] ] : 1;
+                        $secs = $end - $start;
 
-                $stats['totals'][$type]['position'][ $e['additional'] ] = isset($stats['totals'][$type]['position'][ $e['additional'] ]) 
-                    ? ++$stats['totals'][$type]['position'][ $e['additional'] ] : 1;
-            }
+                        $stats[$k1][$k2]['playingTime']['seconds'] += $secs;
+                    }
+                }
 
-            if (in_array($e->event_id, Event::getShotOnTargetValues()))
-            {
-                $stats['seasons'][$season]['shots']++;
-                $stats['seasons'][$season]['shots_on']++;
-                $stats['totals']['all']['shots']++;
-                $stats['totals']['all']['shots_on']++;
-                $stats['totals'][$type]['shots']++;
-                $stats['totals'][$type]['shots_on']++;
-            }
-            if (in_array($e->event_id, Event::getShotOffTargetValues()))
-            {
-                $stats['seasons'][$season]['shots']++;
-                $stats['totals']['all']['shots']++;
-                $stats['totals'][$type]['shots']++;
+                // format everyones time in minutes
+                $stats[$k1][$k2]['playingTime']['minutes']       = secondsToMinutes($stats[$k1][$k2]['playingTime']['seconds']);
+                $stats[$k1][$k2]['playingTime']['possible_mins'] = secondsToMinutes($stats[$k1][$k2]['playingTime']['possible_secs']);
             }
         }
 

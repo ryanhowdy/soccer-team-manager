@@ -185,9 +185,24 @@ const htmlLegendPlugin = {
                     <tr class="text-end">
                         <td class="text-start border-end border-secondary-subtle">{{ $season }}</td>
                         <td>{{ $s['games'] }}</td>
-                        <td>{{ $s['starts'] }}</td>
-                        <td>{{-- $s['position'] --}}</td>
-                        <td class="border-end border-secondary-subtle">{{ $s['games'] }}</td>
+                        <td>
+                        @if($s['games'])
+                            <span data-bs-toggle="tooltip" data-bs-title="{{ $s['starts'] }} out of {{ $s['games'] }} games">
+                                {{ number_format(($s['starts'] / $s['games']) * 100) }}&percnt;
+                            </span>
+                        @endif
+                        </td>
+                        <td>
+                            {{-- $s['position'] --}}
+                        </td>
+                        <td class="border-end border-secondary-subtle">
+                        @if($s['playingTime']['possible_secs'])
+                            <span data-bs-toggle="tooltip" 
+                                data-bs-title="{{ $s['playingTime']['minutes'] }} out of {{ $s['playingTime']['possible_mins'] }} mins">
+                                {{ number_format(($s['playingTime']['minutes'] / $s['playingTime']['possible_mins']) * 100) }}&percnt;
+                            </span>
+                        @endif
+                        </td>
                         <td>{{ $s['shots'] }}</td>
                         <td>{{ $s['shots_on'] }}</td>
                         <td class="text-info">{{ $s['goals'] }}</td>
@@ -204,9 +219,21 @@ const htmlLegendPlugin = {
                     <tr class="border-top border-secondary fs-5 text-end">
                         <td class="text-start border-end border-secondary-subtle">Total</td>
                         <td>{{ $stats['totals']['all']['games'] }}</td>
-                        <td>{{ $stats['totals']['all']['starts'] }}</td>
+                        <td>
+                        @if($stats['totals']['all']['games'])
+                            <span data-bs-toggle="tooltip" data-bs-title="{{ $stats['totals']['all']['starts'] }} out of {{ $stats['totals']['all']['games'] }} games">
+                                {{ number_format(($stats['totals']['all']['starts'] / $stats['totals']['all']['games']) * 100) }}&percnt;
+                            </span>
+                        @endif
+                        </td>
                         <td>{{-- $stats['totals']['all']['position'] --}}</td>
-                        <td class="border-end border-secondary-subtle">{{ $stats['totals']['all']['games'] }}</td>
+                        <td class="border-end border-secondary-subtle">
+                        @if($stats['totals']['all']['playingTime']['possible_secs'])
+                            <span data-bs-toggle="tooltip" 
+                                data-bs-title="{{ $stats['totals']['all']['playingTime']['minutes'] }} out of {{ $stats['totals']['all']['playingTime']['possible_mins'] }} mins">
+                                {{ number_format(($stats['totals']['all']['playingTime']['minutes'] / $stats['totals']['all']['playingTime']['possible_mins']) * 100) }}&percnt;
+                            </span>
+                        @endif
                         <td>{{ $stats['totals']['all']['shots'] }}</td>
                         <td>{{ $stats['totals']['all']['shots_on'] }}</td>
                         <td class="text-info">{{ $stats['totals']['all']['goals'] }}</td>
@@ -224,9 +251,22 @@ const htmlLegendPlugin = {
                     <tr class="border-top border-secondary fst-italic text-end">
                         <td class="text-start border-end border-secondary-subtle">{{ $type }}</td>
                         <td>{{ $s['games'] }}</td>
-                        <td>{{ $s['starts'] }}</td>
+                        <td>
+                        @if($s['games'])
+                            <span data-bs-toggle="tooltip" data-bs-title="{{ $s['starts'] }} out of {{ $s['games'] }} games">
+                                {{ number_format(($s['starts'] / $s['games']) * 100) }}&percnt;
+                            </span>
+                        @endif
+                        </td>
                         <td>{{-- $s['position'] --}}</td>
-                        <td class="border-end border-secondary-subtle">{{ $s['games'] }}</td>
+                        <td class="border-end border-secondary-subtle">
+                        @if($s['playingTime']['possible_secs'])
+                            <span data-bs-toggle="tooltip" 
+                                data-bs-title="{{ $s['playingTime']['minutes'] }} out of {{ $s['playingTime']['possible_mins'] }} mins">
+                                {{ number_format(($s['playingTime']['minutes'] / $s['playingTime']['possible_mins']) * 100) }}&percnt;
+                            </span>
+                        @endif
+                        </td>
                         <td>{{ $s['shots'] }}</td>
                         <td>{{ $s['shots_on'] }}</td>
                         <td class="text-info">{{ $s['goals'] }}</td>
