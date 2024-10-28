@@ -13,9 +13,11 @@ use App\Models\Position;
 use App\Models\Result;
 use App\Models\ResultEvent;
 use App\Enums\Event;
+use App\Enums\ResultStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 
 class PlayerController extends Controller
 {
@@ -195,39 +197,154 @@ class PlayerController extends Controller
     /**
      * show
      *
+     * @param Player $player 
+     * @param Request $request 
      * @return Illuminate\View\View
      */
-    public function show($playerId, Request $request)
+    public function show(Player $player, Request $request)
     {
-        // Get the player
-        $player = Player::find($playerId);
+        $playerId = $player->id;
 
         // Find out which seasons this player was on the team for
-        $seasonIds = Roster::with('clubTeamSeason')
+        $clubTeamSeasonIds = Roster::with('clubTeamSeason')
             ->where('player_id', '=', $playerId)
             ->get()
-            ->pluck('clubTeamSeason.season_id')
+            ->pluck('clubTeamSeason.id')
             ->toArray();
+
+        // Get all games this user could have played in
+        $results = Result::from('results as r')
+            ->select('r.*', 'c.type as competition_type', 's.id as season_id', 's.season', 's.year')
+            ->join('competitions as c', 'r.competition_id', '=', 'c.id')
+            ->join('club_team_seasons as ts', 'r.club_team_season_id', '=', 'ts.id')
+            ->join('seasons as s', 'ts.season_id', '=', 's.id')
+            ->whereIn('club_team_season_id', $clubTeamSeasonIds)
+            ->where('r.status', ResultStatus::Done->value)
+            ->orderBy('s.year')
+            ->get();
+
+        $resultIds = $results->pluck('id')->toArray();
 
         // Get events from the games this user could have played in
         $resultEvents = ResultEvent::from('result_events as e')
-            ->select('e.*', 'c.type as competition_type', 's.season', 's.year')
+            ->select('e.*')
             ->join('results as r', 'e.result_id', '=', 'r.id')
-            ->join('competitions as c', 'r.competition_id', '=', 'c.id')
-            ->join('seasons as s', 'r.season_id', '=', 's.id')
             ->where(function (Builder $query) use ($playerId) {
                 return $query->where('e.player_id', $playerId)
                     ->orWhere('e.additional', $playerId)
                     ->orWhere('e.event_id', Event::fulltime->value);
             })
-            ->whereIn('r.season_id', $seasonIds)
+            ->orWhereIn('r.id', $resultIds)
             ->orderBy('e.time')
             ->orderBy('e.id')
             ->get()
             ->groupBy('result_id');
 
+        $charts = [
+            'goals' => [
+                'labels' => '',
+                'data'   => '',
+            ],
+            'assists' => [
+                'labels' => '',
+                'data'   => '',
+            ],
+        ];
+
+        $stats = $this->calculateStats($playerId, $results, $resultEvents, 'seasons');
+
+        foreach ($stats['seasons'] as $season => $data)
+        {
+            $charts['goals']['labels'] .= "'" . $season . "',";
+            $charts['goals']['data']   .= "'" . $data['goals'] . "',";
+
+            $charts['assists']['labels'] .= "'" . $season . "',";
+            $charts['assists']['data']   .= "'" . $data['assists'] . "',";
+        }
+
+        return view('players.show', [
+            'stats'  => $stats,
+            'charts' => $charts,
+            'player' => $player,
+        ]);
+    }
+
+    /**
+     * seasonShow
+     *
+     * @param Player $player 
+     * @param Season $season 
+     * @param Request $request 
+     * @return Illuminate\View\View
+     */
+    public function seasonShow(Player $player, Season $season, Request $request)
+    {
+        $playerId = $player->id;
+
+        // Find out which seasons this player was on the team for
+        $clubTeamSeasonIds = Roster::with('clubTeamSeason')
+            ->where('player_id', '=', $playerId)
+            ->get()
+            ->pluck('clubTeamSeason.id')
+            ->toArray();
+
+        // Get all games this user could have played in
+        $results = Result::from('results as r')
+            ->select(
+                'r.*', 
+                's.season', 
+                's.year', 
+                'c.type as competition_type',
+                'c.name as competition_name',
+            )
+            ->join('competitions as c', 'r.competition_id', '=', 'c.id')
+            ->join('club_team_seasons as ts', 'r.club_team_season_id', '=', 'ts.id')
+            ->join('seasons as s', 'ts.season_id', '=', 's.id')
+            ->where('ts.season_id', $season->id)
+            ->whereIn('club_team_season_id', $clubTeamSeasonIds)
+            ->where('r.status', ResultStatus::Done->value)
+            ->orderBy('s.year')
+            ->get();
+
+        $resultIds = $results->pluck('id')->toArray();
+
+        // Get events from the games this user could have played in
+        $resultEvents = ResultEvent::from('result_events as e')
+            ->select('e.*')
+            ->join('results as r', 'e.result_id', '=', 'r.id')
+            ->where(function (Builder $query) use ($playerId) {
+                return $query->where('e.player_id', $playerId)
+                    ->orWhere('e.additional', $playerId)
+                    ->orWhere('e.event_id', Event::fulltime->value);
+            })
+            ->whereIn('r.id', $resultIds)
+            ->orderBy('e.time')
+            ->orderBy('e.id')
+            ->get()
+            ->groupBy('result_id');
+
+        $stats = $this->calculateStats($playerId, $results, $resultEvents, 'games');
+
+        return view('players.seasons-show', [
+            'stats'  => $stats,
+            'player' => $player,
+        ]);
+    }
+
+    /**
+     * calculateStats 
+     * 
+     * @param int $playerId 
+     * @param array $results 
+     * @param array $resultEvents 
+     * @param string $groupBy 
+     * @return null
+     */
+    private function calculateStats($playerId, $results, $resultEvents, $groupBy)
+    {
         $defaults = [
             'games'     => 0,
+            'events'    => 0,
             'goals'     => 0,
             'assists'   => 0,
             'shots'     => 0,
@@ -240,61 +357,82 @@ class PlayerController extends Controller
                 'minutes'       => 0,
                 'spans'         => [],
             ],
-            'position'  => [],
+            'position'   => [
+                'positions' => [],
+                'total'     => 0,
+                'most'      => '',
+            ],
+            '_id' => null,
         ];
 
         $stats = [
-            'seasons'  => [],
-            'totals'   => [
+            $groupBy => [],
+            'totals' => [
                 'all'      => $defaults,
                 'League'   => $defaults,
                 'Cup'      => $defaults,
                 'Friendly' => $defaults,
             ],
-        ];
-        $charts = [
-            'goals' => [
-                'labels' => '',
-                'data'   => '',
-            ],
-            'assists' => [
-                'labels' => '',
-                'data'   => '',
-            ],
+            '_player_id'        => $playerId,
+            '_result_data_lkup' => [],
         ];
 
-        foreach ($resultEvents as $resultId => $events)
+        foreach ($results as $r)
         {
-            $type   = $events[0]->competition_type;
-            $season = $events[0]->season . ' ' . $events[0]->year;
+            $type = $r->competition_type;
+
+            $groupBy2nd = $r->season . ' ' . $r->year;
+            if ($groupBy == 'games')
+            {
+                $stats['_result_data_lkup'][$r->id] = $r;
+
+                $groupBy2nd = $r->id;
+            }
 
             $fulltime = 0;
 
             $keyArr = [
-                ['key1' => 'seasons', 'key2' => $season],
-                ['key1' => 'totals',  'key2' => 'all'],
-                ['key1' => 'totals',  'key2' => $type],
+                ['key1' => $groupBy, 'key2' => $groupBy2nd],
+                ['key1' => 'totals', 'key2' => 'all'],
+                ['key1' => 'totals', 'key2' => $type],
             ];
 
-            if (!isset($stats['seasons'][$season]))
+            if (!isset($stats[$groupBy][$groupBy2nd]))
             {
-                $stats['seasons'][$season] = $defaults;
+                $stats[$groupBy][$groupBy2nd] = $defaults;
+
+                $id = $r->season_id;
+                if ($groupBy == 'games')
+                {
+                    $id = $r->id;
+                }
+
+                $stats[$groupBy][$groupBy2nd]['_id'] = $id;
             }
 
-            $stats['seasons'][$season]['games']++;
+            $stats[$groupBy][$groupBy2nd]['games']++;
             $stats['totals']['all']['games']++;
             $stats['totals'][$type]['games']++;
 
-            foreach ($events as $e)
+            if (!isset($resultEvents[$r->id]))
             {
+                continue;
+            }
+
+            foreach ($resultEvents[$r->id] as $e)
+            {
+                $stats[$groupBy][$groupBy2nd]['events']++;
+                $stats['totals']['all']['events']++;
+                $stats['totals'][$type]['events']++;
+
                 // goal/assist
                 if (in_array($e->event_id, Event::getGoalValues()))
                 {
                     if ($e->player_id == $playerId)
                     {
-                        $stats['seasons'][$season]['goals']++;
-                        $stats['seasons'][$season]['shots']++;
-                        $stats['seasons'][$season]['shots_on']++;
+                        $stats[$groupBy][$groupBy2nd]['goals']++;
+                        $stats[$groupBy][$groupBy2nd]['shots']++;
+                        $stats[$groupBy][$groupBy2nd]['shots_on']++;
 
                         $stats['totals']['all']['goals']++;
                         $stats['totals']['all']['shots']++;
@@ -306,7 +444,7 @@ class PlayerController extends Controller
                     }
                     if ($e->additional == $playerId)
                     {
-                        $stats['seasons'][$season]['assists']++;
+                        $stats[$groupBy][$groupBy2nd]['assists']++;
                         $stats['totals']['all']['assists']++;
                         $stats['totals'][$type]['assists']++;
                     }
@@ -319,7 +457,7 @@ class PlayerController extends Controller
 
                     $fulltime = $e->time;
 
-                    $stats['seasons'][$season]['playingTime']['possible_secs'] += $secs;
+                    $stats[$groupBy][$groupBy2nd]['playingTime']['possible_secs'] += $secs;
                     $stats['totals']['all']['playingTime']['possible_secs'] += $secs;
                     $stats['totals'][$type]['playingTime']['possible_secs'] += $secs;
                 }
@@ -334,39 +472,41 @@ class PlayerController extends Controller
                 if ($e->event_id == Event::start->value)
                 {
                     $span = [
-                        'game'  => $resultId,
+                        'game'  => $r->id,
                         'start' => '00:00:00',
                         'end'   => null,
                     ];
 
-                    $stats['seasons'][$season]['playingTime']['spans'][] = $span;
+                    $stats[$groupBy][$groupBy2nd]['playingTime']['spans'][] = $span;
                     $stats['totals']['all']['playingTime']['spans'][] = $span;
                     $stats['totals'][$type]['playingTime']['spans'][] = $span;
 
-                    $stats['seasons'][$season]['starts']++;
+                    $stats[$groupBy][$groupBy2nd]['starts']++;
                     $stats['totals']['all']['starts']++;
                     $stats['totals'][$type]['starts']++;
 
-                    $stats['seasons'][$season]['position'][ $e['additional'] ] = isset($stats['seasons'][$season]['position'][ $e['additional'] ]) 
-                        ? ++$stats['seasons'][$season]['position'][ $e['additional'] ] : 1;
+                    $stats[$groupBy][$groupBy2nd]['position']['positions'][ $e['additional'] ] = isset($stats[$groupBy][$groupBy2nd]['position']['positions'][ $e['additional'] ]) 
+                        ? ++$stats[$groupBy][$groupBy2nd]['position']['positions'][ $e['additional'] ] : 1;
 
-                    $stats['totals']['all']['position'][ $e['additional'] ] = isset($stats['totals']['all']['position'][ $e['additional'] ]) 
-                        ? ++$stats['totals']['all']['position'][ $e['additional'] ] : 1;
+                    $stats['totals']['all']['position']['positions'][ $e['additional'] ] = isset($stats['totals']['all']['position']['positions'][ $e['additional'] ]) 
+                        ? ++$stats['totals']['all']['position']['positions'][ $e['additional'] ] : 1;
 
-                    $stats['totals'][$type]['position'][ $e['additional'] ] = isset($stats['totals'][$type]['position'][ $e['additional'] ]) 
-                        ? ++$stats['totals'][$type]['position'][ $e['additional'] ] : 1;
+                    $stats['totals'][$type]['position']['positions'][ $e['additional'] ] = isset($stats['totals'][$type]['position']['positions'][ $e['additional'] ]) 
+                        ? ++$stats['totals'][$type]['position']['positions'][ $e['additional'] ] : 1;
+
+                    $stats[$groupBy][$groupBy2nd]['position']['total']++;
                 }
 
                 // sub in
                 if ($e->event_id == Event::sub_in->value)
                 {
                     $span = [
-                        'game'  => $resultId,
+                        'game'  => $r->id,
                         'start' => $e->time,
                         'end'   => null,
                     ];
 
-                    $stats['seasons'][$season]['playingTime']['spans'][] = $span;
+                    $stats[$groupBy][$groupBy2nd]['playingTime']['spans'][] = $span;
                     $stats['totals']['all']['playingTime']['spans'][] = $span;
                     $stats['totals'][$type]['playingTime']['spans'][] = $span;
                 }
@@ -381,7 +521,7 @@ class PlayerController extends Controller
 
                         foreach ($stats[$k1][$k2]['playingTime']['spans'] as $i => $span)
                         {
-                            if ($span['end'] === null && $span['game'] == $resultId)
+                            if ($span['end'] === null && $span['game'] == $r->id)
                             {
                                 $stats[$k1][$k2]['playingTime']['spans'][$i]['end'] = $e->time;
 
@@ -399,8 +539,8 @@ class PlayerController extends Controller
                 // shots on target
                 if (in_array($e->event_id, Event::getShotOnTargetValues()))
                 {
-                    $stats['seasons'][$season]['shots']++;
-                    $stats['seasons'][$season]['shots_on']++;
+                    $stats[$groupBy][$groupBy2nd]['shots']++;
+                    $stats[$groupBy][$groupBy2nd]['shots_on']++;
                     $stats['totals']['all']['shots']++;
                     $stats['totals']['all']['shots_on']++;
                     $stats['totals'][$type]['shots']++;
@@ -410,7 +550,7 @@ class PlayerController extends Controller
                 // shots
                 if (in_array($e->event_id, Event::getShotOffTargetValues()))
                 {
-                    $stats['seasons'][$season]['shots']++;
+                    $stats[$groupBy][$groupBy2nd]['shots']++;
                     $stats['totals']['all']['shots']++;
                     $stats['totals'][$type]['shots']++;
                 }
@@ -424,7 +564,7 @@ class PlayerController extends Controller
 
                 foreach ($stats[$k1][$k2]['playingTime']['spans'] as $i => $span)
                 {
-                    if ($span['end'] === null && $span['game'] == $resultId)
+                    if ($span['end'] === null && $span['game'] == $r->id)
                     {
                         $stats[$k1][$k2]['playingTime']['spans'][$i]['end'] = $fulltime;
 
@@ -443,19 +583,7 @@ class PlayerController extends Controller
             }
         }
 
-        foreach ($stats['seasons'] as $season => $data)
-        {
-            $charts['goals']['labels'] .= "'" . $season . "',";
-            $charts['goals']['data']   .= "'" . $data['goals'] . "',";
-
-            $charts['assists']['labels'] .= "'" . $season . "',";
-            $charts['assists']['data']   .= "'" . $data['assists'] . "',";
-        }
-
-        return view('players.show', [
-            'stats'  => $stats,
-            'charts' => $charts,
-        ]);
+        return $stats;
     }
 
     /**

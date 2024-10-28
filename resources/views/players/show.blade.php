@@ -30,10 +30,8 @@ const htmlLegendPlugin = {
 
     // Reuse the built-in legendItems generator
     const items = chart.options.plugins.legend.labels.generateLabels(chart);
-              console.log(chart.data.datasets);
 
     items.forEach(item => {
-                console.log(item);
       const li = document.createElement('li');
       li.classList.add('position-relative');
       li.classList.add('my-2');
@@ -79,6 +77,15 @@ const htmlLegendPlugin = {
 };
     </script>
     <div class="container main-content">
+
+        <div class="rounded rounded-3 bg-white p-4 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('players.index') }}">Players</a></li>
+                    <li class="breadcrumb-item active">{{ $player->name }}</li>
+                </ol>
+            </nav>
+        </div>
 
         {{-- Chart Row --}}
         <div class="row">
@@ -186,14 +193,21 @@ const htmlLegendPlugin = {
                         <td class="text-start border-end border-secondary-subtle">{{ $season }}</td>
                         <td>{{ $s['games'] }}</td>
                         <td>
-                        @if($s['games'])
+                        @if($s['games'] && $s['events'])
                             <span data-bs-toggle="tooltip" data-bs-title="{{ $s['starts'] }} out of {{ $s['games'] }} games">
                                 {{ number_format(($s['starts'] / $s['games']) * 100) }}&percnt;
                             </span>
                         @endif
                         </td>
                         <td>
-                            {{-- $s['position'] --}}
+                        @if($s['position']['total'])
+                            @php arsort($s['position']['positions']); reset($s['position']['positions']); @endphp
+                            <a tabindex="0" class="link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" 
+                                data-bs-toggle="popover" data-trigger="focus" data-bs-title="Positions" 
+                                data-bs-content=" @foreach($s['position']['positions'] as $pos => $count) {{ $pos }} {{ number_format(($count / $s['position']['total']) * 100) }}&percnt;<br/> @endforeach ">
+                                {{ key($s['position']['positions']) }}
+                            </a>
+                        @endif
                         </td>
                         <td class="border-end border-secondary-subtle">
                         @if($s['playingTime']['possible_secs'])
@@ -203,15 +217,17 @@ const htmlLegendPlugin = {
                             </span>
                         @endif
                         </td>
-                        <td>{{ $s['shots'] }}</td>
-                        <td>{{ $s['shots_on'] }}</td>
-                        <td class="text-info">{{ $s['goals'] }}</td>
-                        <td class="border-end border-secondary-subtle">{{ $s['assists'] }}</td>
-                        <td>{{ number_format($s['shots'] / $s['games'], 2) }}</td>
-                        <td>{{ number_format($s['shots_on'] / $s['games'], 2)}}</td>
-                        <td>{{ number_format($s['goals'] / $s['games'], 2) }}</td>
-                        <td class="border-end border-secondary-subtle">{{ number_format($s['assists'] / $s['games'], 2) }}</td>
-                        <td class="text-start">Details</td>
+                        <td>@if($s['events']){{ $s['shots'] }}@endif</td>
+                        <td>@if($s['events']){{ $s['shots_on'] }}@endif</td>
+                        <td class="text-info">@if($s['events']){{ $s['goals'] }}@endif</td>
+                        <td class="border-end border-secondary-subtle">@if($s['events']){{ $s['assists'] }}@endif</td>
+                        <td>@if($s['events']){{ number_format($s['shots'] / $s['games'], 2) }}@endif</td>
+                        <td>@if($s['events']){{ number_format($s['shots_on'] / $s['games'], 2)}}@endif</td>
+                        <td>@if($s['events']){{ number_format($s['goals'] / $s['games'], 2) }}@endif</td>
+                        <td class="border-end border-secondary-subtle">@if($s['events']){{ number_format($s['assists'] / $s['games'], 2) }}@endif</td>
+                        <td class="text-start">
+                            <a href="{{ route('players.seasons.show', ['player' => $stats['_player_id'], 'season' => $s['_id']]) }}">Details</a>
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -284,4 +300,12 @@ const htmlLegendPlugin = {
         </div>
 
     </div>
+
+    <script>
+    $(document).ready(function() {
+        var options = { html: true };
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl, options))
+    });
+    </script>
 @endsection

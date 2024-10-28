@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
 use App\Models\Player;
+use App\Models\PlayerTeam;
 use App\Models\ClubTeam;
 use App\Models\ClubTeamSeason;
 use App\Models\Competition;
@@ -176,6 +177,12 @@ class GameController extends Controller
             'opponent_team_id'  => 'required|exists:club_teams,id',
         ]);
 
+        // Get club_team_session_id for this season and team
+        $clubTeamSeason = ClubTeamSeason::where('season_id', '=', $request->season_id)
+            ->where('club_team_id', '=', $request->my_team_id)
+            ->first();
+
+        // Create new result
         $result = new Result;
 
         $datetime = $request->date . ' ' . $request->time;
@@ -183,13 +190,13 @@ class GameController extends Controller
         $date = Carbon::createFromFormat('Y-m-d H:i', $datetime, config('stm.timezone_display'));
         $date->tz('UTC');
 
-        $result->season_id       = $request->season_id;
-        $result->competition_id  = $request->competition_id;
-        $result->location_id     = $request->location_id;
-        $result->date            = $date;
-        $result->status          = ResultStatus::Scheduled;
-        $result->created_user_id = Auth()->user()->id;
-        $result->updated_user_id = Auth()->user()->id;
+        $result->club_team_season_id = $clubTeamSeason->id;
+        $result->competition_id      = $request->competition_id;
+        $result->location_id         = $request->location_id;
+        $result->date                = $date;
+        $result->status              = ResultStatus::Scheduled;
+        $result->created_user_id     = Auth()->user()->id;
+        $result->updated_user_id     = Auth()->user()->id;
 
         $result->home_team_id = $request->my_team_id;
         $result->away_team_id = $request->opponent_team_id;
