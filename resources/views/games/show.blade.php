@@ -80,8 +80,12 @@
                                 was a substitute
                             @endisset
                             @if($havePlayingTimeStats)
+                                @isset($playingTime[$id])
                                 and played {{ $playingTime[$id]['minutes'] }} minutes.
-                            @endisset
+                                @else
+                                and did not play.
+                                @endif
+                            @endif
                             </div>
                             @isset($stats['players'][$id])
                                 <div>{{ $stats['players'][$id]['goals'] }} goals</div>
