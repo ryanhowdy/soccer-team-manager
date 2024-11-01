@@ -701,6 +701,8 @@ class GameController extends Controller
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
 
+        $clubTeamSeason = ClubTeamSeason::find($result->club_team_season_id);
+
         // Get all seasons
         $seasons = Season::all()->keyBy('id');
 
@@ -739,14 +741,15 @@ class GameController extends Controller
         }
 
         return view('games.edit', [
-            'result'       => $result,
-            'goodGuys'     => $goodGuys,
-            'badGuys'      => $badGuys,
-            'seasons'      => $seasons,
-            'competitions' => $competitions,
-            'locations'    => $locations,
-            'managedTeams' => $managedTeams,
-            'teamsByClub'  => $teamsByClub,
+            'result'           => $result,
+            'goodGuys'         => $goodGuys,
+            'badGuys'          => $badGuys,
+            'seasons'          => $seasons,
+            'competitions'     => $competitions,
+            'locations'        => $locations,
+            'managedTeams'     => $managedTeams,
+            'teamsByClub'      => $teamsByClub,
+            'selectedSeasonId' => $clubTeamSeason->season_id,
         ]);
     }
 
@@ -795,15 +798,15 @@ class GameController extends Controller
             $away = 'my';
         }
 
-        $result->season_id       = $clubTeamSeason->id;
-        $result->competition_id  = $request->competition_id;
-        $result->location_id     = $request->location_id;
-        $result->date            = $date;
-        $result->home_team_id    = $request->{$home."_team_id"};
-        $result->away_team_id    = $request->{$away."_team_id"};
-        $result->status          = $request->status;
-        $result->created_user_id = Auth()->user()->id;
-        $result->updated_user_id = Auth()->user()->id;
+        $result->club_team_season_id = $clubTeamSeason->id;
+        $result->competition_id      = $request->competition_id;
+        $result->location_id         = $request->location_id;
+        $result->date                = $date;
+        $result->home_team_id        = $request->{$home."_team_id"};
+        $result->away_team_id        = $request->{$away."_team_id"};
+        $result->status              = $request->status;
+        $result->created_user_id     = Auth()->user()->id;
+        $result->updated_user_id     = Auth()->user()->id;
 
         if ($request->filled('my_team_score') && $request->filled('opponent_team_score'))
         {
