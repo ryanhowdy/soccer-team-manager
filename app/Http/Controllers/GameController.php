@@ -769,6 +769,12 @@ class GameController extends Controller
             'status'              => [Rule::enum(ResultStatus::class)],
         ]);
 
+        // Get club_team_session_id for this season and team
+        $clubTeamSeason = ClubTeamSeason::where('season_id', '=', $request->season_id)
+            ->where('club_team_id', '=', $request->my_team_id)
+            ->first();
+
+        // Create new result
         $result = Result::find($id);
 
         $datetime = $request->date . ' ' . $request->time;
@@ -785,7 +791,7 @@ class GameController extends Controller
             $away = 'my';
         }
 
-        $result->season_id       = $request->season_id;
+        $result->season_id       = $clubTeamSeason->id;
         $result->competition_id  = $request->competition_id;
         $result->location_id     = $request->location_id;
         $result->date            = $date;
