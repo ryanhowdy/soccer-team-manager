@@ -7,38 +7,20 @@ use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
 use App\Models\ClubTeam;
+use App\Models\ClubTeamSeason;
 use App\Models\ResultEvent;
 use Illuminate\Database\Eloquent\Builder;
 use App\Enums\Event;
 
 class StatsTeamController extends Controller
 {
-    public function index()
-    {
-        // We don't show a team stats listing, so lets just look up all the 
-        // managed teams and pick one at random, then redirect to that teams
-        // stats page.
-
-        // Get all managed teams
-        $managedTeams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
-            ->join('clubs as c', 't.club_id', '=', 'c.id')
-            ->where('managed', 1)
-            ->orderBy('club_name')
-            ->orderBy('t.name')
-            ->get();
-
-        if ($managedTeams->count() <= 0)
-        {
-            return redirect()->route('teams.index')->withErrors(['You must create at least 1 managed team.']);
-        }
-
-        $selectedManagedTeam = $managedTeams->random();
-
-        return redirect()->route('stats.teams.show', ['id' => $selectedManagedTeam->id]);
-    }
-
-    public function show(Request $request, $managedTeamId)
+    /**
+     * index 
+     * 
+     * @param Request $request 
+     * @return null
+     */
+    public function index(Request $request)
     {
         // Get all managed teams
         $managedTeams = ClubTeam::from('club_teams as t')
@@ -47,12 +29,8 @@ class StatsTeamController extends Controller
             ->where('managed', 1)
             ->orderBy('club_name')
             ->orderBy('t.name')
-            ->get();
-
-        // Get selected managed team
-        $selectedManagedTeam = $managedTeams->first(function ($item) use ($managedTeamId) {
-            return $item->id == $managedTeamId;
-        });
+            ->get()
+            ->keyBy('id');
 
         // Get all seasons
         $seasons = Season::all()->keyBy('id');
@@ -74,20 +52,30 @@ class StatsTeamController extends Controller
         }
 
         // Get all the results for the currently selected filters
-        $query = Result::query()->where('status', 'D')
-            ->where(function (Builder $q) use ($selectedManagedTeam) {
-                $q->where('home_team_id', $selectedManagedTeam->id)
-                    ->orWhere('away_team_id', $selectedManagedTeam->id);
+        $query = Result::query()->where('status', 'D');
+
+        // Any filters
+        $managedTeamId = $request->has('filter-managed') ? $request->input('filter-managed') : $managedTeams->keys()->first();
+        $seasonId      = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
+        $teamId        = $request->has('filter-teams')   ? $request->input('filter-teams')   : null;
+
+        // Any filters
+        if (!empty($managedTeamId))
+        {
+            $query->where(function (Builder $q) use ($managedTeamId) {
+                $q->where('home_team_id', $managedTeamId)
+                    ->orWhere('away_team_id', $managedTeamId);
             });
-
-        // Any filters
-        $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
-        $teamId   = $request->has('filter-teams')   ? $request->input('filter-teams')   : null;
-
-        // Any filters
+        }
         if (!empty($seasonId))
         {
-            $query->where('season_id', $seasonId);
+            // Turn the season_id into a club_team_season_id
+            $clubTeamSeasonIds = ClubTeamSeason::where('season_id', $seasonId)
+                ->get()
+                ->pluck('id')
+                ->toArray();
+
+            $query->whereIn('club_team_season_id', $clubTeamSeasonIds);
         }
         if (!empty($teamId))
         {
@@ -99,10 +87,10 @@ class StatsTeamController extends Controller
 
         $results = $query->get();
 
-        $chartData = \Chart::getData(['standard', 'homeaway'], $selectedManagedTeam->id, $results);
+        $chartData = \Chart::getData(['standard', 'homeaway'], $managedTeamId, $results);
 
         return view('stats.team', [
-            'selectedManagedTeam'     => $selectedManagedTeam,
+            'selectedManagedTeamId'   => $managedTeamId,
             'selectedSeason'          => $seasonId,
             'selectedTeam'            => $teamId,
             'managedTeams'            => $managedTeams,

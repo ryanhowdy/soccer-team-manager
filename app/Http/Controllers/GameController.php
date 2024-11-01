@@ -87,9 +87,10 @@ class GameController extends Controller
             'teamId'   => $request->has('filter-teams')   ? $request->input('filter-teams')   : null,
         ];
 
-        $seasonIds = [ $seasons->keys()->last() ];
-        $clubIds   = [];
-        $teamIds   = [];
+        $clubTeamSeasonIds = [];
+        $seasonIds         = [ $seasons->keys()->last() ];
+        $clubIds           = [];
+        $teamIds           = [];
 
         if ($request->has('filter-seasons'))
         {
@@ -111,12 +112,18 @@ class GameController extends Controller
             $teamIds = [ $request->input('filter-teams') ];
         }
 
+        // Turn the season_id into a club_team_season_id
+        $clubTeamSeasonIds = ClubTeamSeason::whereIn('season_id', $seasonIds)
+            ->get()
+            ->pluck('id')
+            ->toArray();
+
         // Get all the results
         $query = Result::query()
             ->where('status', ResultStatus::Scheduled)
-            ->orWhere(function (Builder $q) use ($seasonIds, $clubIds, $teamIds) {
+            ->orWhere(function (Builder $q) use ($clubTeamSeasonIds, $clubIds, $teamIds) {
                 $q->where('status', ResultStatus::Done)
-                  ->whereIn('season_id', $seasonIds);
+                  ->whereIn('club_team_season_id', $clubTeamSeasonIds);
 
                 if ($clubIds)
                 {
@@ -219,28 +226,25 @@ class GameController extends Controller
      */
     public function show($gameId)
     {
+        // Get the game info
         $result = Result::with('formation')
             ->with('homeTeam.club')
             ->with('awayTeam.club')
             ->find($gameId);
 
+        // Get all the events for this game
         $resultEvents = ResultEvent::where('result_id', $gameId)
             ->orderBy('time')
             ->orderBy('id')
             ->get();
 
-        $clubTeamSeasonIds = ClubTeamSeason::whereIn('club_team_id', [$result->homeTeam->id, $result->awayTeam->id])
-            ->where('season_id', $result->season_id)
-            ->get()
-            ->pluck('id')
-            ->toArray();
-
+        // Get all the players who are rostered for this game
         $players = Player::select('players.*', 'rosters.number')
             ->with('positions')
             ->orderBy('name')
-            ->join('rosters', function (JoinClause $join) use ($clubTeamSeasonIds) {
+            ->join('rosters', function (JoinClause $join) use ($result) {
                 $join->on('rosters.player_id', '=', 'players.id')
-                    ->whereIn('club_team_season_id', $clubTeamSeasonIds);
+                    ->where('club_team_season_id', $result->club_team_season_id);
             })
             ->get()
             ->keyBy('id');
