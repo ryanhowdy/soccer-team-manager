@@ -31,7 +31,7 @@
                                 <optgroup label="{{ $season->year }}">
                                 @endif
                             @endif
-                                <option value="{{ $season->id }}" @selected($result->season_id == $season->id)>{{ $season->season }} {{ $season->year }}</option>
+                                <option value="{{ $season->id }}" @selected($selectedSeasonId == $season->id)>{{ $season->season }} {{ $season->year }}</option>
                         @endforeach
                             </select>
                         </div>

@@ -9,21 +9,11 @@
 
         <form id="filter" class="row row-cols-md-auto gx-3 align-items-center justify-content-end">
             <div class="col-12 mb-3">
-                <div class="dropdown">
-                    <button class="btn bg-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ $selectedManagedTeam->name }}
-                    </button>
-                    <ul class="dropdown-menu">
-                    @foreach ($managedTeams as $i => $team)
-                        <li>
-                            <a href="{{ route('stats.teams.show', ['id' => $team->id]) }}" @class([
-                               'dropdown-item',
-                               'active' => $selectedManagedTeam->id == $team->id,
-                               ])>{{ $team->name }}</a>
-                        </li>
-                    @endforeach
-                    </ul>
-                </div>
+                <select class="form-select" id="filter-managed" name="filter-managed">
+                @foreach ($managedTeams as $i => $team)
+                    <option value="{{ $team->id }}" @selected($selectedManagedTeamId == $team->id)>{{ $team->name }}</option>
+                @endforeach
+                </select>
             </div>
             <div class="col-12 mb-3">
                 <select class="form-select" id="filter-seasons" name="filter-seasons">
