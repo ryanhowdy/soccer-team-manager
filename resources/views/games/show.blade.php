@@ -74,11 +74,13 @@
                         @foreach($managedPlayerIds as $id => $name)
                             <div class="pb-2">
                                 {{ $name }} 
-                            @isset($starters[$id])
-                                started at {{ $starters[$id] }}
-                            @else
-                                was a substitute
-                            @endisset
+                            @if(!empty($starters))
+                                @isset($starters[$id])
+                                    started at {{ $starters[$id] }}
+                                @else
+                                    was a substitute
+                                @endisset
+                            @endif
                             @if($havePlayingTimeStats)
                                 @isset($playingTime[$id])
                                 and played {{ $playingTime[$id]['minutes'] }} minutes.
@@ -122,8 +124,8 @@
                 </div>
             @endif
 
-        @if($result->live)
             <div class="nav nav-underline mt-5">
+        @if($result->live)
                 <li class="nav-item">
                     <a class="nav-link active" href="#" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane">Stats</a>
                 </li>
@@ -133,16 +135,16 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="lineup-tab" data-bs-toggle="tab" data-bs-target="#lineup-pane">Lineup</a>
                 </li>
+        @endif
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="h2h-tab" data-bs-toggle="tab" data-bs-target="#h2h-pane">Head-to-head</a>
                 </li>
             </div>
-        @endif
         </div>
 
-    @if($result->live)
         <div class="tab-content">
 
+    @if($result->live)
             <div class="tab-pane fade show active" id="stats-pane">
         @include('games.game-stats')
             </div><!--/#stats-pane-->
@@ -162,13 +164,13 @@
                     </div><!--/#field-->
                 </div>
             </div><!--/#lineup-pane-->
+    @endif
 
             <div class="tab-pane fade" id="h2h-pane">
         @include('games.game-h2h')
             </div><!--/#h2h-pane-->
 
         </div><!--/.tab-content-->
-    @endif
 
     </div><!--/container-->
 
