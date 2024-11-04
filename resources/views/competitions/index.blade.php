@@ -54,8 +54,10 @@
                     <table id="{{ $compType }}-table" class="table table-bordered">
                         <thead>
                             <th>Name</th>
+                        @if($compType != 'friendly')
                             <th class="d-none d-md-table-cell">Place</th>
                             <th class="d-none d-md-table-cell">Level</th>
+                        @endif
                             <th class="d-none d-md-table-cell">Start Date</th>
                             <th class="d-none d-md-table-cell">End Date</th>
                             <th>Website</th>
@@ -75,6 +77,7 @@
                                     </div>
                                     <span class="smaller fw-bold text-primary">{{ $comp->division }}</span>
                                 </td>
+                            @if($compType != 'friendly')
                                 <td class="d-none d-md-table-cell text-center">
                                 @isset($comp->place)
                                     <div class="fs-1">{{ $comp->place }}</div>
@@ -105,6 +108,7 @@
                                     </div>
                                 @endif
                                 </td>
+                            @endif
                                 <td class="d-none d-md-table-cell">{{ $comp->started_at->format('Y-m-d') }}</td>
                                 <td class="d-none d-md-table-cell">{{ $comp->ended_at->format('Y-m-d') }}</td>
                                 <td class="text-center">
