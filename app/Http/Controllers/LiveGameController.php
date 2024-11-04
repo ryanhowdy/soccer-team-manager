@@ -54,19 +54,13 @@ class LiveGameController extends Controller
             ->orderBy('id')
             ->get();
 
-        $clubTeamSeasonIds = ClubTeamSeason::whereIn('club_team_id', $managedTeam)
-            ->where('season_id', $result->season_id)
-            ->get()
-            ->pluck('id')
-            ->toArray();
-
-        // get the players for any managed teams
+        // get the players for this team
         $players = Player::select('players.*', 'rosters.number')
             ->with('positions')
             ->orderBy('name')
-            ->join('rosters', function (JoinClause $join) use ($clubTeamSeasonIds) {
+            ->join('rosters', function (JoinClause $join) use ($result) {
                 $join->on('rosters.player_id', '=', 'players.id')
-                    ->whereIn('club_team_season_id', $clubTeamSeasonIds);
+                    ->where('club_team_season_id', $result->club_team_season_id);
             })
             ->get()
             ->keyBy('id');
