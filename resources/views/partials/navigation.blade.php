@@ -27,6 +27,12 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ route('rosters.index') }}">Rosters</a></li>
                         <li><a class="dropdown-item" href="{{ route('players.index') }}">Players</a></li>
+                @if($navPlayers)
+                        <li><hr class="dropdown-divider"></li>
+                    @foreach($navPlayers as $p)
+                        <li><a class="dropdown-item" href="{{ route('players.show', ['player' => $p->id]) }}">{{ $p->name }}</a></li>
+                    @endforeach
+                @endif
                     </ul>
                 </li>
                 <li class="nav-item me-2 dropdown">
