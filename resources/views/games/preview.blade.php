@@ -7,15 +7,20 @@
 @section('content')
     <div class="container main-content">
 
-        <div class="rounded rounded-3 bg-white p-4 mb-3">
+        <div class="rounded rounded-3 bg-white p-4 mb-3 position-relative">
 
-            <a class="float-end btn btn-sm btn-light" href="{{ route('games.edit', ['id' => $result->id]) }}">
+            <a class="position-absolute top-0 end-0 btn btn-sm btn-light m-3" href="{{ route('games.edit', ['id' => $result->id]) }}">
                 <span class="bi bi-pencil pe-2"></span>Edit
             </a>
 
             {{-- Competition & Date/time --}}
             <div class="text-center mb-5">
-                <div class="competition text-uppercase">{{ $result->competition->name }}</div>
+                <div class="competition text-uppercase">
+                    <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
+                        href="{{ route('competitions.show', ['competition' => $result->competition->id]) }}">
+                        {{ $result->competition->name }}
+                    </a>
+                </div>
                 <div class="date fw-bold fs-4">{{ $result->date->inUserTimezone()->format('M. jS, Y') }}</div>
                 <div class="time">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
             </div>

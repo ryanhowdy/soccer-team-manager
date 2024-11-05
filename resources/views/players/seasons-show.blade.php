@@ -44,7 +44,10 @@
                             {{ $stats['_result_data_lkup'][$id]->date->inUserTimezone()->format('Y-m-d') }}
                         </td>
                         <td class="text-start">
-                            {{ $stats['_result_data_lkup'][$id]->competition_name }}
+                            <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
+                                href="{{ route('competitions.show', ['competition' => $stats['_result_data_lkup'][$id]->competition_id]) }}">
+                                {{ $stats['_result_data_lkup'][$id]->competition_name }}
+                            </a>
                         </td>
                         <td class="text-start">
                             <span @class([

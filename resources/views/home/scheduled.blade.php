@@ -10,7 +10,12 @@
     @foreach($scheduled as $result)
         <div class="row game-listing-details mb-5">
             <div class="col-4">
-                <div class="competition text-uppercase small">{{ $result->competition->name }}</div>
+                <div class="competition text-uppercase small">
+                    <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
+                        href="{{ route('competitions.show', ['competition' => $result->competition->id]) }}">
+                        {{ $result->competition->name }}
+                    </a>
+                </div>
                 <div class="date fw-bold">{{ $result->date->inUserTimezone()->format('M. jS, Y') }}</div>
                 <div class="time small">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
             </div>
