@@ -54,13 +54,48 @@
                     </div>
                 </div>
                 <div class="col-4 col-lg-5">
-                    <div class="d-flex justify-content-star align-items-center">
+                    <div class="d-flex justify-content-start align-items-center">
                         <div class="mx-3">
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
                                 src="{{ asset($result->awayTeam->club->logo) }}"/>
                         </div>
                         <div class="fs-4 d-none d-lg-block">{{ $result->awayTeam->name }}</div>
                     </div>
+                </div>
+            </div>{{-- /.row --}}
+
+            {{-- Goals --}}
+            <div class="row mt-4 small">
+                <div class="col-5">
+                @foreach($goals['home'] as $g)
+                    <div class="d-flex justify-content-end">
+                        <div class="fw-bold pe-2">
+                            <span
+                            @if($g->additionalPlayer)
+                                data-bs-toggle="tooltip" data-bs-title="Assist by: {{ $g->additionalPlayer->name }}"
+                            @endif
+                                >{{ $g->player_name }}</span>
+                        </div>
+                        <div class="text-muted text-end pe-2" style="min-width:26px">'{{ (int)substr($g->time, 0,2) }}</div>
+                        <div class=""><span class="icon material-symbols-outlined">sports_soccer</span></div>
+                    </div>
+                @endforeach
+                </div>
+                <div class="col-2"></div>
+                <div class="col-5">
+                @foreach($goals['away'] as $g)
+                    <div class="d-flex justify-content-start">
+                        <div class="pe-2"><span class="icon material-symbols-outlined">sports_soccer</span></div>
+                        <div class="text-muted pe-2" style="min-width:26px">'{{ (int)substr($g->time, 0, 2) }}</div>
+                        <div class="fw-bold">
+                            <span
+                            @if($g->additionalPlayer)
+                                data-bs-toggle="tooltip" data-bs-title="Assist by: {{ $g->additionalPlayer->name }}"
+                            @endif
+                                >{{ $g->player_name }}</span>
+                        </div>
+                    </div>
+                @endforeach
                 </div>
             </div>{{-- /.row --}}
 

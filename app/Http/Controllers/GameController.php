@@ -254,6 +254,30 @@ class GameController extends Controller
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
 
+        $goodGuysId = $result->{$goodGuys . '_team_id'};
+        $badGuysId  = $result->{$badGuys . '_team_id'};
+
+        // Get all the head to head games
+        $head2HeadResults = Result::where('status', 'D')
+            ->where(function (Builder $q) use ($goodGuysId) {
+                $q->where('home_team_id', $goodGuysId)
+                    ->orWhere('away_team_id', $goodGuysId);
+            })
+            ->where(function (Builder $q) use ($badGuysId) {
+                $q->where('home_team_id', $badGuysId)
+                    ->orWhere('away_team_id', $badGuysId);
+            })
+            ->orderBy('date', 'desc')
+            ->get();
+
+        // Figure out the chart data based on the head 2 head results
+        $chartData = \Chart::getData(['wdl'], $goodGuysId, $head2HeadResults);
+
+        $goals = [
+            'home' => [],
+            'away' => [],
+        ];
+
         $stats = [
             'players' => [],
             'home'    => [
@@ -426,6 +450,8 @@ class GameController extends Controller
                 $stats[$usOrThem]['shots']++;
                 $stats[$usOrThem]['shots_on']++;
 
+                $goals[$usOrThem][] = $e;
+
                 if ($e->xg)
                 {
                     $stats[$usOrThem]['xg'] += number_format($e->xg / 10, 1);
@@ -554,10 +580,13 @@ class GameController extends Controller
             'badGuys'              => $badGuys,
             'playingTime'          => $playingTime,
             'stats'                => $stats,
+            'goals'                => $goals,
             'havePlayingTimeStats' => $havePlayingTimeStats,
             'players'              => $players,
             'starters'             => $starters,
             'managedPlayerIds'     => $managedPlayerIds,
+            'chartData'            => $chartData,
+            'results'              => $head2HeadResults,
         ]);
     }
 
