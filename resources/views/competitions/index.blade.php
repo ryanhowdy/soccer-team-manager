@@ -54,10 +54,8 @@
                     <table id="{{ $compType }}-table" class="table table-bordered">
                         <thead>
                             <th>Name</th>
-                        @if($compType != 'friendly')
                             <th class="d-none d-md-table-cell">Place</th>
                             <th class="d-none d-md-table-cell">Level</th>
-                        @endif
                             <th class="d-none d-md-table-cell">Start Date</th>
                             <th class="d-none d-md-table-cell">End Date</th>
                             <th>Website</th>
@@ -77,17 +75,19 @@
                                     </div>
                                     <span class="smaller fw-bold text-primary">{{ $comp->division }}</span>
                                 </td>
-                            @if($compType != 'friendly')
                                 <td class="d-none d-md-table-cell text-center">
                                 @isset($comp->place)
                                     <div class="fs-1">{{ $comp->place }}</div>
                                 @else
                                     <div class="row g-1">
                                         <div class="col-auto">
-                                            <input class="form-control" type="number" data-id="{{ $comp->id }}" min="1" max="99"/>
+                                            <input class="form-control place" type="number" data-id="{{ $comp->id }}" min="1" max="99"/>
                                         </div>
                                         <div class="col-auto">
-                                            <button class="btn btn-outline-light"><i class="bi bi-check-lg"></i></button>
+                                            <button class="save-place btn btn-outline-light"
+                                                    data-url="{{ route('ajax.competitions.update', ['competition' => $comp->id]) }}">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 @endisset
@@ -108,7 +108,6 @@
                                     </div>
                                 @endif
                                 </td>
-                            @endif
                                 <td class="d-none d-md-table-cell">{{ $comp->started_at->format('Y-m-d') }}</td>
                                 <td class="d-none d-md-table-cell">{{ $comp->ended_at->format('Y-m-d') }}</td>
                                 <td class="text-center">
@@ -162,9 +161,32 @@
     </div>
 
 <script>
-showHideStatuses();
-$('.btn-group > input').on('click', function() {
+$(document).ready(function() {
+
     showHideStatuses();
+
+    $('.btn-group > input').on('click', function() {
+        showHideStatuses();
+    });
+
+    $('td button.save-place').on('click', function (e) {
+        let $btn   = $(this);
+        let $row   = $btn.closest('.row');
+        let $place = $row.find('.place');
+        let url    = $btn.attr('data-url');
+
+        $.ajax({
+            url  : url,
+            type : 'POST',
+            data : {
+                id    : $place.attr('data-id'),
+                place : $place.val(),
+            },
+        }).done(function(ret) {
+            $row.before('<div class="fs-1">' + $place.val() + '</div>');
+            $row.remove();
+        });
+    });
 });
 
 function showHideStatuses()

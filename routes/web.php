@@ -82,11 +82,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/formations', [\App\Http\Controllers\FormationController::class, 'store'])->name('formations.store');
 
     // AJAX
+    // TODO - these are all wrong
     Route::post('/ajax/game/start',      [\App\Http\Controllers\AjaxController::class, 'gameStart'])->name('ajax-start-game');
     Route::post('/ajax/game/event',      [\App\Http\Controllers\AjaxController::class, 'saveEvent'])->name('ajax-create-event');
     Route::post('/ajax/game/end',        [\App\Http\Controllers\AjaxController::class, 'gameEnd'])->name('ajax-end-game');
     Route::post('/ajax/player/position', [\App\Http\Controllers\AjaxController::class, 'savePlayerPosition'])->name('ajax-create-player-position');
     Route::post('/ajax/rosters',         [\App\Http\Controllers\AjaxController::class, 'saveRoster'])->name('ajax-create-roster');
+    // TODO - these are all wrong
 
-    Route::post('/ajax/game/{result}',   [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
+    Route::post('/ajax/games/{result}', [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
+
+    Route::post('/ajax/competitions/{competition}', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
 });
