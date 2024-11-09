@@ -33,7 +33,7 @@ enum Event: int
         return [
             Event::goal->value, 
             Event::penalty_goal->value, 
-            Event::free_kick_goal->value
+            Event::free_kick_goal->value,
         ];
     }
 
@@ -42,7 +42,7 @@ enum Event: int
         return [
             Event::shot_on_target->value,
             Event::penalty_on_target->value,
-            Event::free_kick_on_target->value
+            Event::free_kick_on_target->value,
         ];
     }
 
@@ -52,6 +52,24 @@ enum Event: int
             Event::shot_off_target->value,
             Event::penalty_off_target->value,
             Event::free_kick_off_target->value,
+        ];
+    }
+
+    public static function getFreeKickValues()
+    {
+        return [
+            Event::free_kick_goal->value,
+            Event::free_kick_on_target->value,
+            Event::free_kick_off_target->value,
+        ];
+    }
+
+    public static function getPenaltyValues()
+    {
+        return [
+            Event::penalty_goal->value,
+            Event::penalty_on_target->value,
+            Event::penalty_off_target->value,
         ];
     }
 }
