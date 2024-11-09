@@ -198,9 +198,36 @@
                             </tr>
                             <tr>
                                 <td class="fw-bold">Shot Conversion</td>
-                                <td class="text-center table-light">{{ $stats['homeaway']['overall']['shot_conversion'] }}&#37;</td>
-                                <td class="text-center">{{ $stats['homeaway']['home']['shot_conversion'] }}&#37;</td>
-                                <td class="text-center">{{ $stats['homeaway']['away']['shot_conversion'] }}&#37;</td>
+                                <td class="text-center table-light">
+                                    <span @class([
+                                        "badge",
+                                        "bg-success" => $stats['homeaway']['overall']['shot_conversion'] >= 30,
+                                        "bg-success opacity-75" => $stats['homeaway']['overall']['shot_conversion'] >= 20 && $stats['homeaway']['overall']['shot_conversion'] < 30,
+                                        "bg-success opacity-50" => $stats['homeaway']['overall']['shot_conversion'] >= 10 && $stats['homeaway']['overall']['shot_conversion'] < 20,
+                                        "bg-danger opacity-75" => $stats['homeaway']['overall']['shot_conversion'] >= 5 && $stats['homeaway']['overall']['shot_conversion'] < 10,
+                                        "bg-danger" => $stats['homeaway']['overall']['shot_conversion'] < 5,
+                                    ])>{{ $stats['homeaway']['overall']['shot_conversion'] }}&#37;</span>
+                                </td>
+                                <td class="text-center">
+                                    <span @class([
+                                        "badge",
+                                        "bg-success" => $stats['homeaway']['home']['shot_conversion'] >= 30,
+                                        "bg-success opacity-75" => $stats['homeaway']['home']['shot_conversion'] >= 20 && $stats['homeaway']['home']['shot_conversion'] < 30,
+                                        "bg-success opacity-50" => $stats['homeaway']['home']['shot_conversion'] >= 10 && $stats['homeaway']['home']['shot_conversion'] < 20,
+                                        "bg-danger opacity-75" => $stats['homeaway']['home']['shot_conversion'] >= 5 && $stats['homeaway']['home']['shot_conversion'] < 10,
+                                        "bg-danger" => $stats['homeaway']['home']['shot_conversion'] < 5,
+                                    ])>{{ $stats['homeaway']['home']['shot_conversion'] }}&#37;</span>
+                                </td>
+                                <td class="text-center">
+                                    <span @class([
+                                        "badge",
+                                        "bg-success" => $stats['homeaway']['away']['shot_conversion'] >= 30,
+                                        "bg-success opacity-75" => $stats['homeaway']['away']['shot_conversion'] >= 20 && $stats['homeaway']['away']['shot_conversion'] < 30,
+                                        "bg-success opacity-50" => $stats['homeaway']['away']['shot_conversion'] >= 10 && $stats['homeaway']['away']['shot_conversion'] < 20,
+                                        "bg-danger opacity-75" => $stats['homeaway']['away']['shot_conversion'] >= 5 && $stats['homeaway']['away']['shot_conversion'] < 10,
+                                        "bg-danger" => $stats['homeaway']['away']['shot_conversion'] < 5,
+                                    ])>{{ $stats['homeaway']['away']['shot_conversion'] }}&#37;</span>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Clean Sheets</td>
