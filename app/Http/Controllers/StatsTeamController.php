@@ -180,16 +180,15 @@ class StatsTeamController extends Controller
         // Get player stats
         foreach ($events as $event)
         {
-            $goodGuys = $resultToGoodGuyLkup[$event->result_id];
-            $badGuys  = $goodGuys === 'home' ? 'away' : 'home';
+            $homeAway = $resultToGoodGuyLkup[$event->result_id];
 
             // Bad Guy Events
             if ($event->against)
             {
                 if ($event->xg && in_array($event->event_id, $allShotEvents))
                 {
-                    $stats['homeaway']['overall']['xg_against'] += $event->xg;
-                    $stats['homeaway'][$badGuys]['xg_against'] += $event->xg;
+                    $stats['homeaway']['overall']['xg_against'] += number_format($event->xg / 10, 1);
+                    $stats['homeaway'][$homeAway]['xg_against']  += number_format($event->xg / 10, 1);
                 }
             }
             // Good Guy Events
@@ -197,14 +196,14 @@ class StatsTeamController extends Controller
             {
                 if ($event->xg && in_array($event->event_id, $allShotEvents))
                 {
-                    $stats['homeaway']['overall']['xg'] += $event->xg;
-                    $stats['homeaway'][$goodGuys]['xg'] += $event->xg;
+                    $stats['homeaway']['overall']['xg'] += number_format($event->xg / 10, 1);
+                    $stats['homeaway'][$homeAway]['xg'] += number_format($event->xg / 10, 1);
 
                     $stats['homeaway']['overall']['shots']++;
-                    $stats['homeaway'][$goodGuys]['shots']++;
+                    $stats['homeaway'][$homeAway]['shots']++;
 
                     $stats['homeaway']['overall']['shot_conversion'] = round(($stats['homeaway']['overall']['goals'] / $stats['homeaway']['overall']['shots']) * 100);
-                    $stats['homeaway'][$goodGuys]['shot_conversion'] = round(($stats['homeaway'][$goodGuys]['goals'] / $stats['homeaway'][$goodGuys]['shots']) * 100);
+                    $stats['homeaway'][$homeAway]['shot_conversion'] = round(($stats['homeaway'][$homeAway]['goals'] / $stats['homeaway'][$homeAway]['shots']) * 100);
                 }
 
                 if (!isset($stats['players'][$event->player_name]))

@@ -70,6 +70,7 @@
                                 <td class="text-end">{{ $stats['homeaway']['home']['draws'] }}</td>
                                 <td class="text-end">{{ $stats['homeaway']['home']['losses'] }}</td>
                                 <td class="ps-4 align-middle">
+                                @if($stats['homeaway']['home']['games'])
                                     <div class="progress-stacked" style="height: 5px; min-width:100px;">
                                         <div class="progress" role="progressbar" style="width: {{ round(($stats['homeaway']['home']['wins'] / $stats['homeaway']['home']['games']) * 100) }}%">
                                             <div class="progress-bar bg-success"></div>
@@ -81,6 +82,7 @@
                                             <div class="progress-bar bg-danger"></div>
                                         </div>
                                     </div>
+                                @endif
                                 </td>
                             </tr>
                             <tr>
@@ -90,6 +92,7 @@
                                 <td class="text-end">{{ $stats['homeaway']['away']['draws'] }}</td>
                                 <td class="text-end">{{ $stats['homeaway']['away']['losses'] }}</td>
                                 <td class="ps-4 align-middle">
+                                @if($stats['homeaway']['away']['games'])
                                     <div class="progress-stacked" style="height: 5px; min-width:100px;">
                                         <div class="progress" role="progressbar" style="width: {{ round(($stats['homeaway']['away']['wins'] / $stats['homeaway']['away']['games']) * 100) }}%">
                                             <div class="progress-bar bg-success"></div>
@@ -101,6 +104,7 @@
                                             <div class="progress-bar bg-danger"></div>
                                         </div>
                                     </div>
+                                @endif
                                 </td>
                             </tr>
                             <tr class="fw-bold">
@@ -110,6 +114,7 @@
                                 <td class="text-end table-light">{{ $stats['homeaway']['overall']['draws'] }}</td>
                                 <td class="text-end table-danger">{{ $stats['homeaway']['overall']['losses'] }}</td>
                                 <td class="ps-4 align-middle">
+                                @if($stats['homeaway']['overall']['games'])
                                     <div class="progress-stacked" style="height: 5px; min-width:100px;">
                                         <div class="progress" role="progressbar" style="width: {{ round(($stats['homeaway']['overall']['wins'] / $stats['homeaway']['overall']['games']) * 100) }}%">
                                             <div class="progress-bar bg-success"></div>
@@ -121,6 +126,7 @@
                                             <div class="progress-bar bg-danger"></div>
                                         </div>
                                     </div>
+                                @endif
                                 </td>
                             </tr>
                         </tbody>
@@ -180,9 +186,9 @@
                             </tr>
                             <tr>
                                 <td class="fw-bold">xG</td>
-                                <td class="text-center table-light">{{ round($stats['homeaway']['overall']['xg'] / $stats['homeaway']['overall']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['home']['xg'] / $stats['homeaway']['home']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['away']['xg'] / $stats['homeaway']['away']['games'], 1) }}</td>
+                                <td class="text-center table-light">{{ $stats['homeaway']['overall']['xg'] }}</td>
+                                <td class="text-center">{{ $stats['homeaway']['home']['xg'] }}</td>
+                                <td class="text-center">{{ $stats['homeaway']['away']['xg'] }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Goals Against</td>
@@ -192,9 +198,9 @@
                             </tr>
                             <tr>
                                 <td class="fw-bold">xG Against</td>
-                                <td class="text-center table-light">{{ round($stats['homeaway']['overall']['xg_against'] / $stats['homeaway']['overall']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['home']['xg_against'] / $stats['homeaway']['home']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['away']['xg_against'] / $stats['homeaway']['away']['games'], 1) }}</td>
+                                <td class="text-center table-light">{{ $stats['homeaway']['overall']['xg_against'] }}</td>
+                                <td class="text-center">{{ $stats['homeaway']['home']['xg_against'] }}</td>
+                                <td class="text-center">{{ $stats['homeaway']['away']['xg_against'] }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Shot Conversion</td>
@@ -243,15 +249,39 @@
                             </tr>
                             <tr>
                                 <td class="fw-bold">GPG</td>
-                                <td class="text-center table-light">{{ round($stats['homeaway']['overall']['goals'] / $stats['homeaway']['overall']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['home']['goals'] / $stats['homeaway']['home']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['away']['goals'] / $stats['homeaway']['away']['games'], 1) }}</td>
+                                <td class="text-center table-light">
+                                @if($stats['homeaway']['overall']['games'])
+                                    {{ round($stats['homeaway']['overall']['goals'] / $stats['homeaway']['overall']['games'], 1) }}
+                                @endif
+                                </td>
+                                <td class="text-center">
+                                @if($stats['homeaway']['home']['games'])
+                                    {{ round($stats['homeaway']['home']['goals'] / $stats['homeaway']['home']['games'], 1) }}
+                                @endif
+                                </td>
+                                <td class="text-center">
+                                @if($stats['homeaway']['away']['games'])
+                                    {{ round($stats['homeaway']['away']['goals'] / $stats['homeaway']['away']['games'], 1) }}
+                                @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">GPG Against</td>
-                                <td class="text-center table-light">{{ round($stats['homeaway']['overall']['goals_against'] / $stats['homeaway']['overall']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['home']['goals_against'] / $stats['homeaway']['home']['games'], 1) }}</td>
-                                <td class="text-center">{{ round($stats['homeaway']['away']['goals_against'] / $stats['homeaway']['away']['games'], 1) }}</td>
+                                <td class="text-center table-light">
+                                @if($stats['homeaway']['overall']['games'])
+                                    {{ round($stats['homeaway']['overall']['goals_against'] / $stats['homeaway']['overall']['games'], 1) }}
+                                @endif
+                                </td>
+                                <td class="text-center">
+                                @if($stats['homeaway']['home']['games'])
+                                    {{ round($stats['homeaway']['home']['goals_against'] / $stats['homeaway']['home']['games'], 1) }}
+                                @endif
+                                </td>
+                                <td class="text-center">
+                                @if($stats['homeaway']['away']['games'])
+                                    {{ round($stats['homeaway']['away']['goals_against'] / $stats['homeaway']['away']['games'], 1) }}
+                                @endif
+                                </td>
                             </tr>
                         </tbody>
                     </table>
