@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\Query\Builder;
 use App\Models\PlayerTeam;
 use App\Models\ClubTeamSeason;
-use Illuminate\Support\Facades\DB;
+use App\Models\Roster;
 
 class RosterController extends Controller
 {
@@ -18,7 +21,7 @@ class RosterController extends Controller
     {
         // Get all the rosters grouped by team, then by season
         $rosters = ClubTeamSeason::from('club_team_seasons as cts')
-            ->select('p.id as player_id', 'p.name', 'p.nickname', 'r.number', 'cts.id as club_team_season_id', 't.id as club_team_id', 't.name as team_name', DB::raw("concat(s.season, ' ', s.year) as 'season_year'"))
+            ->select('p.id as player_id', 'p.name', 'p.nickname', 'r.id as roster_id', 'r.number', 'cts.id as club_team_season_id', 't.id as club_team_id', 't.name as team_name', DB::raw("concat(s.season, ' ', s.year) as 'season_year'"))
             ->join('club_teams as t', 'cts.club_team_id', '=', 't.id')
             ->join('seasons as s', 'cts.season_id', '=', 's.id')
             ->leftJoin('rosters as r', 'r.club_team_season_id', '=', 'cts.id')
@@ -105,10 +108,12 @@ class RosterController extends Controller
                     }
 
                     $playersBySeasonTeam[$seasonName][$teamName][$player->player_id] = [
-                        'id'     => $player->player_id,
-                        'name'   => $player->name,
-                        'number' => $player->number,
-                        'class'  => $class,
+                        'id'                  => $player->player_id,
+                        'club_team_season_id' => $player->club_team_season_id,
+                        'name'                => $player->name,
+                        'roster_id'           => $player->roster_id,
+                        'number'              => $player->number,
+                        'class'               => $class,
                     ];
                 }
 
@@ -131,10 +136,12 @@ class RosterController extends Controller
                     if (!$playerOnCurrentRoster)
                     {
                         $playersBySeasonTeam[$seasonName][$teamName][$prevPlayer->player_id] = [
-                            'id'     => $prevPlayer->player_id,
-                            'name'   => $prevPlayer->name,
-                            'number' => null,
-                            'class'  => 'rem',
+                            'id'                  => $prevPlayer->player_id,
+                            'club_team_season_id' => $player->club_team_season_id,
+                            'name'                => $prevPlayer->name,
+                            'roster_id'           => $prevPlayer->roster_id,
+                            'number'              => null,
+                            'class'               => 'rem',
                         ];
                     }
                 }
@@ -150,5 +157,39 @@ class RosterController extends Controller
             'availablePlayersBySeasonTeam' => $availablePlayersBySeasonTeam,
             'clubTeamSeasonLkup'           => $clubTeamSeasonLkup,
         ]);
+    }
+
+    /**
+     * update
+     * 
+     * @param Roster $id 
+     * @param Request $request 
+     * @return Illuminate\View\View
+     */
+    public function update(Roster $roster, Request $request)
+    {
+        $validated = $request->validate([
+            'club_team_season_id' => 'required|exists:club_team_seasons,id',
+            'player_id'           => 'required|integer|exists:players,id',
+            'number' => [
+                'nullable',
+                'integer',
+                Rule::unique('rosters', 'number')
+                    ->where(fn (Builder $query) => $query->where('club_team_season_id', $request->club_team_season_id)),
+            ],
+        ]);
+
+        $roster->club_team_season_id = $request->club_team_season_id;
+        $roster->player_id           = $request->player_id;
+        $roster->updated_user_id     = Auth()->user()->id;
+
+        if ($request->filled('number'))
+        {
+            $roster->number = $request->number;
+        }
+
+        $roster->save();
+
+        return redirect()->route('rosters.index');
     }
 }

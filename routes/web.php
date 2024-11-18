@@ -68,7 +68,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/players/{player}/edit',             [\App\Http\Controllers\PlayerController::class, 'update'])->name('players.update');
 
     // Rosters
-    Route::get( '/rosters', [\App\Http\Controllers\RosterController::class, 'index'])->name('rosters.index');
+    Route::get( '/rosters',          [\App\Http\Controllers\RosterController::class, 'index'])->name('rosters.index');
+    Route::post('/rosters/{roster}', [\App\Http\Controllers\RosterController::class, 'update'])->name('rosters.update');
 
     // Seasons
     Route::post('/seasons', [\App\Http\Controllers\SeasonController::class, 'store'])->name('seasons.store');

@@ -35,7 +35,10 @@
                         <ul class="list-group list-group-flush">
                         @foreach($players as $p)
                             <li class="list-group-item">
-                                <form class="row gx-3 m-0 align-items-center">
+                                <form class="row gx-3 m-0 align-items-center" action="{{ route('rosters.update', ['roster' => $p['roster_id']]) }}" method="post">
+                                    @csrf
+                                    <input type="hidden" name="club_team_season_id" value="{{ $p['club_team_season_id'] }}">
+                                    <input type="hidden" name="player_id" value="{{ $p['id'] }}">
                                     <div class="col-auto {{ $p['class'] }}">
                                         <span class="player-number d-inline-block text-end me-1 text-info">
                                             @if($p['number'])#{{ $p['number'] }}@endif
@@ -44,7 +47,7 @@
                                     </div>
                                 @if(empty($p['number']) && $p['class'] != 'rem')
                                     <div class="col-2">
-                                        <input type="text" class="form-control form-control-sm" id="number-{{ $p['id'] }}">
+                                        <input type="text" class="form-control form-control-sm" name="number">
                                     </div>
                                     <div class="col-auto">
                                         <button type="submit" class="btn btn-sm btn-light">Save</button>
