@@ -14,4 +14,19 @@
         font-weight: bold;
         color: red;
     }
+
+    .list-group-item
+    {
+        .rem-roster-player
+        {
+            display: none;
+        }
+        &:hover
+        {
+            .rem-roster-player
+            {
+                display: inline-block;
+            }
+        }
+    }
 }

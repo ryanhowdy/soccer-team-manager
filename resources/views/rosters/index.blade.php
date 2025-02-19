@@ -44,6 +44,13 @@
                                             @if($p['number'])#{{ $p['number'] }}@endif
                                         </span>
                                         {{ $p['name'] }}
+                                    @if($p['class'] != 'rem')
+                                        <a href="{{ route('ajax.rosters.destroy', ['roster' => $p['roster_id']]) }}"
+                                            data-confirm-message="Are you sure you want to remove this player?" data-btn="danger"
+                                            class="rem-roster-player confirm-link link-danger position-absolute top-0 end-0 pt-2 pe-2">
+                                            <i class="bi bi-trash3"></i>
+                                        </a>
+                                    @endif
                                     </div>
                                 @if(empty($p['number']) && $p['class'] != 'rem')
                                     <div class="col-2">
@@ -110,6 +117,8 @@
     </div><!--/.modal-->
 
 <script>
+let confirmation = new ConfirmModal();
+
 $('.add-player').on('change', function() {
     let $select          = $(this);
     let playerId         = $select.val();

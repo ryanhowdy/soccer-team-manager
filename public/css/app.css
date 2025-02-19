@@ -22815,3 +22815,9 @@ th.dt-ordering-asc:after {
   font-weight: bold;
   color: red;
 }
+#rosters .list-group-item .rem-roster-player {
+  display: none;
+}
+#rosters .list-group-item:hover .rem-roster-player {
+  display: inline-block;
+}

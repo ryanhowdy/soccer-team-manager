@@ -91,6 +91,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ajax/rosters',         [\App\Http\Controllers\AjaxController::class, 'saveRoster'])->name('ajax-create-roster');
     // TODO - these are all wrong
 
+    Route::post('/ajax/rosters/{roster}/destroy', [\App\Http\Controllers\Ajax\RosterController::class, 'destroy'])->name('ajax.rosters.destroy');
+
     Route::post('/ajax/games/{result}', [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
 
     Route::post('/ajax/competitions/{competition}', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');

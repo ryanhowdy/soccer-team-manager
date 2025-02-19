@@ -36,3 +36,9 @@ window.FormationDrawer = FormationDrawer;
  */
 import EventTimeline from './event-timeline';
 window.EventTimeline = EventTimeline;
+
+/**
+ * Confirmation Modal 
+ */
+import ConfirmModal from './confirmation-modal';
+window.ConfirmModal = ConfirmModal;
