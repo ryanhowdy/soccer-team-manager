@@ -17,6 +17,7 @@ Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('i
 
 Route::get( '/login',                 [\App\Http\Controllers\LoginController::class, 'create'])->name('login');
 Route::post('/login',                 [\App\Http\Controllers\LoginController::class, 'store']);
+Route::get( '/logout',                [\App\Http\Controllers\LoginController::class, 'destroy'])->name('logout');
 Route::get( '/forgot-password',       [\App\Http\Controllers\ForgotPasswordController::class, 'create'])->name('password.request');
 Route::post('/forgot-password',       [\App\Http\Controllers\ForgotPasswordController::class, 'store'])->name('password.email');
 Route::get( '/reset-password/{code}', [\App\Http\Controllers\PasswordResetController::class, 'create'])->name('password.reset');

@@ -54,12 +54,12 @@ class LoginController extends Controller
     }
 
     /**
-     * logout
+     * destroy
      *
      * @param Request $request
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
      */
-    public function logout(Request $request)
+    public function destroy(Request $request)
     {
         Auth::guard()->logout();
         $request->session()->flush();

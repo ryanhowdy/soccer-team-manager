@@ -15,9 +15,7 @@ class RegisterController extends Controller
      */
     public function create()
     {
-        $firstUser = User::first();
-
-        if (!is_null($firstUser))
+        if (Auth::check())
         {
             return redirect()->route('index');
         }

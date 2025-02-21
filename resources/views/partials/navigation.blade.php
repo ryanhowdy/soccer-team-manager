@@ -43,6 +43,17 @@
                     </ul>
                 </li>
             </ul>
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle fs-5 me-1"></i></a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="p-3 text-center">
+                        <i class="bi bi-person-circle display-1 mb-1"></i>
+                        <b>{{ Auth()->user()->email }}</b>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ route('logout') }}">Logout</a>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
