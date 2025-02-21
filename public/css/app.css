@@ -22756,6 +22756,15 @@ th.dt-ordering-asc:after {
   left: 18px;
 }
 
+#teams #search {
+  border: none;
+  font-size: 30px;
+  font-weight: bold;
+  color: #999;
+}
+#teams #search:focus-visible {
+  outline: none;
+}
 #teams table th.club-name {
   width: 40%;
 }

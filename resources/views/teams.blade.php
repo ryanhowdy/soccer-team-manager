@@ -15,14 +15,17 @@
         </div>
     @endif
 
-        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 text-end">
-            <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-team">
-                <span class="bi-plus-lg pe-2"></span>Add Team
-            </a>
+        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 d-flex align-items-center justify-content-between">
+            <input type="text" id="search">
+            <div>
+                <a href="#" class="btn btn-sm btn-primary text-white text-nowrap" data-bs-toggle="modal" data-bs-target="#create-team">
+                    <span class="bi-plus-lg pe-2"></span>Add Team
+                </a>
+            </div>
         </div>
 
         <div class="rounded rounded-3 bg-white p-4 mb-1">
-            <table class="table align-middle">
+            <table id="clubs-table" class="table align-middle">
                 <thead class="">
                     <tr>
                         <th class="club-name">Club</th>
@@ -32,7 +35,7 @@
                 </thead>
                 <tbody class="table-group-divider">
                 @foreach($clubs as $club)
-                    <tr>
+                    <tr class="{{ strtolower(str_replace(' ', '-', $club->name)) }}">
                         <td class="club-name position-relative" data-bs-toggle="modal" data-bs-target="#club-{{ $club->id }}">
                             <img class="logo img-fluid ms-2 me-3" src="{{ asset($club->logo) }}"/>
                             {{ $club->name }}
@@ -126,6 +129,27 @@
         </div>
     </div><!--/.modal-->
 @endforeach
+
+<script>
+$(document).keydown(function(e) {
+    if (!$(event.target).is(':input'))
+    {
+        $('#search').focus();
+    }
+});
+$(document).on('input', '#search', function() {
+    let = curSearch = $('#search').val();
+
+    if ((curSearch) && curSearch != '')
+    {
+        $('#clubs-table tr').hide();
+        curSearch = curSearch.toLowerCase();
+        $('tr[class^=' + curSearch + '], tr[class*=' + curSearch + ']').show();
+    }
+});
+</script>
+
+
     <div id="create-team" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content py-4 px-2">

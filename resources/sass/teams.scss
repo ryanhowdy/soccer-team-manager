@@ -1,5 +1,18 @@
 #teams
 {
+    #search
+    {
+        border: none;
+        font-size: 30px;
+        font-weight: bold;
+        color: #999;
+
+        &:focus-visible
+        {
+            outline: none;
+        }
+    }
+
     table 
     {
         th.club-name
