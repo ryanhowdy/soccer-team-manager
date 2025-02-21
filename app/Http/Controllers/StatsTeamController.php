@@ -82,6 +82,8 @@ class StatsTeamController extends Controller
 
         $resultToGoodGuyLkup = [];
 
+        $resultIds = [];
+
         // Get team stats
         foreach ($results as $result)
         {
@@ -141,8 +143,12 @@ class StatsTeamController extends Controller
             }
         }
 
-        $events = ResultEvent::whereIn('result_id', $resultIds)
-            ->get();
+        $events = [];
+        if ($resultIds)
+        {
+            $events = ResultEvent::whereIn('result_id', $resultIds)
+                ->get();
+        }
 
         $goalEvents    = Event::getGoalValues();
         $shotOnEvents  = Event::getShotOnTargetValues();
