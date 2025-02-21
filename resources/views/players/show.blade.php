@@ -254,10 +254,26 @@ const htmlLegendPlugin = {
                         <td>{{ $stats['totals']['all']['shots_on'] }}</td>
                         <td class="text-info">{{ $stats['totals']['all']['goals'] }}</td>
                         <td class="border-end border-secondary-subtle">{{ $stats['totals']['all']['assists'] }}</td>
-                        <td>{{ number_format($stats['totals']['all']['shots'] / $stats['totals']['all']['games'], 2) }}</td>
-                        <td>{{ number_format($stats['totals']['all']['shots_on'] / $stats['totals']['all']['games'], 2)}}</td>
-                        <td>{{ number_format($stats['totals']['all']['goals'] / $stats['totals']['all']['games'], 2) }}</td>
-                        <td class="border-end border-secondary-subtle">{{ number_format($stats['totals']['all']['assists'] / $stats['totals']['all']['games'], 2) }}</td>
+                        <td>
+                        @if($stats['totals']['all']['games'])
+                            {{ number_format($stats['totals']['all']['shots'] / $stats['totals']['all']['games'], 2) }}
+                        @endif
+                        </td>
+                        <td>
+                        @if($stats['totals']['all']['games'])
+                            {{ number_format($stats['totals']['all']['shots_on'] / $stats['totals']['all']['games'], 2)}}
+                        @endif
+                        </td>
+                        <td>
+                        @if($stats['totals']['all']['games'])
+                            {{ number_format($stats['totals']['all']['goals'] / $stats['totals']['all']['games'], 2) }}
+                        @endif
+                        </td>
+                        <td class="border-end border-secondary-subtle">
+                        @if($stats['totals']['all']['games'])
+                            {{ number_format($stats['totals']['all']['assists'] / $stats['totals']['all']['games'], 2) }}
+                        @endif
+                        </td>
                         <td class="text-start">Details</td>
                     </tr>
                 </tfoot>

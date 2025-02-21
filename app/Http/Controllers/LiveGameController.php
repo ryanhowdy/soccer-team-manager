@@ -55,14 +55,24 @@ class LiveGameController extends Controller
             ->get();
 
         // get the players for this team
-        $players = Player::select('players.*', 'rosters.number')
+        $guestPlayers = Player::select('players.*', 'roster_guests.number')
             ->with('positions')
-            ->orderBy('name')
+            ->join('roster_guests', function (JoinClause $join) use ($result) {
+                $join->on('roster_guests.player_id', '=', 'players.id')
+                    ->where('result_id', $result->id);
+            })
+            ->get();
+
+        $currentPlayers = Player::select('players.*', 'rosters.number')
+            ->with('positions')
             ->join('rosters', function (JoinClause $join) use ($result) {
                 $join->on('rosters.player_id', '=', 'players.id')
                     ->where('club_team_season_id', $result->club_team_season_id);
             })
-            ->get()
+            ->get();
+
+        $players = $currentPlayers->merge($guestPlayers)
+            ->sortBy('name')
             ->keyBy('id');
 
         $playerOrder    = [];

@@ -12,6 +12,7 @@ use App\Models\Roster;
 use App\Models\Position;
 use App\Models\Result;
 use App\Models\ResultEvent;
+use App\Models\RosterGuest;
 use App\Enums\Event;
 use App\Enums\ResultStatus;
 use Illuminate\Support\Facades\DB;
@@ -150,6 +151,7 @@ class PlayerController extends Controller
 
                 $player->name            = $request->name;
                 $player->birth_year      = $request->birth_year;
+                $player->managed         = 0;
                 $player->created_user_id = Auth()->user()->id;
                 $player->updated_user_id = Auth()->user()->id;
 
@@ -212,6 +214,12 @@ class PlayerController extends Controller
             ->pluck('clubTeamSeason.id')
             ->toArray();
 
+        // Find any games this player guest played for
+        $guestResultIds = RosterGuest::where('player_id', $playerId)
+            ->get()
+            ->pluck('result_id')
+            ->toArray();
+
         // Get all games this user could have played in
         $results = Result::from('results as r')
             ->select('r.*', 'c.type as competition_type', 's.id as season_id', 's.season', 's.year')
@@ -220,6 +228,7 @@ class PlayerController extends Controller
             ->join('seasons as s', 'ts.season_id', '=', 's.id')
             ->whereIn('club_team_season_id', $clubTeamSeasonIds)
             ->where('r.status', ResultStatus::Done->value)
+            ->orWhereIn('r.id', $guestResultIds)
             ->orderBy('s.year')
             ->get();
 

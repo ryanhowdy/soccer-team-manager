@@ -71,6 +71,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/rosters',          [\App\Http\Controllers\RosterController::class, 'index'])->name('rosters.index');
     Route::post('/rosters/{roster}', [\App\Http\Controllers\RosterController::class, 'update'])->name('rosters.update');
 
+    Route::post('/roster-guests', [\App\Http\Controllers\RosterGuestController::class, 'store'])->name('rosters.guest.store');
+
     // Seasons
     Route::post('/seasons', [\App\Http\Controllers\SeasonController::class, 'store'])->name('seasons.store');
 
@@ -91,9 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ajax/rosters',         [\App\Http\Controllers\AjaxController::class, 'saveRoster'])->name('ajax-create-roster');
     // TODO - these are all wrong
 
-    Route::post('/ajax/rosters/{roster}/destroy', [\App\Http\Controllers\Ajax\RosterController::class, 'destroy'])->name('ajax.rosters.destroy');
-
-    Route::post('/ajax/games/{result}', [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
-
+    Route::post('/ajax/rosters/{roster}/destroy',   [\App\Http\Controllers\Ajax\RosterController::class, 'destroy'])->name('ajax.rosters.destroy');
+    Route::post('/ajax/games/{result}',             [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
     Route::post('/ajax/competitions/{competition}', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
 });

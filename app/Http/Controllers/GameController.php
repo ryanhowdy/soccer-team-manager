@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Validation\Rule;
 use App\Models\User;
@@ -599,6 +600,37 @@ class GameController extends Controller
     {
         $result = Result::find($gameId);
 
+        $clubTeamSeason = ClubTeamSeason::find($result->club_team_season_id);
+
+        $currentPlayers = Player::select('players.*', 'rosters.number')
+            ->join('rosters', function (JoinClause $join) use ($result) {
+                $join->on('rosters.player_id', '=', 'players.id')
+                    ->where('club_team_season_id', $result->club_team_season_id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        $guestPlayers = Player::select('players.*', 'roster_guests.number')
+            ->join('roster_guests', function (JoinClause $join) use ($result) {
+                $join->on('roster_guests.player_id', '=', 'players.id')
+                    ->where('result_id', $result->id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        $availablePlayers = PlayerTeam::from('player_teams as pt')
+            ->select('p.id', 'p.name')
+            ->join('players as p', 'pt.player_id', '=', 'p.id')
+            ->where('club_team_id', $clubTeamSeason->club_team_id)
+            ->whereNotIn('p.id', function (QueryBuilder $q) use ($result) {
+                $q->select('player_id')
+                    ->from('rosters')
+                    ->where('club_team_season_id', $result->club_team_season_id)
+                    ->get();
+            })
+            ->orderBy('p.name')
+            ->get();
+
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
 
@@ -714,6 +746,9 @@ class GameController extends Controller
             'last5Results'     => $last5Results,
             'head2HeadResults' => $head2HeadResults,
             'stats'            => $stats,
+            'currentPlayers'   => $currentPlayers,
+            'guestPlayers'     => $guestPlayers,
+            'availablePlayers' => $availablePlayers,
         ]);
     }
 

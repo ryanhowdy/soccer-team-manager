@@ -9,9 +9,22 @@
 
         <div class="rounded rounded-3 bg-white p-4 mb-3 position-relative">
 
-            <a class="position-absolute top-0 end-0 btn btn-sm btn-light m-3" href="{{ route('games.edit', ['id' => $result->id]) }}">
-                <span class="bi bi-pencil pe-2"></span>Edit
-            </a>
+            <div class="dropdown position-absolute top-0 end-0 me-2">
+                <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">Options</button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-guest-player">
+                            <span class="bi bi-person-add pe-2"></span>Add Guest Player
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('games.edit', ['id' => $result->id]) }}">
+                            <span class="bi bi-pencil pe-2"></span>Edit
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
 
             {{-- Competition & Date/time --}}
             <div class="text-center mb-5">
@@ -72,6 +85,31 @@
                 </div>
             </div>
 
+        </div>
+
+        <div class="rounded rounded-3 bg-white p-4 mb-3 text-center">
+            <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover" href="#collapsePlayers" data-bs-toggle="collapse">
+                Roster<i class="bi bi-caret-down ms-2"></i>
+            </a>
+            <div id="collapsePlayers" class="row mt-3 collapse small">
+            @foreach($currentPlayers as $p)
+                <div class="col-4">
+                    <div class="d-flex align-items-center p-2">
+                        <div><img src="/{{ $p->photo }}" class="img-fluid rounded-circle" style="width:30px"/></div>
+                        <div class="ps-2">{{ $p->name }}</div>
+                    </div>
+                </div>
+            @endforeach
+            @foreach($guestPlayers as $p)
+                <div class="col-4">
+                    <div class="d-flex align-items-center p-2">
+                        <div><img src="/{{ $p->photo }}" class="img-fluid rounded-circle" style="width:30px"/></div>
+                        <div class="ps-2">{{ $p->name }}<span class="text-danger ps-1 fs-6">*</span></div>
+                    </div>
+                </div>
+            @endforeach
+            <p class="mt-3 text-secondary fst-italic"><span class="pe-1 fs-6">*</span>Guest Player</p>
+            </div>
         </div>
 
         <div class="row">
@@ -167,6 +205,37 @@
         </div><!--/.row-->
 
     </div><!--/container-->
+
+    <div id="add-guest-player" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Guest Player</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="" action="{{ route('rosters.guest.store') }}" method="post">
+                        @csrf
+                        <input type="hidden" name="club_team_season_id" value="{{ $result->club_team_season_id }}">
+                        <input type="hidden" name="result_id" value="{{ $result->id }}">
+                        <div class="mb-3">
+                            <select class="form-select" name="player_id">
+                                <option>Add Player</option>
+                            @foreach($availablePlayers as $p)
+                                <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 $('#previous-stats > .progress').each((index, progress) => {
     let $parent = $(progress).prev();
