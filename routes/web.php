@@ -34,10 +34,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/games',              [\App\Http\Controllers\GameController::class, 'index'])->name('games.index');
     Route::post('/games',              [\App\Http\Controllers\GameController::class, 'store'])->name('games.store');
     Route::get( '/games/{id}',         [\App\Http\Controllers\GameController::class, 'show'])->name('games.show');
-    Route::get( '/games/{id}/live',    [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
     Route::get( '/games/{id}/preview', [\App\Http\Controllers\GameController::class, 'preview'])->name('games.preview');
     Route::get( '/games/{id}/edit',    [\App\Http\Controllers\GameController::class, 'edit'])->name('games.edit');
     Route::post('/games/{id}',         [\App\Http\Controllers\GameController::class, 'update'])->name('games.update');
+
+    Route::get( '/games/{id}/live',            [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
+    Route::get( '/games/{id}/live/all',        [\App\Http\Controllers\LiveGameController::class, 'all'])->name('games.live.all');
+    Route::get( '/games/{id}/live/possession', [\App\Http\Controllers\LiveGameController::class, 'possession'])->name('games.live.possession');
 
     // Teams
     Route::get( '/teams',           [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
@@ -94,7 +97,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ajax/rosters',         [\App\Http\Controllers\AjaxController::class, 'saveRoster'])->name('ajax-create-roster');
     // TODO - these are all wrong
 
-    Route::post('/ajax/rosters/{roster}/destroy',   [\App\Http\Controllers\Ajax\RosterController::class, 'destroy'])->name('ajax.rosters.destroy');
-    Route::post('/ajax/games/{result}',             [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
-    Route::post('/ajax/competitions/{competition}', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
+    Route::post('/ajax/rosters/{roster}/destroy',        [\App\Http\Controllers\Ajax\RosterController::class, 'destroy'])->name('ajax.rosters.destroy');
+    Route::post('/ajax/games/{result}/edit',             [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
+    Route::post('/ajax/games/{result}/events',           [\App\Http\Controllers\Ajax\ResultEventController::class, 'store'])->name('ajax.results.events.store');
+    Route::get( '/ajax/games/{result}/possession',       [\App\Http\Controllers\Ajax\ResultEventController::class, 'getPossession'])->name('ajax.results.events.possession');
+    Route::post('/ajax/competitions/{competition}/edit', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
 });

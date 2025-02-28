@@ -27,6 +27,8 @@ enum Event: int
     case free_kick_off_target = 24;
     case halftime             = 25;
     case fulltime             = 26;
+    case gain_possession      = 27;
+    case lose_possession      = 28;
 
     public static function getGoalValues()
     {

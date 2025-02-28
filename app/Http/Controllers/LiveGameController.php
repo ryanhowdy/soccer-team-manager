@@ -18,9 +18,25 @@ class LiveGameController extends Controller
     /**
      * Displays the live game view
      *
+     * @param Request $request 
+     * @param int $id 
      * @return Illuminate\View\View
      */
     public function index(Request $request, int $id)
+    {
+        return view('games.live.index', [
+            'id' => $id,
+        ]);
+    }
+
+    /**
+     * all 
+     * 
+     * @param Request $request 
+     * @param int $id 
+     * @return Illuminate\View\View
+     */
+    public function all(Request $request, int $id)
     {
         // Get the result info
         $result = Result::with('competition')
@@ -111,7 +127,7 @@ class LiveGameController extends Controller
         $events = Event::all()
             ->keyBy('id');
 
-        return view('games.live', [
+        return view('games.live.all', [
             'result'            => $result,
             'resultEvents'      => $resultEvents,
             'groupedFormations' => $groupedFormations,
@@ -120,6 +136,33 @@ class LiveGameController extends Controller
             'players'           => $players,
             'groupedPlayers'    => $groupedPlayers,
             'events'            => $events,
+        ]);
+    }
+
+    /**
+     * possession
+     * 
+     * @param Request $request 
+     * @param int $id 
+     * @return Illuminate\View\View
+     */
+    public function possession(Request $request, int $id)
+    {
+        // Get the result info
+        $result = Result::with('competition')
+            ->with('location')
+            ->with('homeTeam.club')
+            ->with('awayTeam.club')
+            ->find($id);
+
+        // if the result already is marked as done/cancelled, redirect to the game details
+        if (in_array($result->status, ['D','C']))
+        {
+            return redirect()->route('games.show', ['id' => $id]);
+        }
+
+        return view('games.live.possession', [
+            'result' => $result,
         ]);
     }
 }

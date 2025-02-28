@@ -10,4 +10,9 @@ class Event extends Model
     use HasFactory;
 
     public $timestamps = false;
+
+    protected $fillable = [
+        'event',
+        'additional',
+    ];
 }

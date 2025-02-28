@@ -5,6 +5,7 @@
         <div class="col-12 col-md-6">
             <div class="rounded rounded-3 bg-white p-4 mb-1">
                 <h3>Results</h3>
+            @isset($chartData['wdl'])
                 <canvas id="wdl-chart" class="p-3 mb-2"></canvas>
                 <script>
                 let wdlChart = document.getElementById('wdl-chart');
@@ -38,6 +39,7 @@
                         <div class="text-secondary">{{ $chartData['wdl']['l'] }}</div>
                     </div>
                 </div>
+            @endisset
             </div><!--/.rounded-->
         </div><!--/.col-->
 

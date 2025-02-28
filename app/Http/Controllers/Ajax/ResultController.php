@@ -40,6 +40,14 @@ class ResultController extends Controller
         {
             $result->notes = $request->notes;
         }
+        if ($request->filled('live'))
+        {
+            $result->live = $request->live;
+        }
+        if ($request->filled('status'))
+        {
+            $result->status = $request->status;
+        }
 
         $result->save();
 

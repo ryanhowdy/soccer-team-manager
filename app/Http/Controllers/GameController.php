@@ -233,6 +233,12 @@ class GameController extends Controller
             ->with('awayTeam.club')
             ->find($gameId);
 
+        // If the game isn't marked as 'Done', redirect to preview page
+        if ($result->status != 'D')
+        {
+            return redirect()->route('games.preview', ['id' => $gameId]);
+        }
+
         // Get all the events for this game
         $resultEvents = ResultEvent::where('result_id', $gameId)
             ->orderBy('time')

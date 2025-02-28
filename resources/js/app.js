@@ -20,10 +20,22 @@ import DataTable from 'datatables.net-bs5';
 window.DataTable = DataTable;
 
 /**
- * Live Game
+ * Live (Base)
  */
-import Live from './live';
+import Live from './live/live';
 window.Live = Live;
+
+/**
+ * Live (All) Game
+ */
+import LiveAll from './live/all';
+window.LiveAll = LiveAll;
+
+/**
+ * Live (Possession) Game
+ */
+import LivePossession from './live/possession';
+window.LivePossession = LivePossession;
 
 /**
  * Formation Drawer

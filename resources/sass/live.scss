@@ -12,6 +12,38 @@
 
 #live
 {
+    .list-group-radio 
+    {
+        i
+        {
+            z-index: 2;
+            margin-top: -.75em;
+        }
+        .form-check-input
+        {
+            z-index: 2;
+            margin-top: -.5em;
+
+            &:checked + .list-group-item
+            {
+                background-color: var(--bs-body);
+                border-color: var(--bs-primary);
+                box-shadow: 0 0 0 2px var(--bs-primary);
+            }
+        }
+        .list-group-item
+        {
+            cursor: pointer;
+            border-radius: .5rem;
+            padding-left: 3.75rem;
+
+            &:hover
+            {
+                background-color: var(--bs-secondary-bg);
+            }
+        }
+    }
+
     #game-controls
     {
         // Game progression
@@ -90,14 +122,17 @@
         }
     }
 
-    .progress
+    #game-details
     {
-        background-color: #bbb;
-        height: 8px;
-
-        .progress-bar
+        .progress
         {
-            background-color: #555;
+            background-color: #bbb;
+            height: 8px;
+
+            .progress-bar
+            {
+                background-color: #555;
+            }
         }
     }
 

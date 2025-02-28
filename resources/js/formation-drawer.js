@@ -6,7 +6,7 @@ export default class FormationDrawer
         this.playersByPosition = playersByPosition;
     }
 
-    drawFormation(formationData, selector = '#field')
+    drawFormation(formationData, selector = '#live-main')
     {
         // reverse the formation (4231 becomes 1324)
         let formation = formationData.name.split("").reverse().join("");
@@ -178,7 +178,7 @@ export default class FormationDrawer
         $eventPicker.append(nameSpan);
     }
 
-    addPlayerStarters(starters, selector = '#field')
+    addPlayerStarters(starters, selector = '#live-main')
     {
         // Loop through the already drawn positions on the field
         $(selector + ' .row .col .position.empty').each((index, positionDiv) => {

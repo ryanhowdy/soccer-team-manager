@@ -22388,6 +22388,27 @@ th.dt-ordering-asc:after {
     transform: scale(1);
   }
 }
+#live .list-group-radio i {
+  z-index: 2;
+  margin-top: -0.75em;
+}
+#live .list-group-radio .form-check-input {
+  z-index: 2;
+  margin-top: -0.5em;
+}
+#live .list-group-radio .form-check-input:checked + .list-group-item {
+  background-color: var(--bs-body);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 2px var(--bs-primary);
+}
+#live .list-group-radio .list-group-item {
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding-left: 3.75rem;
+}
+#live .list-group-radio .list-group-item:hover {
+  background-color: var(--bs-secondary-bg);
+}
 #live #game-controls.initial #home-score, #live #game-controls.formation #home-score {
   display: none;
 }
@@ -22469,11 +22490,11 @@ th.dt-ordering-asc:after {
 #live #additional-modal #player_id > option[disabled] {
   display: none;
 }
-#live .progress {
+#live #game-details .progress {
   background-color: #bbb;
   height: 8px;
 }
-#live .progress .progress-bar {
+#live #game-details .progress .progress-bar {
   background-color: #555;
 }
 #live .btn-scale-0,
