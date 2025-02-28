@@ -353,8 +353,14 @@ class StatsTeamController extends Controller
         // Do some final cleanup/calculations
         foreach($stats['players'] as $name => $player)
         {
+            $pGoals = 0;
+            if ($stats['homeaway']['overall']['goals'])
+            {
+                $pGoals = round(($player['goals'] / $stats['homeaway']['overall']['goals']) * 100);
+            }
+
             $stats['players'][$name]['percent'] = [
-                'goals'          => round(($player['goals'] / $stats['homeaway']['overall']['goals']) * 100),
+                'goals'          => $pGoals,
                 'assists'        => 0,
                 'shotConversion' => $player['goals'] ? round(($player['goals'] / $player['shots']) * 100) : 0,
             ];
