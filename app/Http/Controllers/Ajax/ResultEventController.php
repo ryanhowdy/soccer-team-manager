@@ -188,4 +188,105 @@ class ResultEventController extends Controller
             'data'    => $possession,
         ], 200);
     }
+
+    /**
+     * getMomentum
+     * 
+     * @param Result $result
+     * @return json
+     */
+    public function getMomentum(Result $result, Request $request)
+    {
+        // Get all the events for this game
+        $resultEvents = ResultEvent::where('result_id', $result->id)
+            //->whereIn('event_id', [EnumEvent::gain_possession, EnumEvent::lose_possession])
+            ->orderBy('time')
+            ->orderBy('id')
+            ->get();
+
+        $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
+        $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
+
+        $momentum = [
+            'home' => [],
+            'away' => [],
+        ];
+
+        $max = 0;
+
+        foreach($resultEvents as $e)
+        {
+            $homeAway = $e->against == 1 ? $badGuys : $goodGuys;
+
+            // put each time event into 5 min sections (ie 0-4, 5-9, 10-14, etc)
+            $time = floor(substr($e->time, 0, 2) / 5) * 5;
+
+            if (!isset($momentum['home'][$time]))
+            {
+                $momentum['home'][$time] = [
+                    'points' => 0,
+                    'total'  => 0,
+                ];
+            }
+            if (!isset($momentum['away'][$time]))
+            {
+                $momentum['away'][$time] = [
+                    'points' => 0,
+                    'total'  => 0,
+                ];
+            }
+
+            // Goal (10)
+            if (in_array($e->event_id, EnumEvent::getGoalValues()))
+            {
+                $momentum[$homeAway][$time]['points'] += 10;
+            }
+            // Shot on/off Target (xg)
+            if (in_array($e->event_id, EnumEvent::getShotValues()))
+            {
+                $pts = is_null($e->xg) ? 5 : $e->xg;
+
+                $momentum[$homeAway][$time]['points'] += $pts;
+            }
+            // Foul (-2)
+            if ($e->event_id == EnumEvent::foul->value)
+            {
+                $momentum[$badGuys][$time]['points'] += 2;
+            }
+            // Fouled (2)
+            if ($e->event_id == EnumEvent::fouled->value)
+            {
+                $momentum[$goodGuys][$time]['points'] += 2;
+            }
+
+            if ($momentum['home'][$time]['points'] > $max)
+            {
+                $max = $momentum['home'][$time]['points'];
+            }
+            if ($momentum['away'][$time]['points'] > $max)
+            {
+                $max = $momentum['away'][$time]['points'];
+            }
+        }
+
+        foreach ($momentum['home'] as $timeSpan => $data)
+        {
+            $hPoints = $data['points'] / $max;
+            $aPoints = $momentum['away'][$timeSpan]['points'] / $max;
+
+            if ($hPoints > $aPoints)
+            {
+                $momentum['home'][$timeSpan]['total'] = round($hPoints, 1);
+            }
+            if ($aPoints > $hPoints)
+            {
+                $momentum['away'][$timeSpan]['total'] = round($aPoints, 1);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $momentum,
+        ], 200);
+    }
 }

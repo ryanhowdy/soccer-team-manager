@@ -580,7 +580,7 @@ class GameController extends Controller
             $playingTime[$playerId]['minutes'] = secondsToMinutes($playingTime[$playerId]['seconds']);
         }
 
-        return view('games.show', [
+        return view('games.show.index', [
             'result'               => $result,
             'resultEvents'         => $resultEvents,
             'goodGuys'             => $goodGuys,

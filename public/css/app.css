@@ -22339,6 +22339,20 @@ th.dt-ordering-asc:after {
   background-color: #555;
 }
 
+#home-momentum-chart {
+  max-width: 600px;
+}
+#home-momentum-chart .area {
+  --color: #1F87FF;
+}
+
+#away-momentum-chart {
+  max-width: 600px;
+}
+#away-momentum-chart .area {
+  --color: #003282;
+}
+
 .game-listing-details .date {
   margin-top: -3px;
 }

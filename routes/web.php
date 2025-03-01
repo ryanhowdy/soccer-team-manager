@@ -101,5 +101,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ajax/games/{result}/edit',             [\App\Http\Controllers\Ajax\ResultController::class, 'update'])->name('ajax.results.update');
     Route::post('/ajax/games/{result}/events',           [\App\Http\Controllers\Ajax\ResultEventController::class, 'store'])->name('ajax.results.events.store');
     Route::get( '/ajax/games/{result}/possession',       [\App\Http\Controllers\Ajax\ResultEventController::class, 'getPossession'])->name('ajax.results.events.possession');
+    Route::get( '/ajax/games/{result}/momentum',         [\App\Http\Controllers\Ajax\ResultEventController::class, 'getMomentum'])->name('ajax.results.events.momentum');
     Route::post('/ajax/competitions/{competition}/edit', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
 });

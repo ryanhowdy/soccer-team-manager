@@ -39,6 +39,18 @@ enum Event: int
         ];
     }
 
+    public static function getShotValues()
+    {
+        return [
+            Event::shot_on_target->value,
+            Event::penalty_on_target->value,
+            Event::free_kick_on_target->value,
+            Event::shot_off_target->value,
+            Event::penalty_off_target->value,
+            Event::free_kick_off_target->value,
+        ];
+    }
+
     public static function getShotOnTargetValues()
     {
         return [

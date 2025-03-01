@@ -165,6 +165,9 @@
                     <a class="nav-link active" href="#" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane">Stats</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="#" id="momentum-tab" data-bs-toggle="tab" data-bs-target="#momentum-pane">Momentum</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="#" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-pane">Timeline</a>
                 </li>
                 <li class="nav-item">
@@ -183,6 +186,10 @@
             <div class="tab-pane fade show active" id="stats-pane">
         @include('games.game-stats')
             </div><!--/#stats-pane-->
+
+            <div class="tab-pane fade" id="momentum-pane">
+        @include('games.show.momentum')
+            </div><!--/#timeline-pane-->
 
             <div class="tab-pane fade" id="timeline-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
