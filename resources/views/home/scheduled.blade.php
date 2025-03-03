@@ -7,7 +7,13 @@
             </div>
             <h4 class="d-inline-block align-middle">Upcoming Games</h4>
         </div>
+    @php($prevMonth = 0)
     @foreach($scheduled as $result)
+        @if($result->date->inUserTimezone()->format('m') != $prevMonth)
+            <div class="fw-bold fs-4 border-bottom pb-2 mb-3 text-secondary">
+                {{ $result->date->inUserTimezone()->format('F') }}
+            </div>
+        @endif
         <div class="row game-listing-details mb-5">
             <div class="col-4">
                 <div class="competition text-uppercase small">
@@ -41,5 +47,6 @@
                 </a>
             </div>
         </div>
+        @php($prevMonth = $result->date->inUserTimezone()->format('m'))
     @endforeach
     </div>
