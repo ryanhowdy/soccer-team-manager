@@ -21,20 +21,8 @@
         }
     }
 }
-#home-momentum-chart
-{
-    max-width: 600px;
-
-    .area {
-        --color: #1F87FF;
-    }
-}
+#home-momentum-chart,
 #away-momentum-chart
 {
     max-width: 600px;
-
-    .area
-    {
-        --color: #003282;
-    }
 }

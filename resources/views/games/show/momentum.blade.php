@@ -11,6 +11,10 @@
             <tbody></tbody>
         </table>
     </div>
+<style>
+#home-momentum-chart .area { --color: {{ $teamColors['home'] }} }
+#away-momentum-chart .area { --color: {{ $teamColors['away'] }} }
+</style>
 </div>
 <script>
 $(document).ready(function() {

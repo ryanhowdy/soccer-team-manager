@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
@@ -21,6 +22,9 @@ use App\Enums\Event as EnumEvent;
 use App\Enums\CompetitionStatus;
 use App\Enums\ResultStatus;
 use Carbon\Carbon;
+use League\ColorExtractor\Color;
+use League\ColorExtractor\ColorExtractor;
+use League\ColorExtractor\Palette;
 
 class GameController extends Controller
 {
@@ -279,6 +283,21 @@ class GameController extends Controller
 
         // Figure out the chart data based on the head 2 head results
         $chartData = \Chart::getData(['wdl'], $goodGuysId, $head2HeadResults);
+
+        // Get the team colors
+        $homePalette   = Palette::fromFilename($result->homeTeam->club->logo);
+        $homeExtractor = new ColorExtractor($homePalette);
+        $homeColors    = $homeExtractor->extract(1);
+
+
+        $awayPalette   = Palette::fromFilename($result->awayTeam->club->logo);
+        $awayExtractor = new ColorExtractor($awayPalette);
+        $awayColors    = $awayExtractor->extract(1);
+
+        $teamColors = [
+            'home' => Color::fromIntToHex($homeColors[0]),
+            'away' => Color::fromIntToHex($awayColors[0]),
+        ];
 
         $goals = [
             'home' => [],
@@ -602,6 +621,7 @@ class GameController extends Controller
             'managedPlayerIds'     => $managedPlayerIds,
             'chartData'            => $chartData,
             'results'              => $head2HeadResults,
+            'teamColors'           => $teamColors,
         ]);
     }
 

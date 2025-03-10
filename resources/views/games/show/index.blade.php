@@ -186,11 +186,12 @@
 
         <div class="tab-content">
 
-    @if($result->live)
+    @if(isset($modes['live']) || isset($modes['scoresPlus']))
             <div class="tab-pane fade show active" id="stats-pane">
-        @include('games.game-stats')
+        @include('games.show.stats')
             </div><!--/#stats-pane-->
-
+    @endif
+    @isset($modes['live'])
             <div class="tab-pane fade" id="momentum-pane">
         @include('games.show.momentum')
             </div><!--/#timeline-pane-->
@@ -201,7 +202,8 @@
                     <div id="game-timeline" class="event-timeline small"></div>
                 </div>
             </div><!--/#timeline-pane-->
-
+    @endisset
+    @isset($modes['starters'])
             <div class="tab-pane fade" id="lineup-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
                     <h3 class="mb-3">Lineup</h3>
@@ -210,7 +212,7 @@
                     </div><!--/#field-->
                 </div>
             </div><!--/#lineup-pane-->
-    @endif
+    @endisset
 
             <div class="tab-pane fade" id="h2h-pane">
         @include('games.game-h2h')
