@@ -1,4 +1,6 @@
 <div class="row">
+
+@isset($modes['live'])
     {{-- Team Stats --}}
     <div class="col-12 col-md-6">
         <div id="team-stats" class="rounded rounded-3 bg-white p-4 mb-3">
@@ -69,7 +71,9 @@
             <div class="progress game-red-cards-progress bg-primary-dark rounded-0 mb-4"><div style="width:50%" class="progress-bar border-end border-5"></div></div>
         </div>
     </div>
+@endisset
 
+@isset($modes['scoresPlus'])
     {{-- Player Stats --}}
     <div class="col-12 col-md-6">
         <div class="rounded rounded-3 bg-white p-4 mb-3">
@@ -79,11 +83,11 @@
                 <li class="nav-item">
                     <a class="nav-link active" id="stats-tab" data-bs-toggle="tab" data-bs-target="#player-stats-pane" href="#">Stats</a>
                 </li>
-            @if($havePlayingTimeStats)
+            @isset($modes['playingTime'])
                 <li class="nav-item">
                     <a class="nav-link" id="playing-time-tab" data-bs-toggle="tab" data-bs-target="#playing-time-pane" href="#">Playing Time</a>
                 </li>
-            @endif
+            @endisset
             </ul>
 
             <div class="tab-content">
@@ -147,6 +151,7 @@
             </div><!--/.tab-content-->
         </div>
     </div>
+@endisset
 
 </div><!--/.row-->
 

@@ -116,13 +116,13 @@
                                     was a substitute
                                 @endisset
                             @endif
-                            @if($havePlayingTimeStats)
+                            @isset($modes['playingTime'])
                                 @isset($playingTime[$id])
                                 and played {{ $playingTime[$id]['minutes'] }} minutes.
                                 @else
                                 and did not play.
                                 @endif
-                            @endif
+                            @endisset
                             </div>
                             @isset($stats['players'][$id])
                                 <div>{{ $stats['players'][$id]['goals'] }} goals</div>
@@ -153,27 +153,31 @@
                 </div>{{-- /.rounded --}}
             </div>
 
-            @if(!$result->live)
+            @if(!isset($modes['live']))
                 <div class="alert alert-danger mt-3" role="alert">
                     These result were not recorded live.
                 </div>
             @endif
 
             <div class="nav nav-underline mt-5">
-        @if($result->live)
+            @if(isset($modes['live']) || isset($modes['scoresPlus']))
                 <li class="nav-item">
                     <a class="nav-link active" href="#" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane">Stats</a>
                 </li>
+            @endif
+            @isset($modes['live'])
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="momentum-tab" data-bs-toggle="tab" data-bs-target="#momentum-pane">Momentum</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-pane">Timeline</a>
                 </li>
+            @endisset
+            @isset($modes['starters'])
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="lineup-tab" data-bs-toggle="tab" data-bs-target="#lineup-pane">Lineup</a>
                 </li>
-        @endif
+            @endisset
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="h2h-tab" data-bs-toggle="tab" data-bs-target="#h2h-pane">Head-to-head</a>
                 </li>

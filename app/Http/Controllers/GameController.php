@@ -315,11 +315,10 @@ class GameController extends Controller
             ],
         ];
 
+        $modes       = [];
         $starters    = [];
         $playingTime = [];
         $fulltime    = 0;
-
-        $havePlayingTimeStats = 0;
 
         $playerStatsWeTrack = [
             EnumEvent::goal->value,
@@ -388,6 +387,9 @@ class GameController extends Controller
 
             if ($e->event_id == EnumEvent::start->value)
             {
+                $modes['playingTime'] = 1;
+                $modes['starters']    = 1;
+
                 $starters[$e->player_id] = $e->additional;
 
                 $playingTime[$e->player_id] = [
@@ -404,7 +406,7 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_out->value)
             {
-                $havePlayingTimeStats = 1;
+                $modes['playingTime'] = 1;
 
                 foreach($playingTime[$e->player_id]['spans'] as $i => $span)
                 {
@@ -423,7 +425,7 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_in->value)
             {
-                $havePlayingTimeStats = 1;
+                $modes['playingTime'] = 1;
 
                 if (isset($playingTime[$e->player_id]))
                 {
@@ -450,9 +452,13 @@ class GameController extends Controller
             if ($e->event_id == EnumEvent::fulltime->value)
             {
                 $fulltime = $e->time;
+
+                $modes['live'] = 1;
             }
             if (in_array($e->event_id, $goalEvents))
             {
+                $modes['scoresPlus'] = 1;
+
                 $stats[$usOrThem]['goals']++;
                 $stats[$usOrThem]['shots']++;
                 $stats[$usOrThem]['shots_on']++;
@@ -576,6 +582,8 @@ class GameController extends Controller
                 }
             }
 
+            $modes['playingTime'] = 1;
+
             // format everyones time in minutes
             $playingTime[$playerId]['minutes'] = secondsToMinutes($playingTime[$playerId]['seconds']);
         }
@@ -588,7 +596,7 @@ class GameController extends Controller
             'playingTime'          => $playingTime,
             'stats'                => $stats,
             'goals'                => $goals,
-            'havePlayingTimeStats' => $havePlayingTimeStats,
+            'modes'                => $modes,
             'players'              => $players,
             'starters'             => $starters,
             'managedPlayerIds'     => $managedPlayerIds,
