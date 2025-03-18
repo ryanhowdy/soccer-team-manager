@@ -199,7 +199,6 @@ class ResultEventController extends Controller
     {
         // Get all the events for this game
         $resultEvents = ResultEvent::where('result_id', $result->id)
-            //->whereIn('event_id', [EnumEvent::gain_possession, EnumEvent::lose_possession])
             ->orderBy('time')
             ->orderBy('id')
             ->get();
@@ -226,6 +225,7 @@ class ResultEventController extends Controller
                 $momentum['home'][$time] = [
                     'points' => 0,
                     'total'  => 0,
+                    'event'  => '',
                 ];
             }
             if (!isset($momentum['away'][$time]))
@@ -233,6 +233,7 @@ class ResultEventController extends Controller
                 $momentum['away'][$time] = [
                     'points' => 0,
                     'total'  => 0,
+                    'event'  => '',
                 ];
             }
 
@@ -240,6 +241,7 @@ class ResultEventController extends Controller
             if (in_array($e->event_id, EnumEvent::getGoalValues()))
             {
                 $momentum[$homeAway][$time]['points'] += 10;
+                $momentum[$homeAway][$time]['event'] = 'goal';
             }
             // Shot on/off Target (xg)
             if (in_array($e->event_id, EnumEvent::getShotValues()))
