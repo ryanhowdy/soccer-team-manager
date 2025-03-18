@@ -81,6 +81,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <p>{{ $club->notes }}</p>
+                    <p><a href="{{ route('games.index', ['filter-seasons' => '', 'filter-clubs' => $club->id]) }}">See all games</a></p>
+                </div>
+                <div class="modal-body">
                     <table class="table align-middle">
                         <thead class="">
                             <tr>
@@ -108,7 +112,7 @@
                                 </td>
                                 <td>{{ $team->notes }}</td>
                                 <td>
-                                    <a href="#{{ $team->id }}"><span class="bi-pencil"></span></a>
+                                    <a href="{{ route('teams.edit', ['id' => $team->id]) }}"><span class="bi-pencil"></span></a>
                                 </td>
                             </tr>
                         @endforeach
