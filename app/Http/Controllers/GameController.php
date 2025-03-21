@@ -13,6 +13,7 @@ use App\Models\Result;
 use App\Models\Season;
 use App\Models\Player;
 use App\Models\PlayerTeam;
+use App\Models\ManagedPlayer;
 use App\Models\ClubTeam;
 use App\Models\ClubTeamSeason;
 use App\Models\Competition;
@@ -260,7 +261,14 @@ class GameController extends Controller
             ->get()
             ->keyBy('id');
 
-        $managedPlayerIds = $players->where('managed', 1)->pluck('name', 'id')->toArray();
+        $playerIds = $players->pluck('id')->toArray();
+
+        $managedPlayerIds = ManagedPlayer::where('user_id', Auth()->user()->id)
+            ->whereIn('player_id', $playerIds)
+            ->with('player')
+            ->get()
+            ->pluck('player.name', 'player.id')
+            ->toArray();
 
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';

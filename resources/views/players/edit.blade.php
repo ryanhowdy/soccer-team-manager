@@ -45,7 +45,7 @@
                         </div>
                         <div class="mb-3">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" value="1" @checked($player->managed) name="managed" id="managed">
+                                <input class="form-check-input" type="checkbox" value="1" @checked($isManaged) name="managed" id="managed">
                                 <label class="form-check-label small" for="managed">Managed</label>
                             </div>
                         </div>

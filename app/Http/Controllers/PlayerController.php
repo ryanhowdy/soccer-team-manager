@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Player;
 use App\Models\PlayerTeam;
+use App\Models\ManagedPlayer;
 use App\Models\ClubTeam;
 use App\Models\Season;
 use App\Models\ClubTeamSeason;
@@ -151,7 +152,6 @@ class PlayerController extends Controller
 
                 $player->name            = $request->name;
                 $player->birth_year      = $request->birth_year;
-                $player->managed         = 0;
                 $player->created_user_id = Auth()->user()->id;
                 $player->updated_user_id = Auth()->user()->id;
 
@@ -613,9 +613,14 @@ class PlayerController extends Controller
             ->orderBy('s.year', 'asc')
             ->get();
 
+        $managedPlayer = ManagedPlayer::where('user_id', Auth()->user()->id)
+            ->where('player_id', $player->id)
+            ->get();
+
         return view('players.edit', [
-            'player' => $player,
-            'teams'  => $teams,
+            'player'    => $player,
+            'teams'     => $teams,
+            'isManaged' => $managedPlayer->isNotEmpty(),
         ]);
     }
 
@@ -643,7 +648,6 @@ class PlayerController extends Controller
 
         $player->name       = $request->name;
         $player->birth_year = $request->birth_year;
-        $player->managed    = $request->has('managed')     ? 1                  : 0;
         $player->nickname   = $request->filled('nickname') ? $request->nickname : null;
 
         if ($request->has('photo'))
@@ -658,6 +662,23 @@ class PlayerController extends Controller
         }
 
         $player->save();
+
+        // handle managed player
+        if ($request->has('managed'))
+        {
+            $managedPlayer = new ManagedPlayer;
+
+            $managedPlayer->user_id   = Auth()->user()->id;
+            $managedPlayer->player_id = $player->id;
+
+            $managedPlayer->save();
+        }
+        else
+        {
+            $managedPlayer = ManagedPlayer::where('user_id', Auth()->user()->id)
+                ->where('player_id', $player->id)
+                ->delete();
+        }
 
         return redirect()->route('players.index');
     }
