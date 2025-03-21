@@ -30,9 +30,10 @@
                 @if($navPlayers)
                         <li><hr class="dropdown-divider"></li>
                     @foreach($navPlayers as $p)
-                        <li><a class="dropdown-item" href="{{ route('players.show', ['player' => $p->id]) }}">{{ $p->name }}</a></li>
+                        <li><a class="dropdown-item" href="{{ route('players.show', ['player' => $p->player->id]) }}">{{ $p->player->name }}</a></li>
                     @endforeach
                 @endif
+                        <li><a class="dropdown-item link-secondary" href="{{ route('managed-players.create') }}">Add Player</a></li>
                     </ul>
                 </li>
                 <li class="nav-item me-2 dropdown">
@@ -51,7 +52,8 @@
                         <b>{{ Auth()->user()->email }}</b>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('logout') }}">Logout</a>
+                    <a class="dropdown-item" href="{{ route('settings') }}">Settings</a>
+                    <a class="dropdown-item link-danger" href="{{ route('logout') }}">Logout</a>
                 </div>
             </div>
         </div>

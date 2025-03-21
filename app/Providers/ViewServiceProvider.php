@@ -6,7 +6,7 @@ use App\View\Composers\ProfileComposer;
 use Illuminate\Support\Facades;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
-use App\Models\Player;
+use App\Models\ManagedPlayer;
  
 class ViewServiceProvider extends ServiceProvider
 {
@@ -25,7 +25,8 @@ class ViewServiceProvider extends ServiceProvider
     {
         // Add managed players to the navigation
         Facades\View::composer('partials.navigation', function (View $view) {
-            $managedPlayers = Player::where('managed', 1)
+            $managedPlayers = ManagedPlayer::where('user_id', Auth()->user()->id)
+                ->with('player')
                 ->get();
 
             $view->with('navPlayers', $managedPlayers); 

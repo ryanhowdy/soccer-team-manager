@@ -88,6 +88,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/formations', [\App\Http\Controllers\FormationController::class, 'index'])->name('formations.index');
     Route::post('/formations', [\App\Http\Controllers\FormationController::class, 'store'])->name('formations.store');
 
+    // Me
+    Route::get( '/me/settings', [\App\Http\Controllers\MeController::class, 'index'])->name('settings');
+
+    Route::get( '/me/managed-players',         [\App\Http\Controllers\ManagedPlayerController::class, 'index'])->name('managed-players.index');
+    Route::get( '/me/managed-players/create',  [\App\Http\Controllers\ManagedPlayerController::class, 'create'])->name('managed-players.create');
+    Route::post('/me/managed-players',         [\App\Http\Controllers\ManagedPlayerController::class, 'store']);
+    Route::post('/me/managed-players/destroy', [\App\Http\Controllers\ManagedPlayerController::class, 'destory'])->name('managed-players.destroy');
+
     // AJAX
     // TODO - these are all wrong
     Route::post('/ajax/game/start',      [\App\Http\Controllers\AjaxController::class, 'gameStart'])->name('ajax-start-game');

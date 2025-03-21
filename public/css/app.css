@@ -22856,3 +22856,25 @@ th.dt-ordering-asc:after {
 #rosters .list-group-item:hover .rem-roster-player {
   display: inline-block;
 }
+
+#me .list-group-radio i {
+  z-index: 2;
+  margin-top: -0.75em;
+}
+#me .list-group-radio .form-check-input {
+  z-index: 2;
+  margin-top: -0.5em;
+}
+#me .list-group-radio .form-check-input:checked + .list-group-item {
+  background-color: var(--bs-body);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 2px var(--bs-primary);
+}
+#me .list-group-radio .list-group-item {
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding-left: 3.75rem;
+}
+#me .list-group-radio .list-group-item:hover {
+  background-color: var(--bs-secondary-bg);
+}
