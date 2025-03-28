@@ -43,6 +43,11 @@
                         <li><a class="dropdown-item" href="{{ route('formations.index') }}">Formations</a></li>
                     </ul>
                 </li>
+            @role('admin')
+                <li class="nav-item me-2">
+                    <a class="nav-link text-secondary" href="{{ route('admin.index') }}">Admin</a>
+                </li>
+            @endrole
             </ul>
             <div class="dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="bi bi-person-circle fs-5 me-1"></i></a>

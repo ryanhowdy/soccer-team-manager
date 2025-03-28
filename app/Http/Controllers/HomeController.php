@@ -146,7 +146,7 @@ class HomeController extends Controller
             ->orderByDesc('started_at')
             ->first();
 
-        $results = collect([]);
+        $results = new \Illuminate\Database\Eloquent\Collection();
 
         if (!is_null($competition))
         {

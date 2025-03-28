@@ -96,6 +96,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/me/managed-players',         [\App\Http\Controllers\ManagedPlayerController::class, 'store']);
     Route::post('/me/managed-players/destroy', [\App\Http\Controllers\ManagedPlayerController::class, 'destory'])->name('managed-players.destroy');
 
+    // Admin
+    Route::group(['middleware' => ['role:admin']], function() {
+        Route::get( '/admin',       [\App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
+        Route::post('/admin/users', [\App\Http\Controllers\AdminController::class, 'store'])->name('admin.users.store');
+
+        Route::post('/ajax/users/{user}/roles', [\App\Http\Controllers\Ajax\UserController::class, 'store'])->name('ajax.users.roles.store');
+    });
+
     // AJAX
     // TODO - these are all wrong
     Route::post('/ajax/game/start',      [\App\Http\Controllers\AjaxController::class, 'gameStart'])->name('ajax-start-game');

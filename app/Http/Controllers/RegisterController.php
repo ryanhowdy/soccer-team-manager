@@ -15,7 +15,7 @@ class RegisterController extends Controller
      */
     public function create()
     {
-        if (Auth::check())
+        if (auth()->check())
         {
             return redirect()->route('index');
         }
@@ -31,6 +31,7 @@ class RegisterController extends Controller
      */
     public function store(Request $request)
     {
+        // We only allow 1 user to register
         $firstUser = User::first();
 
         if (!is_null($firstUser))
@@ -49,6 +50,8 @@ class RegisterController extends Controller
         $user->password  = Hash::make($request->password);
 
         $user->save();
+
+        $user->assignRole('admin');
 
         return redirect()->route('index');
     }
