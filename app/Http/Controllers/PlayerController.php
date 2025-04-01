@@ -47,33 +47,35 @@ class PlayerController extends Controller
         // Get all possible position
         $positions = Position::all();
 
-        $activePlayers   = [];
-        $inactivePlayers = [];
+        $activePlayers       = [];
+        $inactivePlayers     = [];
+        $activePlayerTeamIds = [];
 
         // Get the players on the latest roster
         $latestSeason = Season::orderBy('id', 'desc')->first();
 
-        $latestTeamSeasonIds = ClubTeamSeason::where('season_id', $latestSeason->id)
-            ->get()
-            ->pluck('id');
+        if ($latestSeason) {
+            $latestTeamSeasonIds = ClubTeamSeason::where('season_id', $latestSeason->id)
+                ->get()
+                ->pluck('id');
 
-        $latestRoster = Roster::whereIn('club_team_season_id', $latestTeamSeasonIds)
-            ->with('clubTeamSeason')
-            ->with('player.teams')
-            ->with('player.positions')
-            ->get();
+            $latestRoster = Roster::whereIn('club_team_season_id', $latestTeamSeasonIds)
+                ->with('clubTeamSeason')
+                ->with('player.teams')
+                ->with('player.positions')
+                ->get();
 
-        $activePlayerTeamIds = [];
 
-        foreach($latestRoster as $r)
-        {
-            $activePlayers[$r->clubTeamSeason->club_team_id][] = $r;
-
-            foreach ($r->player->teams as $pt)
+            foreach($latestRoster as $r)
             {
-                if ($pt->club_team_id == $r->clubTeamSeason->club_team_id)
+                $activePlayers[$r->clubTeamSeason->club_team_id][] = $r;
+
+                foreach ($r->player->teams as $pt)
                 {
-                    $activePlayerTeamIds[] = $pt->id;
+                    if ($pt->club_team_id == $r->clubTeamSeason->club_team_id)
+                    {
+                        $activePlayerTeamIds[] = $pt->id;
+                    }
                 }
             }
         }
