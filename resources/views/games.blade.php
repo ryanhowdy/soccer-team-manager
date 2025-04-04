@@ -147,6 +147,20 @@
         </div>
     </div>
 
+    <div id="create-season" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Season</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('seasons.create-form')
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 $(document).ready(function() {
     $('#opponent_team_id').select2({
@@ -160,6 +174,53 @@ $(document).ready(function() {
         $('#filter-teams > option[data-club-id="' + option.value + '"]').show();
     });
     $('#filter-clubs').trigger('change');
+
+    // submit create season as ajax
+    $('#create-season form').on('submit', function(e) {
+        e.preventDefault();
+
+        let $form = $(this);
+        let url   = $form.attr('action');
+
+        $.ajax({
+            url: url,
+            type : 'POST',
+            dataType: 'json',
+            data : $form.serialize(),
+        }).done(function(ret) {
+            let season = ret.data;
+
+            // add new season to dropdown
+            let option = document.createElement('option');
+            option.value = season.id;
+            option.textContent = season.season_year;
+
+            let found = false;
+            $('#season_id optgroup').each(function(idx) {
+                let $optGroup = $(this);
+                if ($optGroup.attr('label') == season.year)
+                {
+                    $optGroup.append(option);
+                    found = true;
+                }
+            });
+            if (!found)
+            {
+                let optGroup = document.createElement('optgroup');
+                optGroup.setAttribute('label', season.year);
+                optGroup.append(option);
+                $('#season_id').append(optGroup);
+            }
+
+            $("#season_id option:last").attr("selected", "selected");
+
+            // close season modal
+            $('#create-season').modal('hide');
+
+            // reopen the game modal
+            $('#create-game').modal('show');
+        });
+    });
 });
 </script>
 

@@ -48,6 +48,14 @@ class SeasonController extends Controller
             $teamSeason->save();
         }
 
+        if ($request->wantsJson())
+        {
+            return response()->json([
+                'success' => true,
+                'data'    => $season->toArray(),
+            ], 200);
+        }
+
         return redirect()->route('rosters.index');
     }
 }

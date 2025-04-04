@@ -3,7 +3,8 @@
     <div class="mb-3">
         <div class="d-flex justify-content-between">
             <label class="form-label" for="season_id">Season</label>
-            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Add Season</a>
+            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                data-bs-toggle="modal" data-bs-target="#create-season">Add Season</a>
         </div>
         <select class="form-select" id="season_id" name="season_id">
     @foreach ($seasons as $i => $season)
