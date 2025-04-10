@@ -280,8 +280,8 @@ $(document).ready(function() {
     let badGuys  = '{{ $badGuys }}';
 
     let drawer   = new FormationDrawer(players, {});
-    drawer.drawFormation(formation);
-    drawer.addPlayerStarters(starters);
+    drawer.drawFormation(formation, '#field');
+    drawer.addPlayerStarters(starters, '#field');
 
     let timeline = new EventTimeline('#game-timeline');
 
