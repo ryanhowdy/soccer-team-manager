@@ -40,7 +40,8 @@
     <div class="mb-3">
         <div class="d-flex justify-content-between">
             <label class="form-label" for="location_id">Location</label>
-            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Add Location</a>
+            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                data-bs-toggle="modal" data-bs-target="#create-location">Add Location</a>
         </div>
         <select class="form-select" id="location_id" name="location_id">
     @foreach ($locations as $type => $locs)

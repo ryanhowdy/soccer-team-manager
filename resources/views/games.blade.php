@@ -175,6 +175,20 @@
         </div>
     </div>
 
+    <div id="create-location" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('locations.create-form')
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 $(document).ready(function() {
     $('#opponent_team_id').select2({
@@ -277,6 +291,38 @@ $(document).ready(function() {
 
             // close competition modal
             $('#create-competition').modal('hide');
+
+            // reopen the game modal
+            $('#create-game').modal('show');
+        });
+    });
+
+    // submit create location as ajax
+    $('#create-location form').on('submit', function(e) {
+        e.preventDefault();
+
+        let $form = $(this);
+        let url   = $form.attr('action');
+
+        $.ajax({
+            url: url,
+            type : 'POST',
+            dataType: 'json',
+            data : $form.serialize(),
+        }).done(function(ret) {
+            let loc = ret.data;
+
+            // add new location to dropdown
+            let option = document.createElement('option');
+            option.value = loc.id;
+            option.textContent = loc.name;
+
+            $('#location_id optgroup').first().prepend(option);
+
+            $("#location_id option:first").attr("selected", "selected");
+
+            // close location modal
+            $('#create-location').modal('hide');
 
             // reopen the game modal
             $('#create-game').modal('show');

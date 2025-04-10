@@ -18,7 +18,6 @@ class LocationController extends Controller
 
         return view('locations.index', [
             'locations' => $locations,
-            'action'    => route('locations.store'),
         ]);
     }
 
@@ -43,6 +42,14 @@ class LocationController extends Controller
         $location->updated_user_id = Auth()->user()->id;
 
         $location->save();
+
+        if ($request->wantsJson())
+        {
+            return response()->json([
+                'success' => true,
+                'data'    => $location->toArray(),
+            ], 200);
+        }
 
         return redirect()->route('locations.index');
     }
