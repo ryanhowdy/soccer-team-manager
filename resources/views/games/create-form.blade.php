@@ -22,7 +22,8 @@
     <div class="mb-3">
         <div class="d-flex justify-content-between">
             <label class="form-label" for="competition_id">Competition</label>
-            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Add Competition</a>
+            <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                data-bs-toggle="modal" data-bs-target="#create-competition">Add Competition</a>
         </div>
         <select class="form-select" id="competition_id" name="competition_id">
             <option></option>

@@ -1,10 +1,10 @@
-<form method="post" action="{{ $action }}">
+<form method="post" action="{{ route('competitions.store') }}">
     @csrf
     <div class="mb-3">
         <label class="form-label" for="club_team_id">Team</label>
         <select class="form-select" id="club_team_id" name="club_team_id">
             <option></option>
-    @foreach ($teams as $team)
+    @foreach ($managedTeams as $team)
             <option value="{{ $team->id }}">{{ $team->name }}</option>
     @endforeach
         </select>

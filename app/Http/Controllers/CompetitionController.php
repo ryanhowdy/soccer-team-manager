@@ -43,11 +43,10 @@ class CompetitionController extends Controller
             ->get();
 
         return view('competitions.index', [
-            'leagues'   => $leagues,
-            'cups'      => $cups,
-            'friendlys' => $friendlys,
-            'action'    => route('competitions.store'),
-            'teams'     => $managedTeams,
+            'leagues'      => $leagues,
+            'cups'         => $cups,
+            'friendlys'    => $friendlys,
+            'managedTeams' => $managedTeams,
         ]);
     }
 
@@ -90,6 +89,17 @@ class CompetitionController extends Controller
         $competition->updated_user_id = Auth()->user()->id;
 
         $competition->save();
+
+        if ($request->wantsJson())
+        {
+            $data = $competition->toArray();
+            $data['date'] = $competition->started_at->format('M j, Y');
+
+            return response()->json([
+                'success' => true,
+                'data'    => $data,
+            ], 200);
+        }
 
         return redirect()->route('competitions.index');
     }

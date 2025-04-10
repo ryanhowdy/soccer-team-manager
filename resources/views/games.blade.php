@@ -161,6 +161,20 @@
         </div>
     </div>
 
+    <div id="create-competition" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Competition</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('competitions.create-form')
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 $(document).ready(function() {
     $('#opponent_team_id').select2({
@@ -216,6 +230,53 @@ $(document).ready(function() {
 
             // close season modal
             $('#create-season').modal('hide');
+
+            // reopen the game modal
+            $('#create-game').modal('show');
+        });
+    });
+
+    // submit create competition as ajax
+    $('#create-competition form').on('submit', function(e) {
+        e.preventDefault();
+
+        let $form = $(this);
+        let url   = $form.attr('action');
+
+        $.ajax({
+            url: url,
+            type : 'POST',
+            dataType: 'json',
+            data : $form.serialize(),
+        }).done(function(ret) {
+            let comp = ret.data;
+
+            // add new competition to dropdown
+            let option = document.createElement('option');
+            option.value = comp.id;
+            option.textContent = comp.name + ' ' + comp.date;
+
+            let found = false;
+            $('#competition_id optgroup').each(function(idx) {
+                let $optGroup = $(this);
+                if ($optGroup.attr('label') == comp.type)
+                {
+                    $optGroup.append(option);
+                    found = true;
+                }
+            });
+            if (!found)
+            {
+                let optGroup = document.createElement('optgroup');
+                optGroup.setAttribute('label', comp.year);
+                optGroup.append(option);
+                $('#competition_id').append(optGroup);
+            }
+
+            $("#competition_id option:last").attr("selected", "selected");
+
+            // close competition modal
+            $('#create-competition').modal('hide');
 
             // reopen the game modal
             $('#create-game').modal('show');
