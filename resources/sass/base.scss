@@ -52,6 +52,14 @@ th.dt-ordering-asc:after
     content: "\F148";
 }
 
+label.required:after
+{
+    color: $danger;
+    content: "*";
+    display: inline-block;
+    padding-left: 3px;
+}
+
 .select2-container
 {
     > span.selection > .select2-selection--single
