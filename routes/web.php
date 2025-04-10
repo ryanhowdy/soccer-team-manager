@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get( '/me/managed-players',         [\App\Http\Controllers\ManagedPlayerController::class, 'index'])->name('managed-players.index');
     Route::get( '/me/managed-players/create',  [\App\Http\Controllers\ManagedPlayerController::class, 'create'])->name('managed-players.create');
-    Route::post('/me/managed-players',         [\App\Http\Controllers\ManagedPlayerController::class, 'store']);
+    Route::post('/me/managed-players',         [\App\Http\Controllers\ManagedPlayerController::class, 'store'])->name('managed-players.store');
     Route::post('/me/managed-players/destroy', [\App\Http\Controllers\ManagedPlayerController::class, 'destory'])->name('managed-players.destroy');
 
     // Admin

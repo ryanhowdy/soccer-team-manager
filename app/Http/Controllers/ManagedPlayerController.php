@@ -58,6 +58,6 @@ class ManagedPlayerController extends Controller
 
         $player->save();
 
-        return redirect()->route('me.settings');
+        return redirect()->route('settings');
     }
 }

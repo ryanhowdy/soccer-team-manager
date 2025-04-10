@@ -6,7 +6,7 @@
     <div class="container main-content">
         <div class="rounded rounded-3 bg-white p-3 mb-2">
             <h5 class="mb-3">Add Managed Player</h5>
-            <form method="post" style="max-width:500px" action="{{ route('managed-players.create') }}">
+            <form method="post" style="max-width:500px" action="{{ route('managed-players.store') }}">
                 @csrf
                 <div class="mb-3">
                     <label class="form-label" for="player_id">Player</label>
