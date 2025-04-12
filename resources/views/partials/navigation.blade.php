@@ -19,7 +19,8 @@
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Stats</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ route('stats.teams.index') }}">Teams</a></li>
-                        <li><a class="dropdown-item" href="{{ route('stats.players.index') }}">Players</a></li>
+                        <li><a class="dropdown-item" href="{{ route('stats.locations.index') }}">Locations</a></li>
+                        {{--<li><a class="dropdown-item" href="{{ route('stats.players.index') }}">Players</a></li>--}}
                     </ul>
                 </li>
                 <li class="nav-item me-2 dropdown">
