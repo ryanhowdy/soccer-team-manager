@@ -41,7 +41,7 @@ class PlayerController extends Controller
 
         if ($managedTeams->count() <= 0)
         {
-            return redirect()->route('teams.index')->withErrors(['You must create at least 1 managed team.']);
+            return redirect()->route('clubs.first');
         }
 
         // Get all possible position

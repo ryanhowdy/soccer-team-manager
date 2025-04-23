@@ -28,6 +28,30 @@ class TeamController extends Controller
     }
 
     /**
+     * First - when no managed club/team exists, show them this page
+     * to help create the first one.
+     *
+     * @return Illuminate\View\View
+     */
+    public function first()
+    {
+        $clubs = Club::orderBy('name')
+            ->get();
+
+        if ($clubs->isEmpty())
+        {
+            return redirect()->route('clubs.first');
+        }
+
+        session(['first' => 'team']);
+
+        return view('teams.first', [
+            'clubs'            => $clubs,
+            'createTeamAction' => route('teams.store'),
+        ]);
+    }
+
+    /**
      * store 
      * 
      * @param Request $request 

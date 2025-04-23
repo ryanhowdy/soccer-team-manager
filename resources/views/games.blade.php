@@ -81,7 +81,7 @@
         </div><!--/.rounded-->
 
         <div class="game-listing rounded rounded-3 bg-white p-4 mb-1">
-        @foreach($results as $status => $rs)
+        @forelse($results as $status => $rs)
             <h3>{{ \App\Enums\ResultStatus::tryFrom($status)->name }}</h3>
             @foreach($rs as $result)
             <div class="home-v-away position-relative d-grid align-items-center justify-content-center mb-3 border p-2 rounded rounded-2">
@@ -128,7 +128,14 @@
                 </div>
             </div>
             @endforeach
-        @endforeach
+        @empty
+            <div class="p-5 text-center">
+                <img class="opacity-50 w-50" src="{{ asset('img/empty-state.svg') }}">
+                <div class="fw-bold mt-5 pb-1 text-secondary">No Games Yet...</div>
+                <small class="pb-3 d-block text-secondary">Click the button below to schedule a new game.</small>
+                <a href="#" class="btn btn-sm btn-secondary text-white" data-bs-toggle="modal" data-bs-target="#create-game">Add Game</a>
+            </div>
+        @endforelse
         </div>
 
     </div><!--/container-->

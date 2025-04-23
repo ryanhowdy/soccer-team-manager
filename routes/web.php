@@ -45,12 +45,14 @@ Route::middleware(['auth'])->group(function () {
     // Teams
     Route::get( '/teams',           [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
     Route::post('/teams',           [\App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
+    Route::get( '/teams/first',     [\App\Http\Controllers\TeamController::class, 'first'])->name('teams.first');
     Route::get( '/teams/{id}',      [\App\Http\Controllers\TeamController::class, 'show'])->name('teams.show');
     Route::get( '/teams/{id}/edit', [\App\Http\Controllers\TeamController::class, 'edit'])->name('teams.edit');
     Route::post('/teams/{id}/edit', [\App\Http\Controllers\TeamController::class, 'update'])->name('teams.update');
 
     // Clubs
     Route::post('/clubs',             [\App\Http\Controllers\ClubController::class, 'store'])->name('clubs.store');
+    Route::get( '/clubs/first',       [\App\Http\Controllers\ClubController::class, 'first'])->name('clubs.first');
     Route::get( '/clubs/{club}/edit', [\App\Http\Controllers\ClubController::class, 'edit'])->name('clubs.edit');
     Route::post('/clubs/{club}/edit', [\App\Http\Controllers\ClubController::class, 'update'])->name('clubs.update');
 

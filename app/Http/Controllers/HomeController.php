@@ -32,7 +32,7 @@ class HomeController extends Controller
 
         if (is_null($managedTeam))
         {
-            return redirect()->route('teams.index')->withErrors(['You must create at least 1 managed team.']);
+            return redirect()->route('clubs.first');
         }
 
         if (!Auth()->user())
@@ -123,7 +123,7 @@ class HomeController extends Controller
 
         if ($managedTeams->count() <= 0)
         {
-            return redirect()->route('teams.index')->withErrors(['You must create at least 1 managed team.']);
+            return redirect()->route('clubs.first');
         }
 
         // Get selected managed team

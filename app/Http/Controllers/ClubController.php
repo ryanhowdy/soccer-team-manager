@@ -10,6 +10,28 @@ use Illuminate\Support\Facades\Storage;
 class ClubController extends Controller
 {
     /**
+     * First - when no managed club/team exists, show them this page
+     * to help create the first one.
+     *
+     * @return Illuminate\View\View
+     */
+    public function first()
+    {
+        $clubs = Club::all();
+
+        if ($clubs->isNotEmpty())
+        {
+            return redirect()->route('teams.first');
+        }
+
+        session(['first' => 'club']);
+
+        return view('clubs.first', [
+            'createClubAction' => route('clubs.store'),
+        ]);
+    }
+
+    /**
      * store 
      * 
      * @param Request $request 
@@ -66,6 +88,11 @@ class ClubController extends Controller
         }
 
         $club->save();
+
+        if ($request->session()->exists('first'))
+        {
+            return redirect()->route('teams.first');
+        }
 
         return redirect()->route('teams.index');
     }
