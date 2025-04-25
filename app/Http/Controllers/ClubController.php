@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Club;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ClubController extends Controller
 {
@@ -60,7 +61,7 @@ class ClubController extends Controller
         }
         if ($request->filled('state'))
         {
-            $club->state = $request->state;
+            $club->state = Str::upper($request->state);
         }
         if ($request->has('logo'))
         {
@@ -136,14 +137,10 @@ class ClubController extends Controller
         $club->name            = $request->name;
         $club->updated_user_id = Auth()->user()->id;
 
-        if ($request->filled('city'))
-        {
-            $club->city = $request->city;
-        }
-        if ($request->filled('state'))
-        {
-            $club->state = $request->state;
-        }
+        $club->city    = $request->filled('city')    ? $request->city              : null;
+        $club->state   = $request->filled('state')   ? Str::upper($request->state) : null;
+        $club->website = $request->filled('website') ? $request->website           : null;
+        $club->notes   = $request->filled('notes')   ? $request->notes             : null;
 
         // we renamed the club, rename the logo to match
         if ($club->getOriginal('name') !== $request->name)
@@ -186,14 +183,6 @@ class ClubController extends Controller
 
             // set the logo url in the db
             $club->logo = 'storage/logos/' . $filename;
-        }
-        if ($request->filled('website'))
-        {
-            $club->website = $request->website;
-        }
-        if ($request->filled('notes'))
-        {
-            $club->notes = $request->notes;
         }
 
         $club->save();
