@@ -19,11 +19,15 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="">
                             <div class="home mb-2">
-                                <img class="me-2" style="width:30px" src="{{ asset($sched->homeTeam->club->logo) }}"/>
+                                <img class="me-2" style="width:30px" src="{{ asset($sched->homeTeam->club->logo) }}" 
+                                    data-bs-toggle="tooltip" data-bs-title="{{ $sched->homeTeam->club->name }}"
+                                    onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                                 {{ $sched->homeTeam->name }}
                             </div>
                             <div class="away">
-                                <img class="me-2" style="width:30px" src="{{ asset($sched->awayTeam->club->logo) }}"/>
+                                <img class="me-2" style="width:30px" src="{{ asset($sched->awayTeam->club->logo) }}" 
+                                    data-bs-toggle="tooltip" data-bs-title="{{ $sched->awayTeam->club->name }}"
+                                    onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                                 {{ $sched->awayTeam->name }}
                             </div>
                         </div>

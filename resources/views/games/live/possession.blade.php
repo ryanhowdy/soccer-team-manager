@@ -11,7 +11,7 @@
                 <div class="col-4 col-lg-3">
                     <div class="d-flex">
                         <div class="mx-auto">
-                            <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}"/>
+                            <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div @class([
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->homeTeam->managed,
@@ -37,7 +37,7 @@
                 <div class="col-4 col-lg-3">
                     <div class="d-flex">
                         <div class="mx-auto">
-                            <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}"/>
+                            <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div @class([
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->awayTeam->managed,

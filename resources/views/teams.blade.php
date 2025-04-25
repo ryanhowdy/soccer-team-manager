@@ -37,7 +37,7 @@
                 @foreach($clubs as $club)
                     <tr class="{{ strtolower(str_replace(' ', '-', $club->name)) }}">
                         <td class="club-name position-relative" data-bs-toggle="modal" data-bs-target="#club-{{ $club->id }}">
-                            <img class="logo img-fluid ms-2 me-3" src="{{ asset($club->logo) }}"/>
+                            <img class="logo img-fluid ms-2 me-3" src="{{ asset($club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             {{ $club->name }}
                             <span class="bi-chevron-down position-absolute"></span>
                         </td>
@@ -76,7 +76,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content py-4 px-2">
                 <div class="modal-header">
-                    <img class="logo img-fluid ms-2 me-3" src="{{ asset($club->logo) }}"/>
+                    <img class="logo img-fluid ms-2 me-3" src="{{ asset($club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                     {{ $club->name }}
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>

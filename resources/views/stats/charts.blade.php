@@ -126,7 +126,7 @@
                         <div class="home-team d-flex align-items-center justify-content-end">
                             <div class="me-2">{{ $result->homeTeam->name }}</div>
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}" 
-                                src="{{ asset($result->homeTeam->club->logo) }}"/>
+                                src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                         </div>
                         <div class="score text-center">
                             <span @class([
@@ -140,7 +140,7 @@
                         </div>
                         <div class="away-team d-flex align-items-center">
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
-                                src="{{ asset($result->awayTeam->club->logo) }}"/>
+                                src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div class="ms-2">{{ $result->awayTeam->name }}</div>
                         </div>
                     </a>

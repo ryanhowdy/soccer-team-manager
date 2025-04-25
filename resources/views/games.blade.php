@@ -101,7 +101,7 @@
                         <div class="club-name pe-2 text-uppercase small text-muted">{{ $result->homeTeam->club->name }}</div>
                         <div class="team-name pe-2">{{ $result->homeTeam->name }}</div>
                     </div>
-                    <div class="pe-4"><img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}"/></div>
+                    <div class="pe-4"><img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/></div>
                 </div>
                 <div class="score text-center">
                 @if($status == 'D')
@@ -120,7 +120,7 @@
                 @endif
                 </div>
                 <div class="away-team d-flex align-items-center">
-                    <div class="ps-4"><img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}"/></div>
+                    <div class="ps-4"><img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/></div>
                     <div class="d-none d-md-block ps-4">
                         <div class="club-name pe-2 text-uppercase small text-muted">{{ $result->awayTeam->club->name }}</div>
                         <div class="team-name">{{ $result->awayTeam->name }}</div>

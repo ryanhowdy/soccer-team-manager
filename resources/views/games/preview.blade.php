@@ -43,7 +43,7 @@
                 <div class="col-12 col-lg-4 mb-3">
                     <div class="home-team d-flex align-items-center">
                         <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->{$goodGuys . 'Team'}->club->name }}"
-                            src="{{ asset($result->{$goodGuys . 'Team'}->club->logo) }}"/>
+                            src="{{ asset($result->{$goodGuys . 'Team'}->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                         <div class="ms-4">
                             <div class="fs-4">{{ $result->{$goodGuys . 'Team'}->name }}</div>
                         @if($last5Results->count())
@@ -80,7 +80,7 @@
                             <div class="fs-4 mb-3">{{ $result->{$badGuys . 'Team'}->name }}</div>
                         </div>
                         <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->{$badGuys . 'Team'}->club->name }}"
-                            src="{{ asset($result->{$badGuys . 'Team'}->club->logo) }}"/>
+                            src="{{ asset($result->{$badGuys . 'Team'}->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                     </div>
                 </div>
             </div>
@@ -131,7 +131,7 @@
                         <div class="home-team d-flex align-items-center justify-content-end">
                             <div class="me-2">{{ $r->homeTeam->name }}</div>
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $r->homeTeam->club->name }}" 
-                                src="{{ asset($r->homeTeam->club->logo) }}"/>
+                                src="{{ asset($r->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                         </div>
                         <div class="score text-center">
                             <a href="{{ route('games.show', ['id' => $r->id]) }}">
@@ -147,7 +147,7 @@
                         </div>
                         <div class="away-team d-flex align-items-center">
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $r->awayTeam->club->name }}"
-                                src="{{ asset($r->awayTeam->club->logo) }}"/>
+                                src="{{ asset($r->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div class="ms-2">{{ $r->awayTeam->name }}</div>
                         </div>
                     </div>

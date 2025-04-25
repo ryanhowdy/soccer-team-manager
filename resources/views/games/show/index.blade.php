@@ -37,7 +37,7 @@
                         <div class="fs-4 d-none d-lg-block">{{ $result->homeTeam->name }}</div>
                         <div class="mx-3">
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}"
-                                src="{{ asset($result->homeTeam->club->logo) }}"/>
+                                src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                         </div>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                     <div class="d-flex justify-content-start align-items-center">
                         <div class="mx-3">
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
-                                src="{{ asset($result->awayTeam->club->logo) }}"/>
+                                src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                         </div>
                         <div class="fs-4 d-none d-lg-block">{{ $result->awayTeam->name }}</div>
                     </div>
