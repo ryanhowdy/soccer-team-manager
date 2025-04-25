@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
@@ -293,19 +294,27 @@ class GameController extends Controller
         $chartData = \Chart::getData(['wdl'], $goodGuysId, $head2HeadResults);
 
         // Get the team colors
-        $homePalette   = Palette::fromFilename($result->homeTeam->club->logo);
-        $homeExtractor = new ColorExtractor($homePalette);
-        $homeColors    = $homeExtractor->extract(1);
-
-
-        $awayPalette   = Palette::fromFilename($result->awayTeam->club->logo);
-        $awayExtractor = new ColorExtractor($awayPalette);
-        $awayColors    = $awayExtractor->extract(1);
-
         $teamColors = [
-            'home' => Color::fromIntToHex($homeColors[0]),
-            'away' => Color::fromIntToHex($awayColors[0]),
+            'home' => '#1F87FF',
+            'away' => '#003282',
         ];
+
+        if (File::exists(public_path($result->homeTeam->club->logo)))
+        {
+            $homePalette   = Palette::fromFilename($result->homeTeam->club->logo);
+            $homeExtractor = new ColorExtractor($homePalette);
+            $homeColors    = $homeExtractor->extract(1);
+
+            $teamColors['home'] = Color::fromIntToHex($homeColors[0]);
+        }
+        if (File::exists(public_path($result->awayTeam->club->logo)))
+        {
+            $awayPalette   = Palette::fromFilename($result->awayTeam->club->logo);
+            $awayExtractor = new ColorExtractor($awayPalette);
+            $awayColors    = $awayExtractor->extract(1);
+
+            $teamColors['away'] = Color::fromIntToHex($awayColors[0]);
+        }
 
         $goals = [
             'home' => [],
