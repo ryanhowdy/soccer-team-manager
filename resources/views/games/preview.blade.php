@@ -114,7 +114,7 @@
 
         <div class="row">
 
-            {{-- Head 2 Head Results --}}
+            {{-- Previous Games --}}
             <div class="col-12 col-md-6">
                 <div class="game-listing rounded rounded-3 bg-white p-4 mb-3">
                     <h3>Previous Games</h3>
@@ -155,7 +155,7 @@
                 </div>
             </div>
 
-            {{-- Head 2 Head Results --}}
+            {{-- Previous Stats --}}
             <div class="col-12 col-md-6">
                 <div id="previous-stats" class="rounded rounded-3 bg-white p-4 mb-3">
                     <h3>Previous Stats</h3>
@@ -168,37 +168,49 @@
                         <div>Goals</div>
                         <div id="game-goals-bad-guys">{{ $stats['bad']['goals'] }}</div>
                     </div>
-                    <div class="progress game-goals-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
+                    <div class="progress game-goals-progress rounded-0 mb-4" style="background: {{ $teamColors['away'] }}">
+                        <div style="width:50%; background: {{ $teamColors['home'] }}" class="progress-bar"></div>
+                    </div>
                     <div class="d-flex justify-content-between">
                         <div id="game-shots-good-guys">{{ $stats['good']['shots'] }}</div>
                         <div>Shots</div>
                         <div id="game-shots-bad-guys">{{ $stats['bad']['shots'] }}</div>
                     </div>
-                    <div class="progress game-shots-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
+                    <div class="progress game-shots-progress rounded-0 mb-4" style="background: {{ $teamColors['away'] }}">
+                        <div style="width:50%; background: {{ $teamColors['home'] }}" class="progress-bar"></div>
+                    </div>
                     <div class="d-flex justify-content-between">
                         <div id="game-shots-on-good-guys">{{ $stats['good']['shots_on'] }}</div>
                         <div>(On Target)</div>
                         <div id="game-shots-on-bad-guys">{{ $stats['bad']['shots_on'] }}</div>
                     </div>
-                    <div class="progress game-shots-on-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
+                    <div class="progress game-shots-on-progress rounded-0 mb-4" style="background: {{ $teamColors['away'] }}">
+                        <div style="width:50%; background: {{ $teamColors['home'] }}" class="progress-bar"></div>
+                    </div>
                     <div class="d-flex justify-content-between">
                         <div id="game-shots-off-good-guys">{{ $stats['good']['shots_off'] }}</div>
                         <div>(Off Target)</div>
                         <div id="game-shots-off-bad-guys">{{ $stats['bad']['shots_off'] }}</div>
                     </div>
-                    <div class="progress game-shots-off-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
+                    <div class="progress game-shots-off-progress rounded-0 mb-4" style="background: {{ $teamColors['away'] }}">
+                        <div style="width:50%; background: {{ $teamColors['home'] }}" class="progress-bar"></div>
+                    </div>
                     <div class="d-flex justify-content-between">
                         <div id="game-corners-good-guys">{{ $stats['good']['corners'] }}</div>
                         <div>Corners</div>
                         <div id="game-corners-bad-guys">{{ $stats['bad']['corners'] }}</div>
                     </div>
-                    <div class="progress game-corners-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
+                    <div class="progress game-corners-progress rounded-0 mb-4" style="background: {{ $teamColors['away'] }}">
+                        <div style="width:50%; background: {{ $teamColors['home'] }}" class="progress-bar"></div>
+                    </div>
                     <div class="d-flex justify-content-between">
                         <div id="game-fouls-good-guys">{{ $stats['good']['fouls'] }}</div>
                         <div>Fouls</div>
                         <div id="game-fouls-bad-guys">{{ $stats['bad']['fouls'] }}</div>
                     </div>
-                    <div class="progress game-fouls-progress rounded-0 mb-4"><div style="width:50%" class="progress-bar"></div></div>
+                    <div class="progress game-fouls-progress rounded-0 mb-4" style="background: {{ $teamColors['away'] }}">
+                        <div style="width:50%; background: {{ $teamColors['home'] }}" class="progress-bar"></div>
+                    </div>
                 </div>
             </div>
 

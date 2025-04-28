@@ -293,12 +293,13 @@ class GameController extends Controller
         // Figure out the chart data based on the head 2 head results
         $chartData = \Chart::getData(['wdl'], $goodGuysId, $head2HeadResults);
 
-        // Get the team colors
+        // Default colors
         $teamColors = [
             'home' => '#1F87FF',
             'away' => '#003282',
         ];
 
+        // Get the team colors
         if (File::exists(public_path($result->homeTeam->club->logo)))
         {
             $homePalette   = Palette::fromFilename($result->homeTeam->club->logo);
@@ -789,6 +790,30 @@ class GameController extends Controller
             }
         }
 
+        // Default colors
+        $teamColors = [
+            'home' => '#1F87FF',
+            'away' => '#003282',
+        ];
+
+        // Get the team colors
+        if (File::exists(public_path($result->homeTeam->club->logo)))
+        {
+            $homePalette   = Palette::fromFilename($result->homeTeam->club->logo);
+            $homeExtractor = new ColorExtractor($homePalette);
+            $homeColors    = $homeExtractor->extract(1);
+
+            $teamColors['home'] = Color::fromIntToHex($homeColors[0]);
+        }
+        if (File::exists(public_path($result->awayTeam->club->logo)))
+        {
+            $awayPalette   = Palette::fromFilename($result->awayTeam->club->logo);
+            $awayExtractor = new ColorExtractor($awayPalette);
+            $awayColors    = $awayExtractor->extract(1);
+
+            $teamColors['away'] = Color::fromIntToHex($awayColors[0]);
+        }
+
         return view('games.preview', [
             'result'           => $result,
             'goodGuys'         => $goodGuys,
@@ -800,6 +825,7 @@ class GameController extends Controller
             'currentPlayers'   => $currentPlayers,
             'guestPlayers'     => $guestPlayers,
             'availablePlayers' => $availablePlayers,
+            'teamColors'       => $teamColors,
         ]);
     }
 
