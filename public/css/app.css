@@ -22364,13 +22364,16 @@ label.required:after {
   height: 50px;
 }
 
-.game-listing-small a.home-v-away {
-  grid-template-columns: 1fr 50px 1fr;
+.game-listing-small a {
+  display: block;
 }
-.game-listing-small a.home-v-away:hover {
+.game-listing-small a:hover {
   background: #eee;
 }
-.game-listing-small a.home-v-away img.logo {
+.game-listing-small a .home-v-away {
+  grid-template-columns: 1fr 50px 1fr;
+}
+.game-listing-small a .home-v-away img.logo {
   height: 40px;
 }
 

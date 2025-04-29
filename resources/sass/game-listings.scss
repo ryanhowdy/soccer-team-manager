@@ -29,18 +29,22 @@
 // charts
 .game-listing-small
 {
-    a.home-v-away
+    a
     {
-        grid-template-columns: 1fr 50px 1fr; 
+        display: block;
 
         &:hover
         {
             background: #eee;
         }
-
-        img.logo
+        .home-v-away
         {
-            height: 40px;
+            grid-template-columns: 1fr 50px 1fr; 
+
+            img.logo
+            {
+                height: 40px;
+            }
         }
     }
 }
