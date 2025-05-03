@@ -247,9 +247,12 @@ class GameController extends Controller
 
         // Get all the events for this game
         $resultEvents = ResultEvent::where('result_id', $gameId)
+            ->with('userRolesManagedPlayers')
             ->orderBy('time')
             ->orderBy('id')
             ->get();
+
+        $resultEvents = dedupeResultEvents($resultEvents);
 
         // Get all the players who are rostered for this game
         $players = Player::select('players.*', 'rosters.number')

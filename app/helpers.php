@@ -102,3 +102,102 @@ if (!function_exists('createGoogleMapsUrlFromAddress'))
         return 'https://www.google.com/maps/dir/?api=1&destination='.$url;
     }
 }
+
+if (!function_exists('dedupeResultEvents'))
+{
+    /**
+     * dedupeResultEvents 
+     * 
+     * @param Illuminate\Database\Eloquent\Collection $events 
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    function dedupeResultEvents(Illuminate\Database\Eloquent\Collection $events)
+    {
+        $check = [];
+
+        $goalValues = Event::getGoalValues();
+
+        foreach ($events as $eventKey => $e)
+        {
+            $cTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $e->created_at->format('Y-m-d') . ' 00:' . substr($e->time, 0, 5));
+            $time  = $cTime->floorMinute(2)->format('i');
+
+            $checkKey = $e->against . '_' . $e->event_name . '_' . $time;
+
+            // check if any similar events to this already exist
+
+            // check same team/event type/time
+            if (isset($check[$checkKey]))
+            {
+                // possible duplicate - loop through all the possible matches
+                foreach ($check[$checkKey] as $otherKey => $otherEvent)
+                {
+                    // not a dupe - entered by the same user
+                    if ($e->created_user_id == $otherEvent->created_user_id)
+                    {
+                        continue;
+                    }
+
+                    // it's a duplicate - delete on of them
+                    $keyToDelete = getLowestPriorityEvent($eventKey, $e, $otherKey, $otherEvent);
+
+                    $events->forget($keyToDelete);
+                    $check[$checkKey][$eventKey] = $e;
+                    continue 2;
+                }
+            }
+
+            // Save the event for later
+            if (!isset($check[$checkKey]))
+            {
+                $check[$checkKey] = [];
+            }
+
+            $check[$checkKey][$eventKey] = $e;
+        }
+
+        return $events;
+    }
+}
+
+
+if (!function_exists('getLowestPriorityEvent'))
+{
+    /**
+     * getLowestPriorityEvent 
+     * 
+     * @param int $key1 
+     * @param ResultEvent $event1 
+     * @param int $key2 
+     * @param ResultEvent $event2 
+     * @return int
+     */
+    function getLowestPriorityEvent(int $key1, ResultEvent $event1, int $key2, ResultEvent $event2)
+    {
+        // admin
+        if ($event2->userRolesManagedPlayers->hasRole('admin') && !$event1->userRolesManagedPlayers->hasRole('admin'))
+        {
+            return $key1;
+        }
+        // manager
+        if ($event2->userRolesManagedPlayers->hasRole('manager') && !$event1->userRolesManagedPlayers->hasRole('manager'))
+        {
+            return $key1;
+        }
+
+        if ($event2->userRolesManagedPlayers->managedPlayers->count())
+        {
+            foreach ($event2->userRolesManagedPlayers->managedPlayers as $p)
+            {
+                // this event is for a managed player of the person who entered it
+                if ($p->player_id == $event2->player_id)
+                {
+                    return $key1;
+                }
+            }
+        }
+
+        // default to the deleting the 2nd one
+        return $key2;
+    }
+}

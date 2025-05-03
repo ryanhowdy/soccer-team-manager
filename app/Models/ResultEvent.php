@@ -33,6 +33,13 @@ class ResultEvent extends Model
         return $this->hasOne(Player::class, 'id', 'additional');
     }
 
+    public function userRolesManagedPlayers(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'created_user_id')
+            ->with('roles')
+            ->with('managedPlayers');
+    }
+
     //
     // Attributes
     //
