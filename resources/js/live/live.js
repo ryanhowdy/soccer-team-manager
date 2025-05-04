@@ -19,26 +19,6 @@ export default class Live
             this.confirmExit(e);
         });
 
-        // Do we have some saved game info?
-        let savedResultId = localStorage.getItem('resultId');
-        if (savedResultId !== null)
-        {
-            // Resume this game
-            if (savedResultId == $('#live-main').attr('data-result-id'))
-            {
-                this.resumeExistingGame();
-            }
-            // Delete the saved game info, it was old from another game perhaps?
-            else
-            {
-                localStorage.removeItem('resultId');
-                localStorage.removeItem('time');
-                localStorage.removeItem('formationId');
-                localStorage.removeItem('starters');
-                localStorage.removeItem('period');
-            }
-        }
-
         // Click Start Game
         $('.main-content').on('click', '#start-game', (e) => {
             this.clickStartGame(e);

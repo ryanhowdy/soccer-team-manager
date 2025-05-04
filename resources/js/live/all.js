@@ -22,9 +22,22 @@ export default class LiveAll extends Live
 
         // Resume an existing game if available
         let savedResultId = localStorage.getItem('resultId');
-        if (savedResultId !== null && savedResultId == $('#live-main').attr('data-result-id'))
+        if (savedResultId !== null)
         {
-            this.resumeExistingGame();
+            // Resume this game
+            if (savedResultId == $('#live-main').attr('data-result-id'))
+            {
+                this.resumeExistingGame();
+            }
+            // Delete the saved game info, it was old from another game perhaps?
+            else
+            {
+                localStorage.removeItem('resultId');
+                localStorage.removeItem('time');
+                localStorage.removeItem('formationId');
+                localStorage.removeItem('starters');
+                localStorage.removeItem('period');
+            }
         }
 
         // Click Save Formation
