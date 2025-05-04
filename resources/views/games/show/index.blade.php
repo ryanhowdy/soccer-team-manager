@@ -199,6 +199,25 @@
             <div class="tab-pane fade" id="timeline-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
                     <h3 class="mb-3">Timeline</h3>
+                    <small class="text-muted pe-3">Filter:</small>
+                    <label class="btn btn-sm btn-light" for="subs">
+                        <input class="form-check-input" checked type="checkbox" id="subs"> Subs
+                    </label>
+                    <label class="btn btn-sm btn-light" for="shots">
+                        <input class="form-check-input" checked type="checkbox" id="shots"> Shots
+                    </label>
+                    <label class="btn btn-sm btn-light" for="offsides">
+                        <input class="form-check-input" checked type="checkbox" id="offsides"> Offsides
+                    </label>
+                    <label class="btn btn-sm btn-light" for="fouls">
+                        <input class="form-check-input" checked type="checkbox" id="fouls"> Fouls
+                    </label>
+                    <label class="btn btn-sm btn-light" for="free_kicks">
+                        <input class="form-check-input" checked type="checkbox" id="free_kicks"> Free Kicks
+                    </label>
+                    <label class="btn btn-sm btn-light" for="cards">
+                        <input class="form-check-input" checked type="checkbox" id="cards"> Cards
+                    </label>
                     <div id="game-timeline" class="event-timeline small"></div>
                 </div>
             </div><!--/#timeline-pane-->
@@ -268,6 +287,34 @@ $(document).ready(function() {
             $('#add-notes-link').after(notes).remove();
             $('#notes-form').remove();
         });
+    });
+
+    $('#timeline-pane').on('change', 'input', function(e) {
+        let $check = $(this);
+        let type   = $check.attr('id');
+
+        let selector = 'div.' + type;
+
+        if (type == 'subs')
+            selector = 'div.start, div.sub_in, div.sub_out';
+        if (type == 'shots')
+            selector = 'div.shot_on_target, div.shot_off_target, div.save';
+        if (type == 'fouls')
+            selector = 'div.foul, div.fouled';
+        if (type == 'free_kicks')
+            selector = 'div.free_kick_on_target, div.free_kick_off_target, div.corner_kick';
+        if (type == 'cards')
+            selector = 'div.yellow_card, div.red_card';
+
+        // show or hide
+        if ($check.is(':checked'))
+        {
+            $('#game-timeline').find(selector).show();
+        }
+        else
+        {
+            $('#game-timeline').find(selector).hide();
+        }
     });
 
 @if($resultEvents->isNotEmpty())
