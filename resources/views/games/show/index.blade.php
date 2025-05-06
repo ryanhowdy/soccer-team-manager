@@ -5,43 +5,45 @@
 @section('content')
     <div class="container main-content">
 
-        <div class="rounded rounded-3 bg-white p-4 mb-3 position-relative">
+        <div class="rounded rounded-3 bg-white p-4 pt-0 mb-3">
 
-            {{-- Location --}}
-            <div class="position-absolute top-0 start-0 small p-4">
-                <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
-                    href="https://www.google.com/maps/place/{{ urlencode($result->location->address) }}">
-                    {{ $result->location->name }}
-                    <i class="bi bi-geo-alt"></i>
-                </a>
-            </div>
+            <div class="d-flex justify-content-between">
+                {{-- Location --}}
+                <div class="small p-3" style="margin-left:-1.5rem;">
+                    <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover"
+                        href="https://www.google.com/maps/place/{{ urlencode($result->location->address) }}">
+                        {{ $result->location->name }}
+                        <i class="bi bi-geo-alt"></i>
+                    </a>
+                </div>
 
-        @can('edit things')
-            <div class="dropdown position-absolute top-0 end-0 me-2">
-                <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">
-                    <span class="d-none d-sm-inline">Options</span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><h6 class="dropdown-header">Add Events</h6></li>
-                    <li>
-                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-event">
-                            <span class="bi bi-check-circle-fill pe-2"></span>For
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <span class="bi bi-x-circle pe-2"></span>Against
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('games.edit', ['id' => $result->id]) }}">
-                            <span class="bi bi-pencil pe-2"></span>Edit
-                        </a>
-                    </li>
-                </ul>
+            @can('edit things')
+                <div class="dropdown" style="margin-right:-1rem;">
+                    <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">
+                        <span class="d-none d-sm-inline">Options</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><h6 class="dropdown-header">Add Events</h6></li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-event">
+                                <span class="bi bi-check-circle-fill pe-2"></span>For
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <span class="bi bi-x-circle pe-2"></span>Against
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('games.edit', ['id' => $result->id]) }}">
+                                <span class="bi bi-pencil pe-2"></span>Edit
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            @endcan
             </div>
-        @endcan
 
             {{-- Date/time --}}
             <div class="text-center mt-4 mb-3">
