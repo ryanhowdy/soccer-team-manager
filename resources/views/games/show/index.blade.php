@@ -16,18 +16,39 @@
                 </a>
             </div>
 
-            {{-- Competition --}}
-            <div class="position-absolute top-0 end-0 small p-4">
-                <a class="link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover" href="{{ route('competitions.show', $result->competition->id) }}">
-                    <i class="bi bi-tag"></i>
-                    {{ $result->competition->name }}
-                </a>
+        @can('edit things')
+            <div class="dropdown position-absolute top-0 end-0 me-2">
+                <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">Options</button>
+                <ul class="dropdown-menu">
+                    <li><h6 class="dropdown-header">Add Events</h6></li>
+                    <li>
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-event">
+                            <span class="bi bi-check-circle-fill pe-2"></span>For
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <span class="bi bi-x-circle pe-2"></span>Against
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('games.edit', ['id' => $result->id]) }}">
+                            <span class="bi bi-pencil pe-2"></span>Edit
+                        </a>
+                    </li>
+                </ul>
             </div>
+        @endcan
 
             {{-- Date/time --}}
-            <div class="text-center mt-4 mb-2">
+            <div class="text-center mt-4 mb-3">
                 <div class="date fw-bold fs-4">{{ $result->date->inUserTimezone()->format('M. jS, Y') }}</div>
                 <div class="time">{{ $result->date->inUserTimezone()->format('g:i a') }}</div>
+                {{-- Competition --}}
+                <a class="mt-2 link-dark link-underline-opacity-0 link-underline-opacity-100-hover link-offset-2-hover" href="{{ route('competitions.show', $result->competition->id) }}">
+                    {{ $result->competition->name }}
+                </a>
             </div>
 
             {{-- Game Score --}}
@@ -194,7 +215,7 @@
     @isset($modes['live'])
             <div class="tab-pane fade" id="momentum-pane">
         @include('games.show.momentum')
-            </div><!--/#timeline-pane-->
+            </div><!--/#momentum-pane-->
 
             <div class="tab-pane fade" id="timeline-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
@@ -240,6 +261,46 @@
         </div><!--/.tab-content-->
 
     </div><!--/container-->
+
+    <div id="add-event" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('ajax.results.events.store', ['result' => $result->id]) }}" method="post">
+                        @csrf
+                        <input type="hidden" name="result_id" value="{{ $result->id }}">
+                        <input type="hidden" name="time" value="00:00">
+                        <div class="mb-3">
+                            <label for="player_id" class="form-label">Player</label>
+                            <select id="player_id" name="player_id" class="form-select">
+                                <option></option>
+                            @foreach($players as $p)
+                                <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="event_id" class="form-label">Event</label>
+                            <select id="event_id" name="event_id" class="form-select">
+                                <option></option>
+                            @foreach(\App\Enums\Event::cases() as $e)
+                                <option value="{{ $e->value }}">{{ ucwords(str_replace('_', ' ', $e->name)) }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 <script>
@@ -315,6 +376,23 @@ $(document).ready(function() {
         {
             $('#game-timeline').find(selector).hide();
         }
+    });
+
+    $('#add-event').on('submit', 'form', function(event) {
+        event.preventDefault();
+
+        let $frm = $(this)
+        let url  = $(this).attr('action');
+
+        $.ajax({
+            url  : url,
+            type : 'POST',
+            data : $frm.serialize(),
+        }).done(function(data) {
+            window.location.reload();
+        }).fail(function(data) {
+            console.log(data.responseJSON.message);
+        });
     });
 
 @if($resultEvents->isNotEmpty())

@@ -9,22 +9,40 @@
 
         <div class="rounded rounded-3 bg-white p-4 mb-3 position-relative">
 
+        @canany(['edit things', 'update rosters'])
             <div class="dropdown position-absolute top-0 end-0 me-2">
                 <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">Options</button>
                 <ul class="dropdown-menu">
+                @can('update rosters')
                     <li>
                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-guest-player">
                             <span class="bi bi-person-add pe-2"></span>Add Guest Player
                         </a>
                     </li>
+                @endcan
+                @can('edit things')
+                    <li><hr class="dropdown-divider"></li>
+                    <li><h6 class="dropdown-header">Add Events</h6></li>
+                    <li>
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-event">
+                            <span class="bi bi-check-circle-fill pe-2"></span>For
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <span class="bi bi-x-circle pe-2"></span>Against
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item" href="{{ route('games.edit', ['id' => $result->id]) }}">
                             <span class="bi bi-pencil pe-2"></span>Edit
                         </a>
                     </li>
+                @endcan
                 </ul>
             </div>
-
+        @endcanany
 
             {{-- Competition & Date/time --}}
             <div class="text-center mb-5">
@@ -112,6 +130,7 @@
             </div>
         </div>
 
+    @if($head2HeadResults->isNotEmpty())
         <div class="row">
 
             {{-- Previous Games --}}
@@ -215,6 +234,7 @@
             </div>
 
         </div><!--/.row-->
+    @endif
 
     </div><!--/container-->
 
@@ -248,6 +268,49 @@
         </div>
     </div>
 
+    <div id="add-event" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('ajax.results.events.store', ['result' => $result->id]) }}" method="post">
+                        @csrf
+                        <input type="hidden" name="result_id" value="{{ $result->id }}">
+                        <input type="hidden" name="time" value="00:00">
+                        <div class="mb-3">
+                            <label for="player_id" class="form-label">Player</label>
+                            <select id="player_id" name="player_id" class="form-select">
+                                <option></option>
+                            @foreach($currentPlayers as $p)
+                                <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                            @endforeach
+                            @foreach($guestPlayers as $p)
+                                <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="event_id" class="form-label">Event</label>
+                            <select id="event_id" name="event_id" class="form-select">
+                                <option></option>
+                            @foreach(\App\Enums\Event::cases() as $e)
+                                <option value="{{ $e->value }}">{{ ucwords(str_replace('_', ' ', $e->name)) }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 $('#previous-stats > .progress').each((index, progress) => {
     let $parent = $(progress).prev();
@@ -258,6 +321,22 @@ $('#previous-stats > .progress').each((index, progress) => {
     let percentage = (goodCount / totalCount) * 100;
 
     $(progress).find('.progress-bar').css('width', percentage + '%');
+});
+$('#add-event').on('submit', 'form', function(event) {
+    event.preventDefault();
+
+    let $frm = $(this)
+    let url  = $(this).attr('action');
+
+    $.ajax({
+        url  : url,
+        type : 'POST',
+        data : $frm.serialize(),
+    }).done(function(data) {
+        window.location.reload();
+    }).fail(function(data) {
+        console.log(data.responseJSON.message);
+    });
 });
 </script>
 @endsection

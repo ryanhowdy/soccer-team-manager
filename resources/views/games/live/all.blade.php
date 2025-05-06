@@ -103,7 +103,7 @@
                     </ul>
                     <div class="tab-content" id="game-details">
                         <div class="tab-pane pt-4 fade show active small" id="summary-pane" tabindex="0">
-                            @include('games.live-summary-pane')
+                            @include('games.live.summary-pane')
                         </div><!--/#summary-pane-->
                         <div class="tab-pane pt-4 fade" id="events-pane" tabindex="0">
                             <i id="no-events-yet">no events yet</i>
@@ -149,9 +149,9 @@
 
     </div><!--/container-->
 
-    @include('games.live-event-modal')
+    @include('games.live.event-modal')
 
-    @include('games.live-additional-modal')
+    @include('games.live.additional-modal')
 
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 <script>
