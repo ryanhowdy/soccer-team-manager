@@ -18,7 +18,9 @@
 
         @can('edit things')
             <div class="dropdown position-absolute top-0 end-0 me-2">
-                <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">Options</button>
+                <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">
+                    <span class="d-none d-sm-inline">Options</span>
+                </button>
                 <ul class="dropdown-menu">
                     <li><h6 class="dropdown-header">Add Events</h6></li>
                     <li>

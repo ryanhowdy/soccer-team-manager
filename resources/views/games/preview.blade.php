@@ -11,7 +11,9 @@
 
         @canany(['edit things', 'update rosters'])
             <div class="dropdown position-absolute top-0 end-0 me-2">
-                <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">Options</button>
+                <button class="btn btn-light dropdown-toggle mt-2 mb-3" data-bs-toggle="dropdown">
+                    <span class="d-none d-sm-inline">Options</span>
+                </button>
                 <ul class="dropdown-menu">
                 @can('update rosters')
                     <li>
@@ -111,7 +113,7 @@
             </a>
             <div id="collapsePlayers" class="row mt-3 collapse small">
             @foreach($currentPlayers as $p)
-                <div class="col-4">
+                <div class="col-6 col-md-4">
                     <div class="d-flex align-items-center p-2">
                         <div><img src="/{{ $p->photo }}" class="img-fluid rounded-circle" style="width:30px"/></div>
                         <div class="ps-2">{{ $p->name }}</div>
@@ -119,7 +121,7 @@
                 </div>
             @endforeach
             @foreach($guestPlayers as $p)
-                <div class="col-4">
+                <div class="col-6 col-md-4">
                     <div class="d-flex align-items-center p-2">
                         <div><img src="/{{ $p->photo }}" class="img-fluid rounded-circle" style="width:30px"/></div>
                         <div class="ps-2">{{ $p->name }}<span class="text-danger ps-1 fs-6">*</span></div>
