@@ -201,3 +201,33 @@ if (!function_exists('getLowestPriorityEvent'))
         return $key2;
     }
 }
+
+if (!function_exists('getLineupForEventTime'))
+{
+    function getLineupForEventTime($time, $lineups)
+    {
+        $lineup = [];
+
+        $timeSecs = eventTimeToSeconds($time);
+
+        foreach ($lineups as $playerId => $spans)
+        {
+            foreach ($spans as $s)
+            {
+                $startSecs = eventTimeToSeconds($s['start']);
+                $endSecs   = eventTimeToSeconds($s['end']);
+
+                if ($timeSecs >= $startSecs && (is_null($s['end']) || $timeSecs <= $endSecs)) {
+                    // found a player who was on the field when this event occurred, 
+                    // save and move on to the next player
+                    $lineup[] = $playerId;
+                    continue 2;
+                }
+            }
+        }
+
+        sort($lineup);
+
+        return $lineup;
+    }
+}

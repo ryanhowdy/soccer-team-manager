@@ -59,7 +59,8 @@ Route::middleware(['auth'])->group(function () {
     // Stats
     Route::get( '/stats/teams',     [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.teams.index');
     Route::get( '/stats/locations', [\App\Http\Controllers\StatsLocationController::class, 'index'])->name('stats.locations.index');
-    Route::get( '/stats/players',   [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.players.index');
+    Route::get( '/stats/lineups',   [\App\Http\Controllers\StatsLineupController::class, 'index'])->name('stats.lineups.index');
+    //Route::get( '/stats/players',   [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.players.index');
 
     // Competitions
     Route::get( '/compeitions',               [\App\Http\Controllers\CompetitionController::class, 'index'])->name('competitions.index');
