@@ -28,7 +28,7 @@
             <div class="col-12 col-lg-5 text-center">
                 <div class="home-v-away h-100 d-grid align-items-center justify-content-center mb-3 text-decoration-none rounded rounded-2 text-dark">
                     <div class="home-team d-flex align-items-center justify-content-end">
-                        <div class="me-4">{{ $result->homeTeam->name }}</div>
+                        <div class="me-4 d-none d-lg-block">{{ $result->homeTeam->name }}</div>
                         <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}"
                             src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                     </div>
@@ -36,7 +36,7 @@
                     <div class="away-team d-flex align-items-center">
                         <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
                             src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                        <div class="ms-4">{{ $result->awayTeam->name }}</div>
+                        <div class="ms-4 d-none d-lg-block">{{ $result->awayTeam->name }}</div>
                     </div>
                 </div>
             </div>
