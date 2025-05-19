@@ -22849,6 +22849,9 @@ label.required:after {
   line-height: 50px;
 }
 
+#rosters .card {
+  max-width: 400px;
+}
 #rosters .player-number {
   width: 30px;
 }
