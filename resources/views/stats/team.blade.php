@@ -51,9 +51,9 @@
                             <tr class="text-center">
                                 <th></th>
                                 <th>Games</th>
-                                <th>Win</th>
-                                <th>Draw</th>
-                                <th>Loss</th>
+                                <th class="d-none d-sm-table-cell d-md-none d-lg-table-cell">Win</th>
+                                <th class="d-none d-sm-table-cell d-md-none d-lg-table-cell">Draw</th>
+                                <th class="d-none d-sm-table-cell d-md-none d-lg-table-cell">Loss</th>
                                 <th>
                                     <span class="text-success">W</span>
                                     <span class="text-primary-dark">D</span>
@@ -66,9 +66,9 @@
                             <tr>
                                 <td>Home</td>
                                 <td class="text-end">{{ $stats['homeaway']['home']['games'] }}</td>
-                                <td class="text-end">{{ $stats['homeaway']['home']['wins'] }}</td>
-                                <td class="text-end">{{ $stats['homeaway']['home']['draws'] }}</td>
-                                <td class="text-end">{{ $stats['homeaway']['home']['losses'] }}</td>
+                                <td class="text-end d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['home']['wins'] }}</td>
+                                <td class="text-end d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['home']['draws'] }}</td>
+                                <td class="text-end d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['home']['losses'] }}</td>
                                 <td class="ps-4 align-middle">
                                 @if($stats['homeaway']['home']['games'])
                                     <div class="progress-stacked" style="height: 5px; min-width:100px;">
@@ -88,9 +88,9 @@
                             <tr>
                                 <td>Away</td>
                                 <td class="text-end">{{ $stats['homeaway']['away']['games'] }}</td>
-                                <td class="text-end">{{ $stats['homeaway']['away']['wins'] }}</td>
-                                <td class="text-end">{{ $stats['homeaway']['away']['draws'] }}</td>
-                                <td class="text-end">{{ $stats['homeaway']['away']['losses'] }}</td>
+                                <td class="text-end d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['away']['wins'] }}</td>
+                                <td class="text-end d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['away']['draws'] }}</td>
+                                <td class="text-end d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['away']['losses'] }}</td>
                                 <td class="ps-4 align-middle">
                                 @if($stats['homeaway']['away']['games'])
                                     <div class="progress-stacked" style="height: 5px; min-width:100px;">
@@ -110,9 +110,9 @@
                             <tr class="fw-bold">
                                 <td>Overall</td>
                                 <td class="text-end">{{ $stats['homeaway']['overall']['games'] }}</td>
-                                <td class="text-end table-success">{{ $stats['homeaway']['overall']['wins'] }}</td>
-                                <td class="text-end table-light">{{ $stats['homeaway']['overall']['draws'] }}</td>
-                                <td class="text-end table-danger">{{ $stats['homeaway']['overall']['losses'] }}</td>
+                                <td class="text-end table-success d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['overall']['wins'] }}</td>
+                                <td class="text-end table-light d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['overall']['draws'] }}</td>
+                                <td class="text-end table-danger d-none d-sm-table-cell d-md-none d-lg-table-cell">{{ $stats['homeaway']['overall']['losses'] }}</td>
                                 <td class="ps-4 align-middle">
                                 @if($stats['homeaway']['overall']['games'])
                                     <div class="progress-stacked" style="height: 5px; min-width:100px;">
@@ -296,8 +296,8 @@
                         <div class="small text-center text-secondary">{{ $result->date->inUserTimezone()->format('M j, Y') }}</div>
                         <div class="home-v-away d-grid align-items-center justify-content-center mb-3">
                             <div class="home-team d-flex align-items-center justify-content-end">
-                                <div class="me-2">{{ $result->homeTeam->name }}</div>
-                                <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}" 
+                                <div class="me-2 d-none d-lg-block">{{ $result->homeTeam->name }}</div>
+                                <img class="logo img-fluid me-2 me-md-1 me-lg-0" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}" 
                                     src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             </div>
                             <div class="score text-center">
@@ -311,9 +311,9 @@
                                 ])>{{ $result->home_team_score }} - {{ $result->away_team_score }}</span>
                             </div>
                             <div class="away-team d-flex align-items-center">
-                                <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
+                                <img class="logo img-fluid ms-2 ms-md-1 ms-lg-0" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
                                     src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                                <div class="ms-2">{{ $result->awayTeam->name }}</div>
+                                <div class="ms-2 d-none d-lg-block">{{ $result->awayTeam->name }}</div>
                             </div>
                         </div>
                     </a>
@@ -327,6 +327,7 @@
 
             {{-- players stats table --}}
             <div class="rounded rounded-3 bg-white py-2 px-3 mb-3">
+                <div class="table-responsive">
                 <table id="player-stats" class="table table-hover table-sm small">
                     <thead>
                         <tr class="text-center">
@@ -380,6 +381,7 @@
                     @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
 
         </div>

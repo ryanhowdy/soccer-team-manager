@@ -46,38 +46,49 @@
             <div class="col-12 col-md-6">
                 <div class="fw-bold text-secondary fs-5 ps-1 pb-2">Lineup Stats</div>
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
-                    <table id="lineups-table" class="table">
-                        <thead>
-                            <tr class="text-center">
-                                <th>Lineup</th>
-                                <th>Games</th>
-                                <th>Goals</th>
-                                <th>Goals Against</th>
-                                <th>Difference</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($stats['lineups'] as $lineup => $s)
-                            @php
-                                $diff = $s['goals'] - $s['goals_against'];
-                            @endphp
-                            <tr>
-                                <td>{{ $lineup }}</td>
-                                <td class="text-end">{{ count($s['games']) }}</td>
-                                <td class="text-end">{{ $s['goals'] }}</td>
-                                <td class="text-end">{{ $s['goals_against'] }}</td>
-                                <td class="text-end">
-                                    <span @class([
-                                    'badge',
-                                    'text-bg-success' => $diff > 0,
-                                    'text-bg-danger'  => $diff < 0,
-                                    'text-bg-secondary' => $diff == 0,
-                                    ])>{{ $diff }}
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="lineups-table" class="table">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Lineup</th>
+                                    <th>Games</th>
+                                    <th>
+                                        <span class="d-inline-block d-lg-none">G</span>
+                                        <span class="d-none d-lg-inline-block">Goals</span>
+                                    </th>
+                                    <th>
+                                        <span class="d-inline-block d-lg-none">GA</span>
+                                        <span class="d-none d-lg-inline-block">Goals Against</span>
+                                    </th>
+                                    <th>
+                                        <span class="d-inline-block d-lg-none">Dif</span>
+                                        <span class="d-none d-lg-inline-block">Difference</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($stats['lineups'] as $lineup => $s)
+                                @php
+                                    $diff = $s['goals'] - $s['goals_against'];
+                                @endphp
+                                <tr>
+                                    <td>{{ $lineup }}</td>
+                                    <td class="text-end">{{ count($s['games']) }}</td>
+                                    <td class="text-end">{{ $s['goals'] }}</td>
+                                    <td class="text-end">{{ $s['goals_against'] }}</td>
+                                    <td class="text-end">
+                                        <span @class([
+                                        'badge',
+                                        'text-bg-success' => $diff > 0,
+                                        'text-bg-danger'  => $diff < 0,
+                                        'text-bg-secondary' => $diff == 0,
+                                        ])>{{ $diff }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -85,38 +96,49 @@
             <div class="col-12 col-md-6">
                 <div class="fw-bold text-secondary fs-5 ps-1 pb-2">Player Stats</div>
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
-                    <table id="players-table" class="table">
-                        <thead>
-                            <tr class="text-center">
-                                <th>Player</th>
-                                <th>Games</th>
-                                <th>Goals</th>
-                                <th>Goals Against</th>
-                                <th>Difference</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($stats['players'] as $playerId => $p)
-                            @php
-                                $diff = $p['goals'] - $p['goals_against'];
-                            @endphp
-                            <tr>
-                                <td>{{ $p['name'] }}</td>
-                                <td class="text-end">{{ count($p['games']) }}</td>
-                                <td class="text-end">{{ $p['goals'] }}</td>
-                                <td class="text-end">{{ $p['goals_against'] }}</td>
-                                <td class="text-end">
-                                    <span @class([
-                                    'badge',
-                                    'text-bg-success' => $diff > 0,
-                                    'text-bg-danger'  => $diff < 0,
-                                    'text-bg-secondary' => $diff == 0,
-                                    ])>{{ $diff }}
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="players-table" class="table">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Player</th>
+                                    <th>Games</th>
+                                    <th>
+                                        <span class="d-inline-block d-lg-none">G</span>
+                                        <span class="d-none d-lg-inline-block">Goals</span>
+                                    </th>
+                                    <th>
+                                        <span class="d-inline-block d-lg-none">GA</span>
+                                        <span class="d-none d-lg-inline-block">Goals Against</span>
+                                    </th>
+                                    <th>
+                                        <span class="d-inline-block d-lg-none">Dif</span>
+                                        <span class="d-none d-lg-inline-block">Difference</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($stats['players'] as $playerId => $p)
+                                @php
+                                    $diff = $p['goals'] - $p['goals_against'];
+                                @endphp
+                                <tr>
+                                    <td>{{ $p['name'] }}</td>
+                                    <td class="text-end">{{ count($p['games']) }}</td>
+                                    <td class="text-end">{{ $p['goals'] }}</td>
+                                    <td class="text-end">{{ $p['goals_against'] }}</td>
+                                    <td class="text-end">
+                                        <span @class([
+                                        'badge',
+                                        'text-bg-success' => $diff > 0,
+                                        'text-bg-danger'  => $diff < 0,
+                                        'text-bg-secondary' => $diff == 0,
+                                        ])>{{ $diff }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
