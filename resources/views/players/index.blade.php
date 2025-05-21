@@ -75,7 +75,11 @@
                                 </td>
                                 <td>
                                 @foreach($p->player->positions as $pos)
-                                    <span class="pe-2 fw-bold">{{ $pos->position_name }}</span>
+                                    <span class="pe-2 fw-bold">
+                                        {{ $pos->position_name }}<a href="{{ route('ajax.player-positions.destroy', ['playerPosition' => $pos->id]) }}" 
+                                            data-confirm-message="Are you sure you want to remove this position from this player?" 
+                                            data-btn="danger" class="confirm-link link-danger"><span class="bi-x"></span></a>
+                                    </span>
                                 @endforeach
                                     <select class="position form-select w-auto float-end" data-id="{{ $p->player->id }}">
                                         <option></option>
@@ -130,6 +134,8 @@
     </div>
 
 <script>
+let confirmation = new ConfirmModal();
+
 function showHideStatuses()
 {
     // hide every table row

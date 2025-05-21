@@ -66,7 +66,7 @@ export default class ConfirmationModal
         $('body').append(modal);
 
         // click on .confirm-link
-        $('.row').on('click', 'a.confirm-link', (e) => {
+        $('.main-content').on('click', 'a.confirm-link', (e) => {
             this.clickConfirmLink(e);
         });
     }

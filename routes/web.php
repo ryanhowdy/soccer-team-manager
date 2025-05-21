@@ -123,4 +123,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/ajax/games/{result}/possession',       [\App\Http\Controllers\Ajax\ResultEventController::class, 'getPossession'])->name('ajax.results.events.possession');
     Route::get( '/ajax/games/{result}/momentum',         [\App\Http\Controllers\Ajax\ResultEventController::class, 'getMomentum'])->name('ajax.results.events.momentum');
     Route::post('/ajax/competitions/{competition}/edit', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
+
+    Route::post('/ajax/playerPositions/{playerPosition}/destroy', [\App\Http\Controllers\Ajax\PlayerPositionController::class, 'destroy'])->name('ajax.player-positions.destroy');
 });

@@ -65,7 +65,6 @@ class PlayerController extends Controller
                 ->with('player.positions')
                 ->get();
 
-
             foreach($latestRoster as $r)
             {
                 $activePlayers[$r->clubTeamSeason->club_team_id][] = $r;
