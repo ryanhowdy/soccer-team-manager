@@ -178,7 +178,7 @@
                 </div>{{-- /.rounded --}}
             </div>
 
-            @if(!isset($modes['live']))
+            @if(!isset($modes['live']) && !isset($modes['possession']))
                 <div class="alert alert-danger mt-3" role="alert">
                     These result were not recorded live.
                 </div>
@@ -190,6 +190,11 @@
                     <a class="nav-link active" href="#" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-pane">Stats</a>
                 </li>
             @endif
+            @isset($modes['possession'])
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="possession-tab" data-bs-toggle="tab" data-bs-target="#possession-pane">Possession</a>
+                </li>
+            @endisset
             @isset($modes['live'])
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="momentum-tab" data-bs-toggle="tab" data-bs-target="#momentum-pane">Momentum</a>
@@ -215,6 +220,11 @@
             <div class="tab-pane fade show active" id="stats-pane">
         @include('games.show.stats')
             </div><!--/#stats-pane-->
+    @endif
+    @isset($modes['possession'])
+            <div class="tab-pane fade" id="possession-pane">
+        @include('games.show.possession')
+            </div><!--/#possession-pane-->
     @endif
     @isset($modes['live'])
             <div class="tab-pane fade" id="momentum-pane">

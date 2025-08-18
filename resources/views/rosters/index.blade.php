@@ -38,18 +38,19 @@
             </ul>
 
             <div id="seasons-content" class="tab-content">
-        @foreach($playersBySeasonTeam as $seasonName => $teams)
+        @foreach($playersBySeasonTeam as $seasonName => $groups)
                 <div @class([
                     'tab-pane fade',
                     'show active' => $loop->first,
                     ]) id="{{ Str::of($seasonName)->slug('-') }}-pane" tabindex="0">
                     <h3>{{ $seasonName }}</h3>
                     <div class="d-flex flex-wrap">
-                    @foreach($teams as $teamName => $players)
+                @foreach($groups as $teamName => $teams)
                         <div class="mb-5">
                             <div class="card me-3">
-                                <div class="card-header">{{ $teamName }}<span class="ps-3 small">({{ count($players) }} players)</div>
+                                <div class="card-header">{{ $teamName }}<span class="ps-3 small">({{ count($teams['team']) }} players)</div>
                                 <ul class="list-group list-group-flush">
+                        @foreach($teams as $g => $players)
                                 @foreach($players as $p)
                                     <li class="list-group-item">
                                         <form class="row gx-3 m-0 align-items-center" action="{{ route('rosters.update', ['roster' => $p['roster_id']]) }}" method="post">
@@ -58,7 +59,7 @@
                                             <input type="hidden" name="player_id" value="{{ $p['id'] }}">
                                             <div class="col-auto {{ $p['class'] }}">
                                                 <span class="player-number d-inline-block text-end me-1 text-info">
-                                                    @if($p['number'])#{{ $p['number'] }}@endif
+                                                    @if(is_int($p['number']))#{{ $p['number'] }}@endif
                                                 </span>
                                                 {{ $p['name'] }}
                                             @if($p['class'] != 'rem')
@@ -69,7 +70,7 @@
                                                 </a>
                                             @endif
                                             </div>
-                                        @if(empty($p['number']) && $p['class'] != 'rem')
+                                        @if(!is_int($p['number']) && $p['class'] != 'rem')
                                             <div class="col-2">
                                                 <input type="text" class="form-control form-control-sm" name="number">
                                             </div>
@@ -80,6 +81,7 @@
                                         </form>
                                     </li>
                                 @endforeach
+                        @endforeach
                                     <li class="list-group-item">
                                         <form class="row gx-3 m-0 align-items-center">
                                             <div class="col-2">
@@ -98,7 +100,7 @@
                                 </ul>
                             </div><!--/.card-->
                         </div>
-                    @endforeach
+                @endforeach
                     </div><!--/.flex-wrap-->
                 </div><!--/.tab-pane-->
         @endforeach

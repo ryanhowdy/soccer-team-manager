@@ -320,6 +320,17 @@ class GameController extends Controller
             $teamColors['away'] = Color::fromIntToHex($awayColors[0]);
         }
 
+        $possession = [
+            'home' => [
+                'seconds' => 0,
+                'spans'   => [],
+            ],
+            'away' => [
+                'seconds' => 0,
+                'spans'   => [],
+            ],
+        ];
+
         $goals = [
             'home' => [],
             'away' => [],
@@ -427,6 +438,7 @@ class GameController extends Controller
 
             if ($e->event_id == EnumEvent::start->value)
             {
+                $modes['live']        = 1;
                 $modes['playingTime'] = 1;
                 $modes['starters']    = 1;
 
@@ -446,6 +458,7 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_out->value)
             {
+                $modes['live']        = 1;
                 $modes['playingTime'] = 1;
 
                 foreach($playingTime[$e->player_id]['spans'] as $i => $span)
@@ -465,6 +478,7 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_in->value)
             {
+                $modes['live']        = 1;
                 $modes['playingTime'] = 1;
 
                 if (isset($playingTime[$e->player_id]))
@@ -492,8 +506,6 @@ class GameController extends Controller
             if ($e->event_id == EnumEvent::fulltime->value)
             {
                 $fulltime = $e->time;
-
-                $modes['live'] = 1;
             }
             if (in_array($e->event_id, $goalEvents))
             {
@@ -525,6 +537,8 @@ class GameController extends Controller
             }
             if (in_array($e->event_id, $shotOnEvents))
             {
+                $modes['live'] = 1;
+
                 $stats[$usOrThem]['shots']++;
                 $stats[$usOrThem]['shots_on']++;
 
@@ -601,9 +615,61 @@ class GameController extends Controller
                     $stats[$badGuys]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
                 }
             }
+            if ($e->event_id == EnumEvent::gain_possession->value)
+            {
+                $modes['possession'] = 1;
+
+                // Start new time span for the good guys
+                $possession[$goodGuys]['spans'][] = [
+                    'start' => $e->time,
+                    'end'   => null,
+                ];
+
+                // Close the last time span for bad guys and add up the time in seconds
+                foreach($possession[$badGuys]['spans'] as $i => $span)
+                {
+                    if ($span['end'] === null)
+                    {
+                        $possession[$badGuys]['spans'][$i]['end'] = $e->time;
+
+                        $start = eventTimeToSeconds($span['start']);
+                        $end   = eventTimeToSeconds($e->time);
+
+                        $secs = $end - $start;
+
+                        $possession[$badGuys]['seconds'] += $secs;
+                    }
+                }
+            }
+            if ($e->event_id == EnumEvent::lose_possession->value)
+            {
+                $modes['possession'] = 1;
+
+                // Start new time span for the bad guys
+                $possession[$badGuys]['spans'][] = [
+                    'start' => $e->time,
+                    'end'   => null,
+                ];
+
+                // Close the last time span for good guys and add up the time in seconds
+                foreach($possession[$goodGuys]['spans'] as $i => $span)
+                {
+                    if ($span['end'] === null)
+                    {
+                        $possession[$goodGuys]['spans'][$i]['end'] = $e->time;
+
+                        $start = eventTimeToSeconds($span['start']);
+                        $end   = eventTimeToSeconds($e->time);
+
+                        $secs = $end - $start;
+
+                        $possession[$goodGuys]['seconds'] += $secs;
+                    }
+                }
+            }
         }
 
-        // Do some final time cleanup
+        // Do some final playing time cleanup
         foreach($playingTime as $playerId => $data)
         {
             // End the time range for everyone who was in the game at fulltime
@@ -628,6 +694,26 @@ class GameController extends Controller
             $playingTime[$playerId]['minutes'] = secondsToMinutes($playingTime[$playerId]['seconds']);
         }
 
+        // Do some final possession cleanup
+        foreach($possession as $key => $data)
+        {
+            // End the time range for everyone who was in the game at fulltime
+            foreach($possession[$key]['spans'] as $i => $span)
+            {
+                if ($span['end'] === null)
+                {
+                    $possession[$key]['spans'][$i]['end'] = $fulltime;
+
+                    $start = eventTimeToSeconds($span['start']);
+                    $end   = eventTimeToSeconds($fulltime);
+
+                    $secs = $end - $start;
+
+                    $possession[$key]['seconds'] += $secs;
+                }
+            }
+        }
+
         return view('games.show.index', [
             'result'               => $result,
             'resultEvents'         => $resultEvents,
@@ -643,6 +729,8 @@ class GameController extends Controller
             'chartData'            => $chartData,
             'results'              => $head2HeadResults,
             'teamColors'           => $teamColors,
+            'fulltime'             => $fulltime,
+            'possession'           => $possession,
         ]);
     }
 
@@ -673,10 +761,13 @@ class GameController extends Controller
             ->orderBy('name')
             ->get();
 
+        $minYear = Carbon::now()->subYear(18)->format('Y');
+
         $availablePlayers = PlayerTeam::from('player_teams as pt')
-            ->select('p.id', 'p.name')
+            ->select('p.id', 'p.name', 'p.birth_year')
             ->join('players as p', 'pt.player_id', '=', 'p.id')
             ->where('club_team_id', $clubTeamSeason->club_team_id)
+            ->where('birth_year', '>=', $minYear)
             ->whereNotIn('p.id', function (QueryBuilder $q) use ($result) {
                 $q->select('player_id')
                     ->from('rosters')

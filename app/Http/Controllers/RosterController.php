@@ -61,7 +61,8 @@ class RosterController extends Controller
         {
             foreach($teams as $teamName => $players)
             {
-                $playersBySeasonTeam[$seasonName][$teamName] = [];
+                $playersBySeasonTeam[$seasonName][$teamName]['team'] = [];
+                $playersBySeasonTeam[$seasonName][$teamName]['prev'] = [];
 
                 $prevRoster = [];
                 if (isset($prevSeason[$teamName]))
@@ -107,7 +108,7 @@ class RosterController extends Controller
                         }
                     }
 
-                    $playersBySeasonTeam[$seasonName][$teamName][$player->player_id] = [
+                    $playersBySeasonTeam[$seasonName][$teamName]['team'][$player->player_id] = [
                         'id'                  => $player->player_id,
                         'club_team_season_id' => $player->club_team_season_id,
                         'name'                => $player->name,
@@ -133,9 +134,9 @@ class RosterController extends Controller
                     }
 
                     // if the player isn't on the current roster they he was removed
-                    if (!$playerOnCurrentRoster)
+                    if (!$playerOnCurrentRoster && !is_null($prevPlayer->player_id))
                     {
-                        $playersBySeasonTeam[$seasonName][$teamName][$prevPlayer->player_id] = [
+                        $playersBySeasonTeam[$seasonName][$teamName]['prev'][$prevPlayer->player_id] = [
                             'id'                  => $prevPlayer->player_id,
                             'club_team_season_id' => $player->club_team_season_id,
                             'name'                => $prevPlayer->name,
