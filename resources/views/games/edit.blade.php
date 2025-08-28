@@ -96,7 +96,7 @@
                     <div class="col-12 col-md-2 col-xl-1">
                         <div class="mb-3">
                             <label class="form-label" for="my_team_score">Score</label>
-                            <input type="number" class="form-control" id="my_team_score" name="my_team_score">
+                            <input type="number" class="form-control" id="my_team_score" name="my_team_score" value="{{ $result->{$goodGuys . '_team_score'} }}">
                         </div>
                     </div>
                     <div class="col-12 col-md-4 col-xl-5">
@@ -117,7 +117,7 @@
                     <div class="col-12 col-md-2 col-xl-1">
                         <div class="mb-3">
                             <label class="form-label" for="opponent_team_score">Score</label>
-                            <input type="number" class="form-control" id="opponent_team_score" name="opponent_team_score">
+                            <input type="number" class="form-control" id="opponent_team_score" name="opponent_team_score" value="{{ $result->{$badGuys . '_team_score'} }}">
                         </div>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="status">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                            <textarea class="form-control" id="notes" name="notes" rows="3">{{ $result->notes }}</textarea>
                         </div>
                         <button type="submit" class="btn btn-primary text-white">Submit</button>
                         <a href="{{ route('teams.index') }}" class="btn btn-secondary">Cancel</a>
