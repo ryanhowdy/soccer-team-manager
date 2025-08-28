@@ -9,6 +9,7 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
@@ -264,6 +265,18 @@ class GameController extends Controller
             })
             ->get()
             ->keyBy('id');
+
+        $guestPlayers = Player::select('players.*', DB::raw("'x' as 'number'"))
+            ->with('positions')
+            ->orderBy('name')
+            ->join('roster_guests', function (JoinClause $join) use ($result) {
+                $join->on('roster_guests.player_id', '=', 'players.id')
+                    ->where('result_id', $result->id);
+            })
+            ->get()
+            ->keyBy('id');
+
+        $players = $players->concat($guestPlayers);
 
         $playerIds = $players->pluck('id')->toArray();
 
