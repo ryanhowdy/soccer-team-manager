@@ -1,12 +1,4 @@
     <div class="rounded rounded-3 bg-white p-4 mb-3">
-        <div class="mb-4">
-            <div class="position-relative d-inline-block me-3" style="width:3rem; height:3rem;">
-                <div class="rounded-circle d-flex align-items-center justify-content-center w-100 h-100 bg-info text-white">
-                    <i class="bi bi-calendar-day-fill"></i>
-                </div>
-            </div>
-            <h4 class="d-inline-block align-middle">Upcoming Games</h4>
-        </div>
     @php($prevMonth = 0)
     @foreach($scheduled as $result)
         @if($result->date->inUserTimezone()->format('m') != $prevMonth)

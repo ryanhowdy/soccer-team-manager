@@ -21,9 +21,9 @@ document.addEventListener("DOMContentLoaded", function() {
     $('.search-select').select2({matcher:optgroupMatcher});
     $('[data-bs-toggle="tooltip"]').tooltip();
 });
-$winColor  = '#7BC75B';
-$drawColor = '#003282';
-$lossColor = '#FA5F69';
-$chartColors = ['#1F87FF', '#003282', '#B5D7FF', '#FAD155', '#7BC75B', '#9D61D9', '#FF9A4A', '#53D1BF', '#005E85', '#B257A0', '#FFDBBF', '#13B3F2', '#5A8A46', '#FA5F69', '#73205F', '#B6E5FA', '#A38423', '#DAC4F2', '#1D7A67', '#FFC7CA'];
+$winColor  = '#2BBA38';
+$drawColor = '#FFCA2C';
+$lossColor = '#F26666';
+$chartColors = ['#0FA970','#408AA8','#0F57AD','#992F9E','#F7AC32','#284174','#68ABC0','#B95FBC','#E24040','#7D8FAA'];
 </script>
 </head>

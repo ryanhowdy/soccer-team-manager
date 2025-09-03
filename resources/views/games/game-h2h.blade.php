@@ -6,7 +6,7 @@
             <div class="rounded rounded-3 bg-white p-4 mb-1">
                 <h3>Results</h3>
             @isset($chartData['wdl'])
-                <canvas id="wdl-chart" class="p-3 mb-2"></canvas>
+                <canvas id="wdl-chart" class="position-relative p-3 mb-2" style="max-height:300px"></canvas>
                 <script>
                 let wdlChart = document.getElementById('wdl-chart');
                 new Chart(wdlChart, {
@@ -16,11 +16,34 @@
                         datasets: [{
                             data: [{{ $chartData['wdl']['w'] }}, {{ $chartData['wdl']['d'] }}, {{ $chartData['wdl']['l'] }}],
                             backgroundColor: [$winColor, $drawColor, $lossColor],
+                            borderRadius: 10,
+                            borderWidth: 5, 
+                            borderColor: '#ffffff',
                         }]
                     },
                     options: {
+                        animation: false,
+                        cutout: '65%',
+                        maintainAspectRatio: false,
                         plugins: {
-                            legend: { display: false }
+                            legend: { display: false },
+                            tooltip: {
+                                displayColors: false,
+                                bodyFont: { size: 18 },
+                                footerFont: { size: 18 },
+                                callbacks: {
+                                    footer: function(item) {
+                                        let sum = 0;
+                                        let arr = item[0].dataset.data;
+                                        arr.map(data => {
+                                            sum += Number(data);
+                                        });
+
+                                        let percentage = (item[0].parsed * 100 / sum).toFixed(2) + '%';
+                                        return percentage;
+                                    }
+                                }
+                            }
                         }
                     }
                 });
@@ -31,7 +54,7 @@
                         <div class="text-secondary">{{ $chartData['wdl']['w'] }}</div>
                     </div>
                     <div>
-                        <span class="d-inline-block border-top border-5 border-primary-dark p-2 pb-0 mx-2">Draw</span>
+                        <span class="d-inline-block border-top border-5 border-warning p-2 pb-0 mx-2">Draw</span>
                         <div class="text-secondary">{{ $chartData['wdl']['d'] }}</div>
                     </div>
                     <div>

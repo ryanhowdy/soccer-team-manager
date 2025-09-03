@@ -1,11 +1,41 @@
+    <script>
+    let chartOptions = {
+        animation: false,
+        cutout: '65%',
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                displayColors: false,
+                bodyFont: {
+                    size: 18
+                },
+                footerFont: {
+                    size: 18
+                },
+                callbacks: {
+                    footer: function(item) {
+                        let sum = 0;
+                        let arr = item[0].dataset.data;
+                        arr.map(data => {
+                            sum += Number(data);
+                        });
 
-        <div class="row">
+                        let percentage = (item[0].parsed * 100 / sum).toFixed(2) + '%';
+                        return percentage;
+                    }
+                }
+            }
+        }
+    };
+    </script>
+    <div class="row">
 
         @isset($chartData['wdl'])
             <div class="col-12 col-md-6 col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
                     <h3>Results</h3>
-                    <canvas id="wdl-chart" class="p-3 mb-2"></canvas>
+                    <canvas id="wdl-chart" class="position-relative p-3 mb-2" style="max-height:300px"></canvas>
                     <script>
                     let wdlChart = document.getElementById('wdl-chart');
                     new Chart(wdlChart, {
@@ -15,13 +45,12 @@
                             datasets: [{
                                 data: [{{ $chartData['wdl']['w'] }}, {{ $chartData['wdl']['d'] }}, {{ $chartData['wdl']['l'] }}],
                                 backgroundColor: [$winColor, $drawColor, $lossColor],
+                                borderRadius: 10,
+                                borderWidth: 5, 
+                                borderColor: '#ffffff',
                             }]
                         },
-                        options: {
-                            plugins: {
-                                legend: { display: false }
-                            }
-                        }
+                        options: chartOptions
                     });
                     </script>
                     <div class="d-flex text-center justify-content-center">
@@ -30,7 +59,7 @@
                             <div class="text-secondary">{{ $chartData['wdl']['w'] }}</div>
                         </div>
                         <div>
-                            <span class="d-inline-block border-top border-5 border-primary-dark p-2 pb-0 mx-2">Draw</span>
+                            <span class="d-inline-block border-top border-5 border-warning p-2 pb-0 mx-2">Draw</span>
                             <div class="text-secondary">{{ $chartData['wdl']['d'] }}</div>
                         </div>
                         <div>
@@ -46,7 +75,7 @@
             <div class="col-12 col-md-6 col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
                     <h3>Goals</h3>
-                    <canvas id="player-goals-chart" class="p-3 mb-2"></canvas>
+                    <canvas id="player-goals-chart" class="position-relative p-3 mb-2" style="max-height:300px"></canvas>
                     <script>
                     let playerGoalsChart = document.getElementById('player-goals-chart');
                     new Chart(playerGoalsChart, {
@@ -56,13 +85,12 @@
                             datasets: [{
                                 data: [{!! $chartData['goals']['data'] !!}],
                                 backgroundColor: $chartColors,
+                                borderRadius: 10,
+                                borderWidth: 5, 
+                                borderColor: '#ffffff',
                             }]
                         },
-                        options: {
-                            plugins: {
-                                legend: { display: false }
-                            }
-                        }
+                        options: chartOptions
                     });
                     </script>
                     <div class="d-flex text-center justify-content-center">
@@ -82,7 +110,7 @@
             <div class="col-12 d-md-none d-lg-block col-lg-4 mb-3">
                 <div class="rounded rounded-3 bg-white p-4 mb-1">
                     <h3>Assists</h3>
-                    <canvas id="player-assists-chart" class="p-3 mb-2"></canvas>
+                    <canvas id="player-assists-chart" class="position-relative p-3 mb-2" style="max-height:300px"></canvas>
                     <script>
                     let playerAssistsChart = document.getElementById('player-assists-chart');
                     new Chart(playerAssistsChart, {
@@ -92,13 +120,12 @@
                             datasets: [{
                                 data: [{!! $chartData['assists']['data'] !!}],
                                 backgroundColor: $chartColors,
+                                borderRadius: 10,
+                                borderWidth: 5, 
+                                borderColor: '#ffffff',
                             }]
                         },
-                        options: {
-                            plugins: {
-                                legend: { display: false }
-                            }
-                        }
+                        options: chartOptions
                     });
                     </script>
                     <div class="d-flex text-center justify-content-center">
@@ -135,8 +162,8 @@
                                     'badge',
                                     'rounded-pill',
                                     'text-white',
-                                    'bg-success'   => ($result->win_draw_loss == 'W'),
-                                    'bg-secondary' => ($result->win_draw_loss == 'D'),
+                                    'bg-success' => ($result->win_draw_loss == 'W'),
+                                    'bg-warning' => ($result->win_draw_loss == 'D'),
                                     'bg-danger' => ($result->win_draw_loss == 'L'),
                                 ])>{{ $result->home_team_score }} - {{ $result->away_team_score }}</span>
                             </div>

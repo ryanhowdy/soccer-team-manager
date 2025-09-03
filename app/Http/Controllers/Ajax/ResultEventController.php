@@ -237,10 +237,12 @@ class ResultEventController extends Controller
                 ];
             }
 
-            // Goal (10)
+            // Goal (xg)
             if (in_array($e->event_id, EnumEvent::getGoalValues()))
             {
-                $momentum[$homeAway][$time]['points'] += 10;
+                $pts = is_null($e->xg) ? 5 : $e->xg;
+
+                $momentum[$homeAway][$time]['points'] += $pts;
                 $momentum[$homeAway][$time]['event'] = 'goal';
             }
             // Shot on/off Target (xg)

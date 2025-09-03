@@ -254,10 +254,12 @@ class PlayerController extends Controller
             'goals' => [
                 'labels' => '',
                 'data'   => '',
+                'array'  => [],
             ],
             'assists' => [
                 'labels' => '',
                 'data'   => '',
+                'array'  => [],
             ],
         ];
 
@@ -267,9 +269,11 @@ class PlayerController extends Controller
         {
             $charts['goals']['labels'] .= "'" . $season . "',";
             $charts['goals']['data']   .= "'" . $data['goals'] . "',";
+            $charts['goals']['array'][] = ['label' => $season, 'data' => $data['goals']];
 
             $charts['assists']['labels'] .= "'" . $season . "',";
             $charts['assists']['data']   .= "'" . $data['assists'] . "',";
+            $charts['assists']['array'][] = ['label' => $season, 'data' => $data['assists']];
         }
 
         return view('players.show', [

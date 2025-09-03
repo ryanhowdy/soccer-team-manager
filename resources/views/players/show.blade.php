@@ -3,79 +3,6 @@
 @section('body-id', 'player')
 
 @section('content')
-    <script>
-const getOrCreateLegendList = (chart, id) => {
-  const legendContainer = document.getElementById(id);
-  let listContainer = legendContainer.querySelector('ul');
-
-  if (!listContainer) {
-    listContainer = document.createElement('ul');
-    listContainer.classList.add('list-unstyled');
-
-    legendContainer.appendChild(listContainer);
-  }
-
-  return listContainer;
-};
-
-const htmlLegendPlugin = {
-  id: 'htmlLegend',
-  afterUpdate(chart, args, options) {
-    const ul = getOrCreateLegendList(chart, options.containerID);
-
-    // Remove old legend items
-    while (ul.firstChild) {
-      ul.firstChild.remove();
-    }
-
-    // Reuse the built-in legendItems generator
-    const items = chart.options.plugins.legend.labels.generateLabels(chart);
-
-    items.forEach(item => {
-      const li = document.createElement('li');
-      li.classList.add('position-relative');
-      li.classList.add('my-2');
-      li.style.paddingLeft = '40px';
-
-      // Color box
-      const box = document.createElement('div');
-      box.classList.add('position-absolute');
-      box.classList.add('top-0');
-      box.classList.add('start-0');
-      box.style.border = '8px solid ' + item.fillStyle;
-      box.style.borderRadius = '25px';
-      box.style.height = '25px';
-      box.style.width = '25px';
-
-      // Text
-      const textContainer = document.createElement('div');
-
-      const b = document.createElement('b');
-      b.classList.add('pe-2');
-
-      const text = document.createTextNode(item.text);
-
-      b.appendChild(text);
-      textContainer.appendChild(b);
-
-      if (chart.data.datasets[0].data[item.index] > 0) {
-          const span = document.createElement('span');
-          span.classList.add('small');
-          span.classList.add('text-muted');
-
-          const val = document.createTextNode(chart.data.datasets[0].data[item.index]);
-
-          span.appendChild(val);
-          textContainer.appendChild(span);
-      }
-
-      li.appendChild(box);
-      li.appendChild(textContainer);
-      ul.appendChild(li);
-    });
-  }
-};
-    </script>
     <div class="container main-content">
 
         <div class="rounded rounded-3 bg-white p-4 mb-4">
@@ -97,7 +24,21 @@ const htmlLegendPlugin = {
                             <canvas id="goals-chart"></canvas>
                         </div>
                         <div class="col-12 col-md-5">
-                            <div id="goals-legend"></div>
+                            <div id="goals-legend">
+                                <ul class="list-unstyled">
+                                @php $c = 0; @endphp
+                                @foreach($charts['goals']['array'] as $arr)
+                                    @php if($c == 10) $c = 1; else $c++; @endphp
+                                    <li class="position-relative my-2 ps-5">
+                                        <div class="position-absolute top-0 start-0" style="border:8px solid var(--bs-chart{{ $c }}); border-radius:25px; height:25px; width:25px"></div>
+                                        <div class="">
+                                            <b class="pe-2">{{ $arr['label'] }}</b>
+                                            <span class="small text-muted">{{ $arr['data'] }}</span>
+                                        </div>
+                                    </li>
+                                @endforeach
+                                </ul>
+                            </div>
                             <script>
                             let goalChart = document.getElementById('goals-chart');
                             new Chart(goalChart, {
@@ -107,17 +48,36 @@ const htmlLegendPlugin = {
                                     datasets: [{
                                         data: [{!! $charts['goals']['data'] !!}],
                                         backgroundColor: $chartColors,
+                                        borderRadius: 10,
+                                        borderWidth: 5, 
+                                        borderColor: '#ffffff',
                                     }]
                                 },
                                 options: {
+                                    animation: false,
+                                    cutout: '65%',
+                                    maintainAspectRatio: false,
                                     plugins: {
-                                        htmlLegend: {
-                                            containerID: 'goals-legend'
-                                        },
-                                        legend: { display: false }
+                                        legend: { display: false },
+                                        tooltip: {
+                                            displayColors: false,
+                                            bodyFont: {size: 18},
+                                            footerFont: {size: 18},
+                                            callbacks: {
+                                                footer: function(item) {
+                                                    let sum = 0;
+                                                    let arr = item[0].dataset.data;
+                                                    arr.map(data => {
+                                                        sum += Number(data);
+                                                    });
+
+                                                    let percentage = (item[0].parsed * 100 / sum).toFixed(2) + '%';
+                                                    return percentage;
+                                                }
+                                            }
+                                        }
                                     }
                                 },
-                                plugins: [htmlLegendPlugin]
                             });
                             </script>
                         </div>
@@ -132,7 +92,21 @@ const htmlLegendPlugin = {
                             <canvas id="assists-chart"></canvas>
                         </div>
                         <div class="col-12 col-md-5">
-                            <div id="assists-legend"></div>
+                            <div id="assists-legend">
+                                <ul class="list-unstyled">
+                                @php $c = 0; @endphp
+                                @foreach($charts['assists']['array'] as $arr)
+                                    @php if($c == 10) $c = 1; else $c++; @endphp
+                                    <li class="position-relative my-2 ps-5">
+                                        <div class="position-absolute top-0 start-0" style="border:8px solid var(--bs-chart{{ $c }}); border-radius:25px; height:25px; width:25px"></div>
+                                        <div class="">
+                                            <b class="pe-2">{{ $arr['label'] }}</b>
+                                            <span class="small text-muted">{{ $arr['data'] }}</span>
+                                        </div>
+                                    </li>
+                                @endforeach
+                                </ul>
+                            </div>
                             <script>
                             let assistChart = document.getElementById('assists-chart');
                             new Chart(assistChart, {
@@ -142,23 +116,87 @@ const htmlLegendPlugin = {
                                     datasets: [{
                                         data: [{!! $charts['assists']['data'] !!}],
                                         backgroundColor: $chartColors,
+                                        borderRadius: 10,
+                                        borderWidth: 5, 
+                                        borderColor: '#ffffff',
                                     }]
                                 },
                                 options: {
+                                    animation: false,
+                                    cutout: '65%',
+                                    maintainAspectRatio: false,
                                     plugins: {
-                                        htmlLegend: {
-                                            containerID: 'assists-legend'
-                                        },
-                                        legend: { display: false }
+                                        legend: { display: false },
+                                        tooltip: {
+                                            displayColors: false,
+                                            bodyFont: {size: 18},
+                                            footerFont: {size: 18},
+                                            callbacks: {
+                                                footer: function(item) {
+                                                    let sum = 0;
+                                                    let arr = item[0].dataset.data;
+                                                    arr.map(data => {
+                                                        sum += Number(data);
+                                                    });
+
+                                                    let percentage = (item[0].parsed * 100 / sum).toFixed(2) + '%';
+                                                    return percentage;
+                                                }
+                                            }
+                                        }
                                     }
                                 },
-                                plugins: [htmlLegendPlugin]
                             });
                             </script>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        {{-- Chart Row --}}
+        <div class="rounded rounded-3 bg-white p-4 mb-4">
+            <h3>Over Time</h3>
+            <canvas id="ga-time-chart" style="max-height:250px"></canvas>
+            <script>
+            let timeChart = document.getElementById('ga-time-chart');
+            new Chart(timeChart, {
+                type: 'line',
+                data: {
+                    labels: [{!! $charts['goals']['labels'] !!}],
+                    datasets: [
+                        {
+                            label: 'Goals',
+                            data: [{!! $charts['goals']['data'] !!}],
+                            borderColor: $chartColors[0],
+                            backgroundColor: $chartColors[0],
+                            pointStyle: false,
+                        },
+                        {
+                            label: 'Assists',
+                            data: [{!! $charts['assists']['data'] !!}],
+                            borderColor: $chartColors[5],
+                            backgroundColor: $chartColors[5],
+                            pointStyle: false,
+                        }
+                    ]
+                },
+                options: {
+                    animation: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            bodyFont: {size: 18},
+                            footerFont: {size: 18},
+                        }
+                    }
+                },
+            });
+            </script>
         </div>
 
         {{-- Table --}}

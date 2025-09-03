@@ -3,53 +3,38 @@
 $font-family-sans-serif: 'Roboto', 'Arial', sans-serif;
 
 // Colors
-$blue:     #1F87FF;
-$purple:   #9D61D9;
+$blue:     #0F57AD;
+$purple:   #992F9E;
 $pink:     #FFC7CA;
-$red:      #FA5F69;
+$red:      #F26666;
 $orange:   #FF9A4A;
-$yellow:   #FAD155;
-$green:    #7BC75B;
+$yellow:   #F7AC32;
+$green:    #2BBA38;
 $teal:     #53D1BF;
 $cyan:     #13B3F2;
 
-
 $primary:       $blue;
-$primary-dark:  #003282;
-$primary-light: #D2E7FF;
-$secondary:     #A2A6AB;
+$secondary:     #7D8FAA;
 $success:       $green;
 $info:          $purple;
-$warning:       $yellow;
+$warning:       #FFCA2C;
 $danger:        $red;
 $light:         #F0EFF2;
 $dark:          #212529;
 
-$chart1:    $blue;
-$chart2:    $primary-dark;
-$chart3:    #B5D7FF;
-$chart4:    $yellow;
-$chart5:    $green;
-$chart6:    $purple;
-$chart7:    $orange;
-$chart8:    $teal;
-$chart9:    #005E85;
-$chart10:   #B257A0;
-$chart11:   #FFDBBF;
-$chart12:   #13B3F2;
-$chart13:   #5A8A46;
-$chart14:   $red;
-$chart15:   #73205F;
-$chart16:   #B6E5FA;
-$chart17:   #A38423;
-$chart18:   #DAC4F2;
-$chart19:   #1D7A67;
-$chart20:   #FFC7CA;
+$chart1:  #0FA970;
+$chart2:  #408AA8;
+$chart3:  #0F57AD;
+$chart4:  #992F9E;
+$chart5:  #F7AC32;
+$chart6:  #284174;
+$chart7:  #68ABC0;
+$chart8:  #B95FBC;
+$chart9:  #E24040;
+$chart10: #7D8FAA;
 
 $theme-colors: (
     "primary":       $primary,
-    "primary-dark":  $primary-dark,
-    "primary-light": $primary-light,
     "secondary":     $secondary,
     "success":       $success,
     "info":          $info,
@@ -67,14 +52,4 @@ $theme-colors: (
     "chart8":        $chart8,
     "chart9":        $chart9,
     "chart10":       $chart10,
-    "chart11":       $chart11,
-    "chart12":       $chart12,
-    "chart13":       $chart13,
-    "chart14":       $chart14,
-    "chart15":       $chart15,
-    "chart16":       $chart16,
-    "chart17":       $chart17,
-    "chart18":       $chart18,
-    "chart19":       $chart19,
-    "chart20":       $chart20,
 );

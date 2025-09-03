@@ -228,5 +228,13 @@
                 margin: 2px auto;
             }
         }
+
+        &.formation-cols-5
+        {
+            .col .position
+            {
+                width: 60px;
+            }
+        }
     }
 }
