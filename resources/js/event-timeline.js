@@ -5,6 +5,7 @@ export default class EventTimeline
         this.selector = selector;
 
         this.eventToIcon = {
+            'start'                : 'watch_arrow',
             'goal'                 : 'sports_soccer',
             'sub_in'               : 'arrow_right_alt',
             'sub_out'              : 'arrow_left_alt',
@@ -33,6 +34,9 @@ export default class EventTimeline
         };
 
         this.eventToName = {
+            'start'                : 'Starters',
+            'sub_in'               : 'In',
+            'sub_out'              : 'Out',
             'goal'                 : 'Goal',
             'goal_against'         : 'Goal',
             'shot_on_target'       : 'Shot On Target',
@@ -62,45 +66,95 @@ export default class EventTimeline
     /**
      * addEvent
      *
-     * <div class="event home">
-     *     <div class="time">4</div>
-     *     <span class="icon material-symbols-outlined" data-event-id="3">sports_soccer</span>
+     * <div class="event them home foul border rounded">
+     *     <div class="header d-flex justify-content-between">
+     *         <div class="type d-flex align-items-center">
+     *             <span class="material-symbols-outlined">sell</span>
+     *             <b class="ps-2">Yellow Card</b>
+     *         </div>
+     *         <div class="time">12</div>
+     *     </div>
      *     <div class="details">
-     *         <div class="fw-bold">Goal</div>
-     *         Bob Smith
+     *         <b>Unknown</b>
+     *         <div class="notes">Jerks</div>
      *     </div>
      * </div>
      */
-    addEvent(eventData, side)
+    addEvent(eventData, side, managed)
     {
-        let eventDiv     = document.createElement('div');
-        let timeDiv      = document.createElement('div');
-        let iconSpan     = document.createElement('span');
-        let detailsDiv   = document.createElement('div');
-        let eventNameDiv = document.createElement('div');
+        let eventDiv   = document.createElement('div');
+        let headerDiv  = document.createElement('div');
+        let typeDiv    = document.createElement('div');
+        let iconSpan   = document.createElement('span');
+        let typeB      = document.createElement('b');
+        let timeDiv    = document.createElement('div');
+        let detailsDiv = document.createElement('div');
+        let detailsB   = document.createElement('b');
+        let notesDiv   = document.createElement('div');
+        let xgDiv      = document.createElement('div');
 
-        eventDiv.className = 'event ' + side + ' ' + eventData.event_name;
+        // event
+        eventDiv.className = 'event border border-light rounded ' + side + ' ' + eventData.event_name;
 
+        if (managed)
+        {
+            eventDiv.className += ' managed shadow-sm';
+        }
+
+        // header
+        headerDiv.className = 'header d-flex justify-content-between';
+
+        // type
+        typeDiv.className = 'type d-flex align-items-center';
+
+        // icon
+        iconSpan.className = 'icon material-symbols-outlined';
+        iconSpan.textContent = this.eventToIcon[eventData.event_name];
+
+        // event name
+        typeB.className = 'fs-6 ps-2';
+        typeB.textContent = this.eventToName[eventData.event_name];
+
+        // time
         let t = eventData.time;
         t = t.substring(0, 2);
         t = parseInt(t) + 1;
 
-        timeDiv.className = 'time';
+        timeDiv.className = 'time fs-6 text-secondary fw-bold';
         timeDiv.textContent = t;
 
-        iconSpan.className = 'icon material-symbols-outlined';
-        iconSpan.textContent = this.eventToIcon[eventData.event_name];
-
+        // details
         detailsDiv.className = 'details';
-        detailsDiv.textContent = eventData.player_name;
 
-        eventNameDiv.className = 'fw-bold';
-        eventNameDiv.textContent = this.eventToName[eventData.event_name];
-        
-        detailsDiv.prepend(eventNameDiv);
+        // player name
+        detailsB.textContent = eventData.player_name;
 
-        eventDiv.append(timeDiv);
-        eventDiv.append(iconSpan);
+        // notes
+        notesDiv.className = 'notes';
+        notesDiv.textContent = eventData.notes;
+
+        // xg
+        if (eventData.xg !== null)
+        {
+            let xgSpan = document.createElement('span');
+
+            xgDiv.className = 'xg';
+            xgDiv.textContent = '0.' + eventData.xg;
+
+            xgSpan.className = 'pe-2';
+            xgSpan.textContent = 'xG';
+            xgDiv.prepend(xgSpan);
+        }
+
+        // now put it all together
+        detailsDiv.append(detailsB);
+        detailsDiv.append(notesDiv);
+        detailsDiv.append(xgDiv);
+        typeDiv.append(iconSpan);
+        typeDiv.append(typeB);
+        headerDiv.append(typeDiv);
+        headerDiv.append(timeDiv);
+        eventDiv.append(headerDiv);
         eventDiv.append(detailsDiv);
 
         $(this.selector).append(eventDiv);

@@ -411,6 +411,7 @@ $(document).ready(function() {
 
 @if($resultEvents->isNotEmpty())
     let resultEvents = {{ Js::from($resultEvents) }};
+    let managedPlayers = {{ Js::from(array_keys($managedPlayerIds)) }};
     let players = {{ Js::from($players) }};
     let formation = {{ Js::from($result->formation) }};
     let starters  = {{ Js::from($starters) }};
@@ -427,8 +428,14 @@ $(document).ready(function() {
     for (let [i, data] of Object.entries(resultEvents))
     {
         let side = data.against ? badGuys : goodGuys;
+        side    += data.against ? ' them' : ' us';
 
-        timeline.addEvent(data, side);
+        let managed = 0;
+        if (jQuery.inArray(data.player_id, managedPlayers) >= 0) {
+            managed = 1;
+        }
+
+        timeline.addEvent(data, side, managed);
     }
 @endif
 });
