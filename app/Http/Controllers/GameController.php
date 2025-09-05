@@ -550,8 +550,6 @@ class GameController extends Controller
             }
             if (in_array($e->event_id, $shotOnEvents))
             {
-                $modes['live'] = 1;
-
                 $stats[$usOrThem]['shots']++;
                 $stats[$usOrThem]['shots_on']++;
 

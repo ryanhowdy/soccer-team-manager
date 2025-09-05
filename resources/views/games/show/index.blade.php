@@ -180,7 +180,7 @@
 
             @if(!isset($modes['live']) && !isset($modes['possession']))
                 <div class="alert alert-danger mt-3" role="alert">
-                    These result were not recorded live.
+                    These results were not recorded live.
                 </div>
             @endif
 
@@ -199,10 +199,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="momentum-tab" data-bs-toggle="tab" data-bs-target="#momentum-pane">Momentum</a>
                 </li>
+            @endisset
+            @if(isset($modes['live']) || isset($modes['scoresPlus']))
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-pane">Timeline</a>
                 </li>
-            @endisset
+            @endif
             @isset($modes['starters'])
                 <li class="nav-item">
                     <a class="nav-link" href="#" id="lineup-tab" data-bs-toggle="tab" data-bs-target="#lineup-pane">Lineup</a>
@@ -230,7 +232,9 @@
             <div class="tab-pane fade" id="momentum-pane">
         @include('games.show.momentum')
             </div><!--/#momentum-pane-->
+    @endisset
 
+    @if(isset($modes['live']) || isset($modes['scoresPlus']))
             <div class="tab-pane fade" id="timeline-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
                     <h3 class="mb-3">Timeline</h3>
@@ -256,7 +260,7 @@
                     <div id="game-timeline" class="event-timeline small"></div>
                 </div>
             </div><!--/#timeline-pane-->
-    @endisset
+    @endif
     @isset($modes['starters'])
             <div class="tab-pane fade" id="lineup-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
@@ -419,9 +423,11 @@ $(document).ready(function() {
     let goodGuys = '{{ $goodGuys }}';
     let badGuys  = '{{ $badGuys }}';
 
+    @if(!is_null($result->formation))
     let drawer   = new FormationDrawer(players, {});
     drawer.drawFormation(formation, '#field');
     drawer.addPlayerStarters(starters, '#field');
+    @endif
 
     let timeline = new EventTimeline('#game-timeline');
 
