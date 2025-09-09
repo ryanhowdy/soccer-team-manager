@@ -21,6 +21,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // make sure we have at least 1 registered user
         $firstUser = User::first();
 
         if (is_null($firstUser))
@@ -28,16 +29,29 @@ class HomeController extends Controller
             return redirect()->route('register');
         }
 
-        $managedTeam = ClubTeam::first();
+        // make sure we have at least 1 managed team
+        $managedTeam = ClubTeam::from('club_teams as t')
+            ->select('t.*', 'c.name as club_name')
+            ->join('clubs as c', 't.club_id', '=', 'c.id')
+            ->where('managed', 1)
+            ->first();
 
         if (is_null($managedTeam))
         {
             return redirect()->route('clubs.first');
         }
 
+        // make sure the user is logged in
         if (!Auth()->user())
         {
             return redirect()->route('login');
+        }
+
+        // set a default selected team is we don't have one already
+        if (!session()->has('selectedTeamId'))
+        {
+            session(['selectedTeamId' => $managedTeam->id]);
+            session(['selectedTeamName' => $managedTeam->name]);
         }
 
         return redirect()->route('home');
@@ -48,7 +62,7 @@ class HomeController extends Controller
      *
      * @return Illuminate\View\View
      */
-    public function home($teamId = null)
+    public function home()
     {
         // Get all scheduled games for today
         $todayStart = \Carbon\Carbon::now()->inUserTimezone()->startOfDay()->tz('UTC');
@@ -104,77 +118,48 @@ class HomeController extends Controller
             ->orderBy('date')
             ->get();
 
-        $lastResultsByTeam = [];
+        $lastResultsAgainstTeam = [];
         foreach ($lastResults as $r)
         {
             $badGuys = $r->homeTeam->managed == 0 ? 'home' : 'away';
 
-            $lastResultsByTeam[$r->{$badGuys . 'Team'}->id][] = $r;
+            $lastResultsAgainstTeam[$r->{$badGuys . 'Team'}->id][] = $r;
         }
 
-        // Get all managed teams
-        $managedTeams = ClubTeam::from('club_teams as t')
+        $resultsByTeam = ClubTeam::from('club_teams as t')
+            ->with('latestHomeResults')
+            ->with('latestAwayResults')
+            ->where('managed', 1)
+            ->get();
+
+        return view('home', [
+            'scheduledToday'         => $scheduledToday,
+            'scheduled'              => $scheduled,
+            'lastResultsAgainstTeam' => $lastResultsAgainstTeam,
+            'results'                => $resultsByTeam,
+        ]);
+    }
+
+    /**
+     * update the currently selected team
+     *
+     * @return Illuminate\View\View
+     */
+    public function pickTeam($teamId)
+    {
+        $team = ClubTeam::from('club_teams as t')
             ->select('t.*', 'c.name as club_name')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->where('managed', 1)
-            ->orderBy('club_name')
-            ->orderBy('t.name')
-            ->get();
-
-        if ($managedTeams->count() <= 0)
-        {
-            return redirect()->route('clubs.first');
-        }
-
-        // Get selected managed team
-        $selectedManagedTeam = [];
-        if ($teamId)
-        {
-            $selectedManagedTeam = $managedTeams->first(function ($item) use ($teamId) {
-                return $item->id == $teamId;
-            });
-        }
-        else
-        {
-            // Randomly select a managed team to show (if multiple)
-            $selectedManagedTeam = $managedTeams->random();
-        }
-
-        // Get the most recent League competition for this team
-        $competition = Competition::where('club_team_id', $selectedManagedTeam->id)
-            ->where('type', 'League')
-            ->orderByDesc('started_at')
+            ->where('t.id', '=', $teamId)
             ->first();
 
-        $results = new \Illuminate\Database\Eloquent\Collection();
-
-        if (!is_null($competition))
+        if ($team)
         {
-            $activeCompetitionId = $competition->id;
-
-            // Get all the results for the currently selected managed teams' most recent non tournament competition
-            $results = Result::where('status', 'D')
-                ->where('competition_id', $activeCompetitionId)
-                ->orWhere(function (Builder $query) use ($selectedManagedTeam) {
-                    $query->where('home_team_id', $selectedManagedTeam->id)
-                        ->where('away_team_id', $selectedManagedTeam->id);
-                })
-                ->get();
+            session(['selectedTeamId' => $team->id]);
+            session(['selectedTeamName' => $team->name]);
         }
 
-        // Figure out the chart data based on the results
-        $chartData = \Chart::getData(['standard'], $selectedManagedTeam->id, $results);
-
-        return view('home', [
-            'scheduledToday'          => $scheduledToday,
-            'scheduled'               => $scheduled,
-            'lastResultsByTeam'       => $lastResultsByTeam,
-            'managedTeams'            => $managedTeams,
-            'competition'             => $competition,
-            'selectedManagedTeamId'   => $selectedManagedTeam->id,
-            'selectedManagedTeamName' => $selectedManagedTeam->name,
-            'results'                 => $results,
-            'chartData'               => $chartData,
-        ]);
+        return back();
     }
 }

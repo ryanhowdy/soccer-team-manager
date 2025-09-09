@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Result extends Model
 {
@@ -55,6 +56,20 @@ class Result extends Model
     //
     // Attributes
     //
+
+    public function usGoals(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->homeTeam->managed ? $attributes['home_team_score'] : $attributes['away_team_score'],
+        );
+    }
+
+    public function themGoals(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->awayTeam->managed ? $attributes['home_team_score'] : $attributes['away_team_score'],
+        );
+    }
 
     public function getWinDrawLossAttribute(): string
     {

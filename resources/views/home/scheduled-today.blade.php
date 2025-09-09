@@ -38,9 +38,9 @@
                     @php
                         $thisTeamId = $sched->homeTeam->managed ? $sched->away_team_id : $sched->home_team_id;
                     @endphp
-                    @if (isset($lastResultsByTeam[$thisTeamId]))
+                    @if (isset($lastResultsAgainstTeam[$thisTeamId]))
                         <div class="last-5-form pull-right" data-bs-toggle="tooltip" data-bs-title="Head 2 Head">
-                        @foreach($lastResultsByTeam[$thisTeamId] as $r)
+                        @foreach($lastResultsAgainstTeam[$thisTeamId] as $r)
                             <span @class([
                                 'text-white',
                                 'bg-success'   => ($r->win_draw_loss == 'W'),

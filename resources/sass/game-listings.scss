@@ -29,7 +29,7 @@
 // charts
 .game-listing-small
 {
-    a
+    a:not(.competition)
     {
         display: block;
 
