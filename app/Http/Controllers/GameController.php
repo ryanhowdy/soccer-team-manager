@@ -274,7 +274,7 @@ class GameController extends Controller
                     ->where('result_id', $result->id);
             })
             ->get()
-            ->keyBy('id');
+            ->keyBy('players.id');
 
         $players = $players->concat($guestPlayers);
 
