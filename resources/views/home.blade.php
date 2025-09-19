@@ -19,22 +19,22 @@
         <div class="row">
         @foreach($results as $team)
             <div class="col-6">
-                <div class="rounded rounded-3 bg-white p-5 mb-3">
+                <div class="rounded rounded-3 bg-white p-3 p-lg-5 mb-3">
                     <div class="d-flex justify-content-between">
                         <div>
                             <div class="text-uppercase text-secondary small">Team Name</div>
                             <div class="fw-bold fs-4 text-primary">{{ $team->name }}</div>
                         </div>
-                        <div class="d-flex">
-                            <div class="me-3">
+                        <div class="d-flex text-end">
+                            <div class="me-3 d-none d-lg-block">
                                 <div class="text-uppercase text-secondary small">Win</div>
                                 <div class="fw-bold fs-4 text-primary">{{ count($team->latestResults()->where('win_draw_loss', 'W')) }}</div>
                             </div>
-                            <div class="me-3">
+                            <div class="me-3 d-none d-lg-block">
                                 <div class="text-uppercase text-secondary small">Draw</div>
                                 <div class="fw-bold fs-4 text-primary">{{ count($team->latestResults()->where('win_draw_loss', 'D')) }}</div>
                             </div>
-                            <div class="me-3">
+                            <div class="me-3 d-none d-lg-block">
                                 <div class="text-uppercase text-secondary small">Lost</div>
                                 <div class="fw-bold fs-4 text-primary">{{ count($team->latestResults()->where('win_draw_loss', 'L')) }}</div>
                             </div>

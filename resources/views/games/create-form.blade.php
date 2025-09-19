@@ -66,7 +66,7 @@
         <label class="form-label" for="my_team_id">Team</label>
         <select class="form-select" id="my_team_id" name="my_team_id">
     @foreach ($managedTeams as $i => $team)
-            <option value="{{ $team->id }}">{{ $team->name }}</option>
+            <option value="{{ $team->id }}">{{ $team->club->name }}: {{ $team->name }} {{ $team->birth_year }}</option>
     @endforeach
         </select>
     </div>
@@ -90,7 +90,7 @@
         @foreach ($teamsByClub as $clubName => $teams)
                 <optgroup label="{{ $clubName }}">
             @foreach ($teamsByClub[$clubName] as $team)
-                <option value="{{ $team['id'] }}">{{ $team['name'] }}</option>
+                <option value="{{ $team['id'] }}">{{ $team['name'] }} {{ $team['birth_year'] }}</option>
             @endforeach
         @endforeach
             </select>

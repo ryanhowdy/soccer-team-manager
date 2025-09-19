@@ -16,8 +16,11 @@
     @endif
 
         <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 d-flex align-items-center justify-content-between">
-            <input class="w-50" type="text" id="search">
+            <input class="d-none d-lg-inline-block w-50" type="text" id="search">
             <div>
+                <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-club">
+                    <span class="bi-plus-lg pe-2"></span>Add Club
+                </a>
                 <a href="#" class="btn btn-sm btn-primary text-white text-nowrap" data-bs-toggle="modal" data-bs-target="#create-team">
                     <span class="bi-plus-lg pe-2"></span>Add Team
                 </a>

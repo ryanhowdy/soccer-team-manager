@@ -93,6 +93,11 @@ class TeamController extends Controller
 
         $team->save();
 
+        if ($team->managed)
+        {
+            $request->session()->forget('first');
+        }
+
         return redirect()->route('teams.index');
     }
 

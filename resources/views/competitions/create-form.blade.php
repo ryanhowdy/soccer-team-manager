@@ -5,7 +5,7 @@
         <select class="form-select" id="club_team_id" name="club_team_id" required>
             <option></option>
     @foreach ($managedTeams as $team)
-            <option value="{{ $team->id }}">{{ $team->name }}</option>
+            <option value="{{ $team->id }}">{{ $team->club->name }}: {{ $team->name }} {{ $team->birth_year }}</option>
     @endforeach
         </select>
     </div>
