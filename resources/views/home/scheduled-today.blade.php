@@ -24,7 +24,20 @@
                         </div>
                         <div class="small">
                             <div>{{ $sched->date->inUserTimezone()->format('g:i a') }}</div>
-                            <a href="{{ route('games.live', $sched->id) }}" class="btn btn-success btn-sm text-white">Start Game</a>
+                            <div class="btn-group" role="group">
+                                <a href="{{ route('games.live', $sched->id) }}" class="btn btn-success btn-sm text-white">Start Game</a>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success btn-sm text-white dropdown-toggle" data-bs-toggle="dropdown"></button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                        @can('edit things')
+                                            <a href="{{ route('games.edit', $sched->id) }}" class="dropdown-item">Edit</a>
+                                        @endcan
+                                            <a href="{{ route('games.preview', $sched->id) }}" class="dropdown-item">Preview</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between border-top pt-3 mb-1 small">
