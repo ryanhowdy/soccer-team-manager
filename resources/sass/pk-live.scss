@@ -1,0 +1,40 @@
+#pk-live
+{
+    .c
+    {
+        line-height: 34px;
+
+        img.logo
+        {
+            max-height: 34px;
+        }
+    }
+    .teams
+    {
+        overflow: hidden;
+        text-wrap: nowrap;
+        height: 93px;
+
+        .c
+        {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+    .pks
+    {
+        text-wrap: nowrap;
+        height: 93px;
+        overflow-y: scroll;
+        min-width: 165px;
+    }
+
+    // Mobile (xs)
+    @media only screen and (max-width: 575px)
+    {
+        .main-content
+        {
+            margin-top: 12px;
+        }
+    }
+}

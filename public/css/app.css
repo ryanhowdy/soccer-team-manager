@@ -21259,6 +21259,7 @@ textarea.form-control-lg {
 
 .navbar.local {
   border-color: #992F9E !important;
+  border-width: 20px !important;
 }
 
 .main-content {
@@ -21894,4 +21895,31 @@ label.required:after {
 }
 #me .list-group-radio .list-group-item:hover {
   background-color: var(--bs-secondary-bg);
+}
+
+#pk-live .c {
+  line-height: 34px;
+}
+#pk-live .c img.logo {
+  max-height: 34px;
+}
+#pk-live .teams {
+  overflow: hidden;
+  text-wrap: nowrap;
+  height: 93px;
+}
+#pk-live .teams .c {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#pk-live .pks {
+  text-wrap: nowrap;
+  height: 93px;
+  overflow-y: scroll;
+  min-width: 165px;
+}
+@media only screen and (max-width: 575px) {
+  #pk-live .main-content {
+    margin-top: 12px;
+  }
 }

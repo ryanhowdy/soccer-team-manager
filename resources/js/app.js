@@ -54,3 +54,9 @@ window.EventTimeline = EventTimeline;
  */
 import ConfirmModal from './confirmation-modal';
 window.ConfirmModal = ConfirmModal;
+
+/**
+ * PK
+ */
+import Pk from './live/pk';
+window.Pk = Pk;

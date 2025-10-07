@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/games/{id}/live',            [\App\Http\Controllers\LiveGameController::class, 'index'])->name('games.live');
     Route::get( '/games/{id}/live/all',        [\App\Http\Controllers\LiveGameController::class, 'all'])->name('games.live.all');
     Route::get( '/games/{id}/live/possession', [\App\Http\Controllers\LiveGameController::class, 'possession'])->name('games.live.possession');
+    Route::get( '/games/{id}/live/pk',         [\App\Http\Controllers\LiveGameController::class, 'pk'])->name('games.live.pk');
 
     // Teams
     Route::get( '/teams',           [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
@@ -122,6 +123,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ajax/games/{result}/events',           [\App\Http\Controllers\Ajax\ResultEventController::class, 'store'])->name('ajax.results.events.store');
     Route::get( '/ajax/games/{result}/possession',       [\App\Http\Controllers\Ajax\ResultEventController::class, 'getPossession'])->name('ajax.results.events.possession');
     Route::get( '/ajax/games/{result}/momentum',         [\App\Http\Controllers\Ajax\ResultEventController::class, 'getMomentum'])->name('ajax.results.events.momentum');
+    Route::post('/ajax/games/{result}/pk/start',         [\App\Http\Controllers\Ajax\PenaltiesController::class, 'start'])->name('ajax.results.pk.start');
+    Route::post('/ajax/games/{result}/pk/event',         [\App\Http\Controllers\Ajax\PenaltiesController::class, 'store'])->name('ajax.results.pk.store');
     Route::post('/ajax/competitions/{competition}/edit', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
 
     Route::post('/ajax/playerPositions/{playerPosition}/destroy', [\App\Http\Controllers\Ajax\PlayerPositionController::class, 'destroy'])->name('ajax.player-positions.destroy');

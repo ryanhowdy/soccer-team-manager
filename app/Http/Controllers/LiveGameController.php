@@ -11,6 +11,7 @@ use App\Models\Formation;
 use App\Models\Player;
 use App\Models\ClubTeamSeason;
 use App\Models\Event;
+use App\Models\PenaltyShootout;
 use App\Enums\Event as EnumEvent;
 
 class LiveGameController extends Controller
@@ -163,6 +164,70 @@ class LiveGameController extends Controller
 
         return view('games.live.possession', [
             'result' => $result,
+        ]);
+    }
+
+    /**
+     * pk
+     * 
+     * @param Request $request 
+     * @param int $id 
+     * @return Illuminate\View\View
+     */
+    public function pk(Request $request, int $id)
+    {
+        // Get the result info
+        $result = Result::with('competition')
+            ->with('location')
+            ->with('homeTeam.club')
+            ->with('awayTeam.club')
+            ->find($id);
+
+        // if the result isn't done already, just redirect to live
+        if ($result->status != 'D')
+        {
+            return redirect()->route('games.live', ['id' => $id]);
+        }
+
+        // get any pk info we already have for this game
+        $shootout = PenaltyShootout::latest()
+            ->with('penalties')
+            ->where('result_id', $result->id)
+            ->first();
+
+        // get the players for this team
+        $guestPlayers = Player::select('players.*', 'roster_guests.number')
+            ->with('positions')
+            ->join('roster_guests', function (JoinClause $join) use ($result) {
+                $join->on('roster_guests.player_id', '=', 'players.id')
+                    ->where('result_id', $result->id);
+            })
+            ->get();
+
+        $currentPlayers = Player::select('players.*', 'rosters.number')
+            ->with('positions')
+            ->join('rosters', function (JoinClause $join) use ($result) {
+                $join->on('rosters.player_id', '=', 'players.id')
+                    ->where('club_team_season_id', $result->club_team_season_id);
+            })
+            ->get();
+
+        $players = $currentPlayers->merge($guestPlayers)
+            ->sortBy('name')
+            ->keyBy('id');
+
+        $rounds = 5;
+        if (!is_null($shootout) && $shootout->penalties->count() > 10)
+        {
+            $rounds = ceil($shootout->penalties->count() / 2);
+        }
+
+        return view('games.live.pk', [
+            'result'       => $result,
+            'existingData' => $shootout,
+            'players'      => $players,
+            'rounds'       => $rounds,
+            'key'          => 0,
         ]);
     }
 }
