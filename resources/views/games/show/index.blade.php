@@ -77,6 +77,14 @@
                         <div class="fs-1 ">-</div>
                         <div class="fs-1 ms-3">{{ $result->away_team_score }}</div>
                     </div>
+                @if(!is_null($shootout))
+                    <div class="text-center mt-2">Penalties</div>
+                    <div class="d-flex justify-content-center">
+                        <div class="fs-3 me-3">{{ $shootout['home_score'] }}</div>
+                        <div class="fs-3 ">-</div>
+                        <div class="fs-3 ms-3">{{ $shootout['away_score'] }}</div>
+                    </div>
+                @endif
                 </div>
                 <div class="col-4 col-lg-5">
                     <div class="d-flex justify-content-start align-items-center">

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Result;
+use App\Models\PenaltyShootout;
 use App\Models\Season;
 use App\Models\Player;
 use App\Models\PlayerTeam;
@@ -246,6 +247,40 @@ class GameController extends Controller
             return redirect()->route('games.preview', ['id' => $gameId]);
         }
 
+        $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
+        $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
+
+        $goodGuysId = $result->{$goodGuys . '_team_id'};
+        $badGuysId  = $result->{$badGuys . '_team_id'};
+
+        // Did this game go to penalties?
+        $shootout = PenaltyShootout::latest()
+            ->with('penalties')
+            ->where('result_id', $gameId)
+            ->first()
+            ->toArray();
+
+        if (!is_null($shootout))
+        {
+            $shootout['home_score'] = 0;
+            $shootout['away_score'] = 0;
+
+            foreach ($shootout['penalties'] as $pk)
+            {
+                if ($pk['event_id'] == \App\Enums\Event::penalty_goal->value)
+                {
+                    if ($pk['against'])
+                    {
+                        $shootout[$badGuys . "_score"]++;
+                    }
+                    else
+                    {
+                        $shootout[$goodGuys . "_score"]++;
+                    }
+                }
+            }
+        }
+
         // Get all the events for this game
         $resultEvents = ResultEvent::where('result_id', $gameId)
             ->with('userRolesManagedPlayers')
@@ -286,12 +321,6 @@ class GameController extends Controller
             ->get()
             ->pluck('player.name', 'player.id')
             ->toArray();
-
-        $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
-        $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
-
-        $goodGuysId = $result->{$goodGuys . '_team_id'};
-        $badGuysId  = $result->{$badGuys . '_team_id'};
 
         // Get all the head to head games
         $head2HeadResults = Result::where('status', 'D')
@@ -727,6 +756,7 @@ class GameController extends Controller
 
         return view('games.show.index', [
             'result'               => $result,
+            'shootout'             => $shootout,
             'resultEvents'         => $resultEvents,
             'goodGuys'             => $goodGuys,
             'badGuys'              => $badGuys,
