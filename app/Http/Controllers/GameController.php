@@ -257,11 +257,12 @@ class GameController extends Controller
         $shootout = PenaltyShootout::latest()
             ->with('penalties')
             ->where('result_id', $gameId)
-            ->first()
-            ->toArray();
+            ->first();
 
         if (!is_null($shootout))
         {
+            $shootout = $shootout->toArray();
+
             $shootout['home_score'] = 0;
             $shootout['away_score'] = 0;
 
