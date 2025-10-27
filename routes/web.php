@@ -127,5 +127,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ajax/games/{result}/pk/event',         [\App\Http\Controllers\Ajax\PenaltiesController::class, 'store'])->name('ajax.results.pk.store');
     Route::post('/ajax/competitions/{competition}/edit', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
 
+    Route::post('/ajax/club-team-seasons/{season}/destroy',       [\App\Http\Controllers\Ajax\ClubTeamSeasonController::class, 'destroy'])->name('ajax.club-team-seasons.destroy');
     Route::post('/ajax/playerPositions/{playerPosition}/destroy', [\App\Http\Controllers\Ajax\PlayerPositionController::class, 'destroy'])->name('ajax.player-positions.destroy');
 });

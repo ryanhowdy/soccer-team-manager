@@ -48,7 +48,20 @@
                 @foreach($groups as $teamName => $teams)
                         <div class="mb-5">
                             <div class="card me-3">
-                                <div class="card-header">{{ $teamName }}<span class="ps-3 small">({{ count($teams['team']) }} players)</div>
+                                <div class="card-header">
+                                    {{ $teamName }}<span class="ps-3 small">({{ count($teams['team']) }} players)
+                        @can('edit things')
+                            @empty($teams['team'])
+                                    <div class="float-end">
+                                        <a href="{{ route('ajax.club-team-seasons.destroy', ['season' => $clubTeamSeasonLkup[$seasonName . '-' . $teamName]]) }}"
+                                            data-confirm-message="Are you sure you want to remove this Team's Season?" data-btn="danger"
+                                            class="confirm-link link-danger">
+                                            <i class="bi bi-trash3"></i>
+                                        </a>
+                                    </div>
+                            @endempty
+                        @endcan
+                                </div>
                                 <ul class="list-group list-group-flush">
                         @foreach($teams as $g => $players)
                                 @foreach($players as $p)
