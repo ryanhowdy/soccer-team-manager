@@ -31,7 +31,7 @@
             <optgroup label="{{ $type }}">
         @foreach ($comps as $competition)
             <option value="{{ $competition->id }}">
-                {{ $competition->name }} - {{ $competition->started_at->format('M j, Y') }}
+                {{ $competition->name }} - {{ $competition->division }} - {{ $competition->started_at->format('M j, Y') }}
             </option>
         @endforeach
     @endforeach
