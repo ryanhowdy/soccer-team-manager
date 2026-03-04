@@ -120,6 +120,7 @@
                                 <th title="Player Name">Name</th>
                                 <th title="Goals">Gls</th>
                                 <th title="Assists">Ast</th>
+                                <th title="Expected Goals">xG</th>
                                 <th title="Total Shots">Shot</th>
                                 <th title="Shots on Target">SOT</th>
                                 <th title="Offsides">Off</th>
@@ -132,6 +133,7 @@
                                 <td>@if($s['player']){{ $s['player']->name }}@endif</td>
                                 <td>{{ $s['goals'] }}</td>
                                 <td>{{ $s['assists'] }}</td>
+                                <td>{{ $s['xg'] }}</td>
                                 <td>{{ $s['shots'] }}</td>
                                 <td>{{ $s['shots_on'] }}</td>
                                 <td>{{ $s['offsides'] }}</td>

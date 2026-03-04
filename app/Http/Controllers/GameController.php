@@ -459,6 +459,7 @@ class GameController extends Controller
                         'player'   => $e->player,
                         'goals'    => 0,
                         'assists'  => 0,
+                        'xg'       => 0,
                         'shots'    => 0,
                         'shots_on' => 0,
                         'offsides' => 0,
@@ -471,6 +472,7 @@ class GameController extends Controller
                         'player'   => $e->additionalPlayer,
                         'goals'    => 0,
                         'assists'  => 0,
+                        'xg'       => 0,
                         'shots'    => 0,
                         'shots_on' => 0,
                         'offsides' => 0,
@@ -562,6 +564,10 @@ class GameController extends Controller
 
                 if ($e->xg)
                 {
+                    if ($e->player_id && !$e->against) {
+                        $stats['players'][$e->player_id]['xg'] += number_format($e->xg / 10, 1);
+                    }
+
                     $stats[$usOrThem]['xg'] += number_format($e->xg / 10, 1);
                     $stats[$usOrThem]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
                 }
@@ -585,6 +591,10 @@ class GameController extends Controller
 
                 if ($e->xg)
                 {
+                    if ($e->player_id && !$e->against) {
+                        $stats['players'][$e->player_id]['xg'] += number_format($e->xg / 10, 1);
+                    }
+
                     $stats[$usOrThem]['xg'] += number_format($e->xg / 10, 1);
                     $stats[$usOrThem]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
                 }
@@ -602,6 +612,10 @@ class GameController extends Controller
 
                 if ($e->xg)
                 {
+                    if ($e->player_id && !$e->against) {
+                        $stats['players'][$e->player_id]['xg'] += number_format($e->xg / 10, 1);
+                    }
+
                     $stats[$usOrThem]['xg'] += number_format($e->xg / 10, 1);
                     $stats[$usOrThem]['xgs'] .= number_format($e->xg / 10, 1) . " | ";
                 }
