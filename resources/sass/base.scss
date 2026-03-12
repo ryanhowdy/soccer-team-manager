@@ -61,6 +61,11 @@ label.required:after
     padding-left: 3px;
 }
 
+[data-bs-toggle="tooltip"]
+{
+    cursor: pointer;
+}
+
 .select2-container
 {
     > span.selection > .select2-selection--single
