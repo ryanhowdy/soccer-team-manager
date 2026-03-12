@@ -31,7 +31,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-event-against">
                             <span class="bi bi-x-circle pe-2"></span>Against
                         </a>
                     </li>
@@ -313,6 +313,39 @@
         </div>
     </div>
 
+    <div id="add-event-against" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Event Against</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('ajax.results.events.store', ['result' => $result->id]) }}" method="post">
+                        @csrf
+                        <input type="hidden" name="result_id" value="{{ $result->id }}">
+                        <input type="hidden" name="against" value="1">
+                        <input type="hidden" name="time" value="00:00">
+                        <div class="mb-3">
+                            <label for="against_event_id" class="form-label">Event</label>
+                            <select id="against_event_id" name="event_id" class="form-select">
+                                <option></option>
+                                <option value="{{ \App\Enums\Event::goal->value }}">Goal</option>
+                                <option value="{{ \App\Enums\Event::yellow_card->value }}">Yellow Card</option>
+                                <option value="{{ \App\Enums\Event::red_card->value }}">Red Card</option>
+                                <option value="{{ \App\Enums\Event::penalty_goal->value }}">PK Goal</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 $('#previous-stats > .progress').each((index, progress) => {
     let $parent = $(progress).prev();
@@ -324,7 +357,7 @@ $('#previous-stats > .progress').each((index, progress) => {
 
     $(progress).find('.progress-bar').css('width', percentage + '%');
 });
-$('#add-event').on('submit', 'form', function(event) {
+$('#add-event, #add-event-against').on('submit', 'form', function(event) {
     event.preventDefault();
 
     let $frm = $(this)
