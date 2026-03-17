@@ -13,6 +13,7 @@ class Result extends Model
 
     protected $casts = [
         'date' => 'datetime',
+        'live_timer_started_at' => 'datetime',
     ];
 
     protected $with = ['homeTeam.club', 'awayTeam.club'];

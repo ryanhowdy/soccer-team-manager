@@ -25,6 +25,7 @@ use App\Models\ResultEvent;
 use App\Enums\Event as EnumEvent;
 use App\Enums\CompetitionStatus;
 use App\Enums\ResultStatus;
+use App\Services\EventDeduplicator;
 use Carbon\Carbon;
 use League\ColorExtractor\Color;
 use League\ColorExtractor\ColorExtractor;
@@ -289,7 +290,7 @@ class GameController extends Controller
             ->orderBy('id')
             ->get();
 
-        $resultEvents = dedupeResultEvents($resultEvents);
+        $resultEvents = (new EventDeduplicator)->dedupe($resultEvents);
 
         // Get all the players who are rostered for this game
         $players = Player::select('players.*', 'rosters.number')

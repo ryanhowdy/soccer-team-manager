@@ -2,7 +2,7 @@ import Live from './live';
 
 export default class LiveAll extends Live
 {
-    constructor(formations, players, playersByPosition)
+    constructor(formations, players, playersByPosition, liveState)
     {
         // Call Live constructor
         super();
@@ -11,6 +11,7 @@ export default class LiveAll extends Live
         this.players           = players;
         this.playersByPosition = playersByPosition;
         this.starters          = {};
+        this.processedEventIds = new Set();
 
         this.drawer   = new FormationDrawer(players, playersByPosition);
         this.timeline = new EventTimeline('#game-timeline');
@@ -20,24 +21,10 @@ export default class LiveAll extends Live
             this.confirmExit(e);
         });
 
-        // Resume an existing game if available
-        let savedResultId = localStorage.getItem('resultId');
-        if (savedResultId !== null)
+        // Resume an existing game from server state
+        if (liveState && liveState.started)
         {
-            // Resume this game
-            if (savedResultId == $('#live-main').attr('data-result-id'))
-            {
-                this.resumeExistingGame();
-            }
-            // Delete the saved game info, it was old from another game perhaps?
-            else
-            {
-                localStorage.removeItem('resultId');
-                localStorage.removeItem('time');
-                localStorage.removeItem('formationId');
-                localStorage.removeItem('starters');
-                localStorage.removeItem('period');
-            }
+            this.resumeExistingGame(liveState);
         }
 
         // Click Save Formation
@@ -101,14 +88,9 @@ export default class LiveAll extends Live
      */
     clickStartGame(event)
     {
-        let resultId      = $('#live-main').attr('data-result-id');
-        let savedResultId = localStorage.getItem('resultId');
-        let period        = localStorage.getItem('period');
-
-        // bail if we already have a result id saved
-        if (resultId == savedResultId && period != null)
+        // bail if game already started
+        if (this.gameStarted)
         {
-            // this prevents user from clicking start, before we had a chance to resume the game for them
             return;
         }
 
@@ -118,7 +100,7 @@ export default class LiveAll extends Live
             $('#live-main').before('<p class="alert alert-danger mt-2">Choose a formation first.</p>');
             return;
         }
-        if (localStorage.getItem('formationId') === null)
+        if (!this.savedFormationId)
         {
             $('#live-main').before('<p class="alert alert-danger mt-2">Choose a formation first.</p>');
             return;
@@ -130,18 +112,10 @@ export default class LiveAll extends Live
             $('#live-main').before('<p class="alert alert-danger mt-2">Must have at least one starter.</p>');
             return;
         }
-        if (localStorage.getItem('starters') === null)
-        {
-            $('#live-main').before('<p class="alert alert-danger mt-2">Must have at least one starter.</p>');
-            return;
-        }
 
         $('.alert').remove();
 
-        // Save the result and period, and reset timer
-        localStorage.setItem('resultId', resultId);
-        localStorage.setItem('period', '1');
-        localStorage.removeItem('time');
+        let resultId = $('#live-main').attr('data-result-id');
 
         // Save the starters and formation
         $.ajax({
@@ -150,11 +124,17 @@ export default class LiveAll extends Live
             data : {
                 resultId    : resultId,
                 starters    : this.starters,
-                formationId : localStorage.getItem('formationId'),
+                formationId : this.savedFormationId,
             },
         }).done((data) => {
             this.startGame();
             this.startTimer();
+
+            // Save live state: period 1, timer running, offset 0
+            this.saveLiveState('1', true, 0);
+
+            // Store period on the element for pause/unpause
+            $('#live-main').attr('data-period', '1');
         }).fail(() => {
             $('#live-main').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save starting lineup.</p>');
         });
@@ -163,7 +143,7 @@ export default class LiveAll extends Live
     /**
      * clickSaveFormation
      *
-     * Save the formation in localStorage, then draw the formation.
+     * Save the formation, then draw it.
      *
      * @param {Object} event
      * return null
@@ -174,44 +154,13 @@ export default class LiveAll extends Live
 
         let selectedFormationId = document.getElementById('formation').value;
 
-        let formation     = this.formations[selectedFormationId];
-        let formationName = this.formations[selectedFormationId].name;
-
-        let dashed = formationName.split('').join('-');
-
-        $('#current-formation > span.badge').text(dashed);
-
-        let state = 'formation';
-        let savedPeriod = localStorage.getItem('period');
-
-        if (savedPeriod !== null)
-        {
-            state = savedPeriod == 'half' ? 'half'
-                  : savedPeriod == '2'    ? 'second'
-                  : 'first';
-        }
-
-        $('#game-controls').removeClass();
-        $('#game-controls').addClass(state + ' row text-center mb-3');
-
-        // hide the formation select box
-        $('#formation-form').hide();
-        // show the current formation badge
-        $('#current-formation').show();
-
-        // draw the formation on the field
-        this.drawer.drawFormation(formation);
-
-        // Save this formation
-        localStorage.setItem('formationId', selectedFormationId);
-
-        $('.alert').remove();
+        this.setCurrentFormation(selectedFormationId);
     }
 
     /**
      * clickChangeFormation
      *
-     * Remove the currently drawn formation and saved formation.
+     * Remove the currently drawn formation.
      *
      * @param {Object} event
      * return null
@@ -219,12 +168,12 @@ export default class LiveAll extends Live
     clickChangeFormation(event)
     {
         let state = 'initial';
-        let savedPeriod = localStorage.getItem('period');
+        let period = $('#live-main').attr('data-period');
 
-        if (savedPeriod !== null)
+        if (period)
         {
-            state = savedPeriod == 'half' ? 'half'
-                  : savedPeriod == '2'    ? 'second'
+            state = period == 'half' ? 'half'
+                  : period == '2'    ? 'second'
                   : 'first';
         }
 
@@ -248,7 +197,7 @@ export default class LiveAll extends Live
         $('#live-main').addClass('field mx-auto text-center position-relative ' + ready);
 
         // removed saved formationId
-        localStorage.removeItem('formationId');
+        this.savedFormationId = null;
 
         if ($('#live-main').hasClass('ready'))
         {
@@ -277,7 +226,6 @@ export default class LiveAll extends Live
 
         // reset the starters
         this.starters = {};
-        localStorage.setItem('starters', JSON.stringify(this.starters));
     }
 
     /**
@@ -319,9 +267,6 @@ export default class LiveAll extends Live
                 $('#live-main').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save sub in event.</p>');
             });
         }
-
-        // Save the starters
-        localStorage.setItem('starters', JSON.stringify(this.starters));
 
         // remove the starters from all the player dropdowns
         this.updatePlayerDropdowns();
@@ -369,9 +314,6 @@ export default class LiveAll extends Live
                 $('#live-main').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save sub out event.</p>');
             });
         }
-
-        // Save the starters
-        localStorage.setItem('starters', JSON.stringify(this.starters));
 
         // remove the starters from all the player dropdowns
         this.updatePlayerDropdowns();
@@ -477,7 +419,7 @@ export default class LiveAll extends Live
         $('#pkfk-details').hide();
         $('#assist-details').hide();
         $('#xg-details').hide();
-        
+
         // show/hide the additional form details
         let show = $eventButton.attr('data-show');
         if (show)
@@ -640,6 +582,11 @@ export default class LiveAll extends Live
             $('#event-modal').modal('hide');
             $('#additional-modal').modal('hide');
         }).done((data) => {
+            // Track this event so polling doesn't double-count it
+            if (data.data.id)
+            {
+                this.processedEventIds.add(data.data.id);
+            }
             // Update Summary, Events and Player stats
             this.updateSummaryEventPlayerStats(data.data);
         }).fail(() => {
@@ -800,7 +747,7 @@ export default class LiveAll extends Live
     /**
      * addExistingEvents
      *
-     * When resuming an existing game, will add the events we got from php to the 
+     * When resuming an existing game, will add the events we got from php to the
      * summary, events and players area on screen.
      *
      * @parem {object} events
@@ -810,62 +757,106 @@ export default class LiveAll extends Live
     {
         for (let [i, data] of Object.entries(events))
         {
+            if (data.id)
+            {
+                this.processedEventIds.add(data.id);
+            }
             this.updateSummaryEventPlayerStats(data);
         }
     }
 
-    resumeExistingGame()
+    /**
+     * onSyncGameData
+     *
+     * Called on each poll to sync new events from the server
+     * into the summary, events and player tabs.
+     *
+     * @param {Object} state
+     * return null
+     */
+    onSyncGameData(state)
     {
-        let savedStarters    = JSON.parse(localStorage.getItem('starters'));
-        let savedFormationId = localStorage.getItem('formationId');
-        let savedPeriod      = localStorage.getItem('period');
-        let savedTime        = localStorage.getItem('time');
+        if (!state.resultEvents || !state.resultEvents.length)
+        {
+            return;
+        }
+
+        for (let i = 0; i < state.resultEvents.length; i++)
+        {
+            let data = state.resultEvents[i];
+
+            if (this.processedEventIds.has(data.id))
+            {
+                continue;
+            }
+
+            this.processedEventIds.add(data.id);
+            this.updateSummaryEventPlayerStats(data);
+        }
+    }
+
+    resumeExistingGame(liveState)
+    {
+        let period      = liveState.period;
+        let seconds     = liveState.timerSeconds;
+        let formationId = liveState.formationId;
+        let starters    = liveState.starters;
 
         // Formation
-        if (savedFormationId !== null)
+        if (formationId !== null)
         {
             // select the saved formation from the dropdown
-            $('#formation').val(savedFormationId);
+            $('#formation').val(formationId);
 
             // save and draw the formation
-            this.clickSaveFormation(new Event('click'));
+            this.setCurrentFormation(formationId);
         }
 
         // Starters
-        if (savedStarters !== null)
+        if (starters !== null && Object.keys(starters).length > 0)
         {
-            this.starters = savedStarters;
+            this.starters = starters;
 
-            let clonedStarters = JSON.parse(JSON.stringify(savedStarters));
+            let clonedStarters = JSON.parse(JSON.stringify(starters));
 
             this.drawer.addPlayerStarters(clonedStarters);
             this.updatePlayerDropdowns();
         }
 
         // Game/Timer
-        if (savedPeriod !== null && savedTime !== null)
+        if (period !== null && seconds !== null)
         {
             this.startGame();
-            $('#timer > span').empty().append(savedTime);
+
+            // Set the period on the element for pause/unpause
+            $('#live-main').attr('data-period', period);
+
+            this.setTimerDisplay(seconds);
 
             $('#game-controls').removeClass();
 
             // half time
-            if (savedPeriod == 'half')
+            if (period == 'half')
             {
                 clearInterval(this.timer);
                 $('#game-controls').addClass('half row text-center mb-3');
             }
             // 2nd half
-            else if (savedPeriod == '2')
+            else if (period == '2')
             {
-                this.resumeTimer();
+                if (liveState.timerRunning)
+                {
+                    this.resumeTimer();
+                }
                 $('#game-controls').addClass('second row text-center mb-3');
             }
             // 1st half
             else
             {
-                this.resumeTimer();
+                if (liveState.timerRunning)
+                {
+                    this.resumeTimer();
+                }
                 $('#game-controls').addClass('first row text-center mb-3');
             }
         }

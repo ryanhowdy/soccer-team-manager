@@ -55,6 +55,7 @@
                 data-create-event-route="{{ route('ajax.results.events.store', ['result' => $result->id]) }}"
                 data-possession-route="{{ route('ajax.results.events.possession', ['result' => $result->id]) }}"
                 data-result-update-route="{{ route('ajax.results.update', ['result' => $result->id]) }}"
+                data-live-state-route="{{ route('ajax.results.live-state', ['result' => $result->id]) }}"
                 data-show-route="{{ route('games.show', ['id' => $result->id]) }}"
                 >
                 <div class="col-12 col-lg-7 mb-4 text-center">
@@ -84,6 +85,7 @@
 
     </div><!--/container-->
 <script>
-let live = new LivePossession();
+let liveState = {{ Js::from($liveState) }};
+let live = new LivePossession(liveState);
 </script>
 @endsection

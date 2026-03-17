@@ -13,6 +13,7 @@ use App\Models\ClubTeamSeason;
 use App\Models\Event;
 use App\Models\PenaltyShootout;
 use App\Enums\Event as EnumEvent;
+use Carbon\Carbon;
 
 class LiveGameController extends Controller
 {
@@ -128,6 +129,9 @@ class LiveGameController extends Controller
         $events = Event::all()
             ->keyBy('id');
 
+        // Compute live state for resuming across browsers
+        $liveState = $this->computeLiveState($result);
+
         return view('games.live.all', [
             'result'            => $result,
             'resultEvents'      => $resultEvents,
@@ -137,6 +141,7 @@ class LiveGameController extends Controller
             'players'           => $players,
             'groupedPlayers'    => $groupedPlayers,
             'events'            => $events,
+            'liveState'         => $liveState,
         ]);
     }
 
@@ -162,8 +167,12 @@ class LiveGameController extends Controller
             return redirect()->route('games.show', ['id' => $id]);
         }
 
+        // Compute live state for resuming across browsers
+        $liveState = $this->computeLiveState($result);
+
         return view('games.live.possession', [
-            'result' => $result,
+            'result'    => $result,
+            'liveState' => $liveState,
         ]);
     }
 
@@ -229,5 +238,78 @@ class LiveGameController extends Controller
             'rounds'       => $rounds,
             'key'          => 0,
         ]);
+    }
+
+    /**
+     * computeLiveState
+     *
+     * Compute the current live game state from DB columns and events.
+     *
+     * @param Result $result
+     * @return array
+     */
+    private function computeLiveState(Result $result): array
+    {
+        $liveState = [
+            'started'     => false,
+            'period'      => null,
+            'timerSeconds' => null,
+            'timerRunning' => false,
+            'formationId' => null,
+            'starters'    => [],
+        ];
+
+        // Not started yet
+        if ($result->live_period === null)
+        {
+            return $liveState;
+        }
+
+        $liveState['started'] = true;
+        $liveState['period']  = $result->live_period;
+
+        // Calculate current elapsed seconds
+        $offset = $result->live_timer_offset ?? 0;
+
+        if ($result->live_timer_started_at !== null)
+        {
+            $liveState['timerRunning'] = true;
+            $liveState['timerSeconds'] = $offset + (int) $result->live_timer_started_at->diffInSeconds(Carbon::now());
+        }
+        else
+        {
+            $liveState['timerSeconds'] = $offset;
+        }
+
+        // Formation
+        $liveState['formationId'] = $result->formation_id;
+
+        // Compute current starters from events
+        $lineupEvents = ResultEvent::where('result_id', $result->id)
+            ->whereIn('event_id', [
+                EnumEvent::start->value,
+                EnumEvent::sub_in->value,
+                EnumEvent::sub_out->value,
+            ])
+            ->orderBy('id')
+            ->get();
+
+        $starters = [];
+
+        foreach ($lineupEvents as $event)
+        {
+            if ($event->event_id == EnumEvent::start->value || $event->event_id == EnumEvent::sub_in->value)
+            {
+                $starters[$event->player_id] = $event->additional;
+            }
+            elseif ($event->event_id == EnumEvent::sub_out->value)
+            {
+                unset($starters[$event->player_id]);
+            }
+        }
+
+        $liveState['starters'] = $starters;
+
+        return $liveState;
     }
 }

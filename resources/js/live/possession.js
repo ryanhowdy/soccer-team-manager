@@ -2,7 +2,7 @@ import Live from './live';
 
 export default class LivePossession extends Live
 {
-    constructor()
+    constructor(liveState)
     {
         // Call Live constructor
         super();
@@ -14,11 +14,10 @@ export default class LivePossession extends Live
             this.confirmExit(e);
         });
 
-        // Resume an existing game if available
-        let savedResultId = localStorage.getItem('resultId');
-        if (savedResultId !== null && savedResultId == $('#live-main').attr('data-result-id'))
+        // Resume an existing game from server state
+        if (liveState && liveState.started)
         {
-            this.resumeExistingGame();
+            this.resumeExistingGame(liveState);
         }
 
         // Click Possession
@@ -30,31 +29,21 @@ export default class LivePossession extends Live
     /**
      * clickStartGame
      *
-     * Validate that we have a formation and 1+ starters, then start timer and save starters.
-     *
      * @param {Object} event
      * return null
      */
     clickStartGame(event)
     {
-        let resultId      = $('#live-main').attr('data-result-id');
-        let savedResultId = localStorage.getItem('resultId');
-        let period        = localStorage.getItem('period');
-
-        // bail if we already have a result id saved
-        if (resultId == savedResultId && period != null)
+        // bail if game already started
+        if (this.gameStarted)
         {
-            // this prevents user from clicking start, before we had a chance to resume the game for them
             return;
         }
 
-        // Save the result and period, and reset timer
-        localStorage.setItem('resultId', resultId);
-        localStorage.setItem('period', '1');
-        localStorage.removeItem('time');
-
         // set ready class allows events to be chosen
         $('#live-main').addClass('ready');
+
+        this.gameStarted = true;
 
         $('#game-controls').removeClass();
 
@@ -65,6 +54,12 @@ export default class LivePossession extends Live
 
         this.startTimer();
         this.startPolling();
+
+        // Save live state: period 1, timer running, offset 0
+        this.saveLiveState('1', true, 0);
+
+        // Store period on the element for pause/unpause
+        $('#live-main').attr('data-period', '1');
     }
 
     /**
@@ -81,6 +76,9 @@ export default class LivePossession extends Live
             $('#live-main').removeClass('paused');
             this.resumeTimer();
             // resumeTimer calls resumePolling
+
+            // Save live state: timer resumed
+            this.saveLiveState($('#live-main').attr('data-period'), true);
         }
         else
         {
@@ -89,6 +87,9 @@ export default class LivePossession extends Live
             clearInterval(this.timer);
             clearInterval(this.pollTimer);
             this.pollTimer = null;
+
+            // Save live state: timer paused
+            this.saveLiveState($('#live-main').attr('data-period'), false);
         }
     }
 
@@ -110,7 +111,7 @@ export default class LivePossession extends Live
     /**
      * clickEndGame
      *
-     * Save the final score, reset all the localStorage data.
+     * Save the final score.
      *
      * @param {Object} event
      * return null
@@ -140,12 +141,7 @@ export default class LivePossession extends Live
                 status : 'D',
             },
         }).done((data) => {
-            localStorage.removeItem('resultId');
-            localStorage.removeItem('time');
-            localStorage.removeItem('formationId');
-            localStorage.removeItem('starters');
-            localStorage.removeItem('period');
-
+            this.gameStarted = false;
             window.location.href = $('#live-main').attr('data-show-route');
         }).fail(() => {
             $('#live-main').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save game.</p>');
@@ -250,5 +246,55 @@ export default class LivePossession extends Live
                 $('#possession-bar').find('.progress-bar').css('width', percentage + '%');
             });
         }, 25000);
+    }
+
+    /**
+     * resumeExistingGame
+     *
+     * Resume from server-provided state.
+     *
+     * @param {Object} liveState
+     * return null
+     */
+    resumeExistingGame(liveState)
+    {
+        let period  = liveState.period;
+        let seconds = liveState.timerSeconds;
+
+        // set ready class allows events to be chosen
+        $('#live-main').addClass('ready');
+
+        this.gameStarted = true;
+
+        // Store period on the element for pause/unpause
+        $('#live-main').attr('data-period', period);
+
+        this.setTimerDisplay(seconds);
+
+        $('#game-controls').removeClass();
+
+        // half time
+        if (period == 'half')
+        {
+            $('#game-controls').addClass('half row text-center mb-3');
+        }
+        // 2nd half
+        else if (period == '2')
+        {
+            if (liveState.timerRunning)
+            {
+                this.resumeTimer();
+            }
+            $('#game-controls').addClass('second row text-center mb-3');
+        }
+        // 1st half
+        else
+        {
+            if (liveState.timerRunning)
+            {
+                this.resumeTimer();
+            }
+            $('#game-controls').addClass('first row text-center mb-3');
+        }
     }
 }

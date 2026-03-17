@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Ajax;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Result;
+use App\Models\ResultEvent;
+use App\Models\Player;
+use App\Enums\Event as EnumEvent;
+use Carbon\Carbon;
 
 class ResultController extends Controller
 {
@@ -47,6 +51,104 @@ class ResultController extends Controller
         if ($request->filled('status'))
         {
             $result->status = $request->status;
+        }
+
+        $result->save();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $result->toArray(),
+        ], 200);
+    }
+
+    /**
+     * updateLiveState
+     *
+     * Update the live timer state for a game in progress.
+     *
+     * @param Result  $result
+     * @param Request $request
+     * @return json
+     */
+    /**
+     * getLiveState
+     *
+     * Get the current live game state for polling/sync.
+     *
+     * @param Result $result
+     * @return json
+     */
+    public function getLiveState(Result $result)
+    {
+        $liveState = [
+            'started'      => false,
+            'period'       => null,
+            'timerSeconds' => null,
+            'timerRunning' => false,
+        ];
+
+        if ($result->live_period !== null)
+        {
+            $liveState['started'] = true;
+            $liveState['period']  = $result->live_period;
+
+            $offset = $result->live_timer_offset ?? 0;
+
+            if ($result->live_timer_started_at !== null)
+            {
+                $liveState['timerRunning'] = true;
+                $liveState['timerSeconds'] = $offset + (int) $result->live_timer_started_at->diffInSeconds(Carbon::now());
+            }
+            else
+            {
+                $liveState['timerSeconds'] = $offset;
+            }
+        }
+
+        // Include all result events (excluding start events) for tab sync
+        $resultEvents = ResultEvent::where('result_id', $result->id)
+            ->where('event_id', '!=', EnumEvent::start->value)
+            ->orderBy('time')
+            ->orderBy('id')
+            ->get();
+
+        $events = [];
+
+        foreach ($resultEvents as $event)
+        {
+            $eventData = $event->toArray();
+            $eventData['event_name'] = EnumEvent::from($event->event_id)->name;
+            $eventData['player_name'] = $event->player_id ? Player::find($event->player_id)->name : '';
+
+            $events[] = $eventData;
+        }
+
+        $liveState['resultEvents'] = $events;
+
+        return response()->json([
+            'success' => true,
+            'data'    => $liveState,
+        ], 200);
+    }
+
+    public function updateLiveState(Result $result, Request $request)
+    {
+        $validated = $request->validate([
+            'live_period'       => 'nullable|in:1,half,2',
+            'live_timer_offset' => 'nullable|integer|min:0',
+            'timer_running'     => 'required|boolean',
+        ]);
+
+        $result->live_period       = $request->live_period;
+        $result->live_timer_offset = $request->live_timer_offset;
+
+        if ($request->timer_running)
+        {
+            $result->live_timer_started_at = Carbon::now();
+        }
+        else
+        {
+            $result->live_timer_started_at = null;
         }
 
         $result->save();

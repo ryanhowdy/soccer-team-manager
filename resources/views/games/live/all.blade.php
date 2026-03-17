@@ -6,6 +6,7 @@
     <div class="container main-content">
 
         <div class="rounded rounded-3 bg-white p-4 mb-1">
+            @dump($liveState)
             <div id="game-controls" class="initial row text-center mb-3">
                 <div class="d-none d-lg-block col-lg-1"></div>
                 <div class="col-4 col-lg-3">
@@ -28,10 +29,13 @@
                     </div>
                 </div>
                 <div class="col-4">
+                @can('edit others')
                     <a id="start-game" class="btn btn-success btn-lg mt-2 mb-3 text-white">Start Game</a>
+                @endcan
 
                     <div id="timer" class="mb-3"><span class="badge fs-2 text-bg-dark">00:00</span></div>
 
+                @can('edit others')
                     <a id="end-half" class="btn btn-info btn mt-2 mb-3 text-white">End Half</a>
 
                     <form id="second-half-form" class="mb-3">
@@ -53,6 +57,12 @@
                         </select>
                         <button type="button" id="submit-formation" class="btn btn-secondary">Save</button>
                     </form>
+                @else
+                    <div class="alert alert-primary">
+                        <b>This game has not started yet.</b>
+                        <span class="fw-light">Please wait until an Admin or Manager starts this game.</span>
+                    </div>
+                @endcan
 
                     <div id="current-formation"><span class="badge fs-6 text-bg-secondary"></span></div>
                 </div>
@@ -80,10 +90,11 @@
 
             <div class="row">
                 <div class="col-12 col-lg-7">
-                    <div id="live-main" class="field mx-auto text-center position-relative" 
+                    <div id="live-main" class="field mx-auto text-center position-relative"
                         data-result-id="{{ $result->id }}" data-start-game-route="{{ route('ajax-start-game') }}"
                         data-create-event-route="{{ route('ajax-create-event') }}"
                         data-end-game-route="{{ route('ajax-end-game') }}"
+                        data-live-state-route="{{ route('ajax.results.live-state', ['result' => $result->id]) }}"
                         @if($result->homeTeam->managed) data-good-guys="home" @else data-good-guys="away" @endif
                         >
                         <img class="position-absolute start-0 top-0" src="{{ asset('img/field.svg') }}" />
@@ -158,8 +169,9 @@
 let formations = {{ Js::from($formations) }};
 let players = {{ Js::from($players) }};
 let playersByPosition = {{ Js::from($groupedPlayers) }};
+let liveState = {{ Js::from($liveState) }};
 
-let live = new LiveAll(formations, players, playersByPosition);
+let live = new LiveAll(formations, players, playersByPosition, liveState);
 
 @if($resultEvents->isNotEmpty())
     let resultEvents = {{ Js::from($resultEvents) }};
