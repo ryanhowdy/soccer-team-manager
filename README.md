@@ -1,5 +1,8 @@
 ## Soccer Team Manager
-A soccer team management app that tracks every aspect of their team's season -- from rosters and formations to live game events, possession stats, and penalty shootouts. With detailed player analytics like goals, assists, and expected goals (xG).  Whether you're managing a single club or multiple teams across seasons, it keeps everything organized in one place.
+A soccer team management app that tracks every aspect of their team's season -- from rosters and 
+formations to live game events, possession stats, and penalty shootouts. With detailed player 
+analytics like goals, assists, and expected goals (xG).  Whether you're managing a single club or 
+multiple teams across seasons, it keeps everything organized in one place.
 
 ### Requirements
 
