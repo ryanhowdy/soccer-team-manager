@@ -161,7 +161,7 @@ class GameController extends Controller
             $results['S'] = $results['S']->reverse();
         }
 
-        return view('games', [
+        return view('games.index', [
             'selectedSeason' => $selected['seasonId'],
             'selectedClub'   => $selected['clubId'],
             'selectedTeam'   => $selected['teamId'],
@@ -183,6 +183,10 @@ class GameController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth()->user()->cannot('update things')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'season_id'         => 'required|exists:seasons,id',
             'competition_id'    => 'required|exists:competitions,id',
@@ -988,6 +992,10 @@ class GameController extends Controller
      */
     public function edit($gameId)
     {
+        if (Auth()->user()->cannot('update things')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $result = Result::find($gameId);
 
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
@@ -1054,6 +1062,10 @@ class GameController extends Controller
      */
     public function update($id, Request $request)
     {
+        if (Auth()->user()->cannot('update things')) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'season_id'           => 'required|exists:seasons,id',
             'competition_id'      => 'required|exists:competitions,id',

@@ -69,6 +69,7 @@
                         </div>
                     </div><!--/.dropdown-->
                 </div>
+            @can('edit things')
                 <div class="">
                     <div class="vr"></div>
                 </div>
@@ -77,6 +78,7 @@
                         <span class="bi-plus-lg pe-2"></span>Add Game
                     </a>
                 </div>
+            @endcan
             </div><!--/.row-->
         </div><!--/.rounded-->
 

@@ -2,7 +2,7 @@
     <h3 class="mb-3">Head-to-head</h3>
 
     <div class="row">
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-lg-6">
             <div class="rounded rounded-3 bg-white p-4 mb-1">
                 <h3>Results</h3>
             @isset($chartData['wdl'])
@@ -67,7 +67,7 @@
         </div><!--/.col-->
 
         {{-- head 2 head results --}}
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-lg-6">
             <div class="game-listing-small rounded rounded-3 bg-white p-4 mb-3">
             @foreach($results as $result)
                 <a href="{{ route('games.show', ['id' => $result->id]) }}" 

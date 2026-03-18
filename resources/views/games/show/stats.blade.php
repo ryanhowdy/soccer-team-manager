@@ -2,7 +2,7 @@
 
 @isset($modes['live'])
     {{-- Team Stats --}}
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-lg-6">
         <div id="team-stats" class="rounded rounded-3 bg-white p-4 mb-3">
             <h3 class="mb-3">Team Stats</h3>
             <div class="d-flex justify-content-between pb-1 mb-2 border-bottom">
@@ -95,7 +95,7 @@
 
 @isset($modes['scoresPlus'])
     {{-- Player Stats --}}
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-lg-6">
         <div class="rounded rounded-3 bg-white p-4 mb-3">
             <h3 class="mb-3">Player Stats</h3>
 

@@ -166,6 +166,9 @@
                                 <div>{{ $stats['players'][$id]['tackles'] }} tackles</div>
                             @endisset
                         @endforeach
+                        @empty($managedPlayerIds)
+                            <p><i>You had no managed players in this game.</i></p>
+                        @endempty
                         </div>
                         {{-- Game Notes --}}
                         <div class="col-12 col-lg-6">
@@ -173,13 +176,17 @@
                         @if($result->notes)
                             {{ $result->notes }}
                         @else
-                            <a id="add-notes-link" href="#notes-form" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" data-bs-toggle="collapse">Add Notes</a>
-                            <form id="notes-form" class="collapse mt-2">
-                                <div class="mb-3">
-                                    <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="255"></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-sm btn-primary text-white">Submit</button>
-                            </form>
+                            @can('edit things')
+                                <a id="add-notes-link" href="#notes-form" class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" data-bs-toggle="collapse">Add Notes</a>
+                                <form id="notes-form" class="collapse mt-2">
+                                    <div class="mb-3">
+                                        <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="255"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary text-white">Submit</button>
+                                </form>
+                            @else
+                                <p><i>No notes</i></p>
+                            @endcan
                         @endif
                         </div>
                     </div>{{-- /.row --}}
