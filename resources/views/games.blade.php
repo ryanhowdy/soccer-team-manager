@@ -203,6 +203,13 @@ $(document).ready(function() {
         matcher:optgroupMatcher
     });
 
+    $('#competition_id').on('change', function() {
+        let clubTeamId = $(this).find(':selected').data('club-team-id');
+        if (clubTeamId) {
+            $('#my_team_id').val(clubTeamId);
+        }
+    });
+
     $('#filter-clubs').on('change', function() {
         let option = this;
         $('#filter-teams > option').hide();

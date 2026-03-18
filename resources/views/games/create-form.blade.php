@@ -30,7 +30,7 @@
     @foreach ($competitions as $type => $comps)
             <optgroup label="{{ $type }}">
         @foreach ($comps as $competition)
-            <option value="{{ $competition->id }}">
+            <option value="{{ $competition->id }}" data-club-team-id="{{ $competition->club_team_id }}">
                 {{ $competition->name }} - {{ $competition->division }} - {{ $competition->started_at->format('M j, Y') }}
             </option>
         @endforeach
