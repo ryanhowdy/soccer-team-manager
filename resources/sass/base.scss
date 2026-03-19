@@ -26,14 +26,21 @@ img.logo
     border-radius: 3px;
 }
 
+th.dt-orderable-desc,
+th.dt-orderable-asc
+{
+    cursor: pointer;
+}
 th.dt-ordering-desc,
 th.dt-ordering-asc
 {
+    cursor: pointer;
     position: relative;
 
     &:after
     {
         position: absolute;
+        top: 5px;
         right: 0;
         display: inline-block;
         color: #999;

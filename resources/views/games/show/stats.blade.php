@@ -107,6 +107,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="playing-time-tab" data-bs-toggle="tab" data-bs-target="#playing-time-pane" href="#">Playing Time</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="ratings-tab" data-bs-toggle="tab" data-bs-target="#ratings-pane" href="#">Ratings</a>
+                </li>
             @endisset
             </ul>
 
@@ -163,6 +166,51 @@
                                     {{ $time['player']->name }}
                                 </td>
                                 <td>{{ $time['minutes'] }}</td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                    <i>* Indicates a Starter</i>
+                </div>
+
+                {{-- Ratings --}}
+                <div class="tab-pane fade" id="ratings-pane" tabindex="0">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($playingTime as $playerId => $time)
+                            <tr>
+                                <td>
+                                @if($time['starter'])
+                                    <span data-bs-toggle="tooltip" data-bs-title="Starter">*</span>
+                                @endif
+                                    {{ $time['player']->name }}
+                                </td>
+                                <td class="rating-cell" data-order="{{ $ratings[$playerId]['average'] ?? 0 }}" data-player-id="{{ $playerId }}">
+                                @if(isset($ratings[$playerId]))
+                                    @php $avg = $ratings[$playerId]['average']; @endphp
+                                    <span class="badge bg-{{ $avg < 3 ? 'danger' : ($avg < 5 ? 'warning' : ($avg < 6 ? 'secondary' : ($avg < 9 ? 'success bg-opacity-75' : 'success'))) }} rating-avg"
+                                    @if($ratings[$playerId]['userRating'] !== null)
+                                        data-bs-toggle="tooltip" data-bs-title="Your rating: {{ $ratings[$playerId]['userRating'] }}"
+                                    @endif
+                                        style="min-width:35px">
+                                        {{ $avg }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-light rating-avg" style="min-width:35px">-</span>
+                                @endif
+                                @if(!isset($ratings[$playerId]) || $ratings[$playerId]['userRating'] === null)
+                                    <input type="number" class="form-control d-inline-block form-control-sm rating-input"
+                                        data-player-id="{{ $playerId }}"
+                                        min="0" max="10" step="0.1"
+                                        style="width: 80px;">
+                                @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

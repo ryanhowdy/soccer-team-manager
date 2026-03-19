@@ -127,6 +127,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/ajax/games/{result}/momentum',         [\App\Http\Controllers\Ajax\ResultEventController::class, 'getMomentum'])->name('ajax.results.events.momentum');
     Route::post('/ajax/games/{result}/pk/start',         [\App\Http\Controllers\Ajax\PenaltiesController::class, 'start'])->name('ajax.results.pk.start');
     Route::post('/ajax/games/{result}/pk/event',         [\App\Http\Controllers\Ajax\PenaltiesController::class, 'store'])->name('ajax.results.pk.store');
+    Route::post('/ajax/games/{result}/ratings',           [\App\Http\Controllers\Ajax\PlayerGameRatingController::class, 'store'])->name('ajax.results.ratings.store');
     Route::post('/ajax/competitions/{competition}/edit', [\App\Http\Controllers\Ajax\CompetitionController::class, 'update'])->name('ajax.competitions.update');
 
     Route::post('/ajax/club-team-seasons/{season}/destroy',       [\App\Http\Controllers\Ajax\ClubTeamSeasonController::class, 'destroy'])->name('ajax.club-team-seasons.destroy');

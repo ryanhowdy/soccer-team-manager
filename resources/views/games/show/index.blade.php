@@ -157,13 +157,22 @@
                                 @endif
                             @endisset
                             </div>
+                            @if(isset($ratings[$id]))
+                                @php $avg = $ratings[$id]['average']; @endphp
+                                <div class="fs-4 mb-2">
+                                    <span class="badge bg-{{ $avg < 3 ? 'danger' : ($avg < 5 ? 'warning' : ($avg < 6 ? 'secondary' : ($avg < 9 ? 'success bg-opacity-75' : 'success'))) }} rating-avg"
+                                        style="min-width:35px">
+                                        {{ $avg }}
+                                    </span>
+                                </div>
+                            @endif
                             @isset($stats['players'][$id])
-                                <div>{{ $stats['players'][$id]['goals'] }} goals</div>
-                                <div>{{ $stats['players'][$id]['assists'] }} assists</div>
-                                <div>{{ $stats['players'][$id]['shots'] }} shots</div>
-                                <div>{{ $stats['players'][$id]['shots_on'] }} shots on target</div>
-                                <div>{{ $stats['players'][$id]['offsides'] }} offsides</div>
-                                <div>{{ $stats['players'][$id]['tackles'] }} tackles</div>
+                                @if($stats['players'][$id]['goals'])<div>{{ $stats['players'][$id]['goals'] }} goals</div>@endif
+                                @if($stats['players'][$id]['assists'])<div>{{ $stats['players'][$id]['assists'] }} assists</div>@endif
+                                @if($stats['players'][$id]['shots'])<div>{{ $stats['players'][$id]['shots'] }} shots</div>@endif
+                                @if($stats['players'][$id]['shots_on'])<div>{{ $stats['players'][$id]['shots_on'] }} shots on target</div>@endif
+                                @if($stats['players'][$id]['offsides'])<div>{{ $stats['players'][$id]['offsides'] }} offsides</div>@endif
+                                @if($stats['players'][$id]['tackles'])<div>{{ $stats['players'][$id]['tackles'] }} tackles</div>@endif
                             @endisset
                         @endforeach
                         @empty($managedPlayerIds)
@@ -366,6 +375,13 @@ $(document).ready(function() {
         info: false,
         order: [[1, 'desc']]
     });
+    $('#ratings-pane > .table').DataTable({
+        autoWidth: false,
+        paging: false,
+        searching: false,
+        info: false,
+        order: [[1, 'desc']]
+    });
 
     $('#notes-form').on('submit', function(e) {
         e.preventDefault();
@@ -425,6 +441,33 @@ $(document).ready(function() {
             window.location.reload();
         }).fail(function(data) {
             console.log(data.responseJSON.message);
+        });
+    });
+
+    // Player ratings
+    $('#ratings-pane').on('change', '.rating-input', function() {
+        let $input    = $(this);
+        let playerId  = $input.data('player-id');
+        let rating    = parseFloat($input.val());
+
+        if (isNaN(rating) || rating < 0 || rating > 10) return;
+
+        $.ajax({
+            url: '{{ route('ajax.results.ratings.store', ['result' => $result->id]) }}',
+            type: 'POST',
+            data: {
+                player_id: playerId,
+                rating: rating,
+            },
+        }).done(function(data) {
+            let avg      = data.average;
+            let bgClass  = avg < 3 ? 'bg-danger' : (avg < 5 ? 'bg-warning' : (avg < 6 ? 'bg-secondary' : (avg < 9 ? 'bg-success bg-opacity-75' : 'bg-success')));
+            let $badge   = $('<span class="badge ' + bgClass + ' rating-avg" style="min-width:35px" data-bs-toggle="tooltip" data-bs-title="Your rating: ' + rating + '">' + avg + '</span>');
+            let $td      = $input.closest('td');
+
+            $input.remove();
+            $td.empty().append($badge);
+            new bootstrap.Tooltip($badge[0]);
         });
     });
 

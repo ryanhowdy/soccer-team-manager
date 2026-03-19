@@ -25,6 +25,7 @@ use App\Models\ResultEvent;
 use App\Enums\Event as EnumEvent;
 use App\Enums\CompetitionStatus;
 use App\Enums\ResultStatus;
+use App\Models\PlayerGameRating;
 use App\Services\EventDeduplicator;
 use Carbon\Carbon;
 use League\ColorExtractor\Color;
@@ -774,6 +775,32 @@ class GameController extends Controller
             }
         }
 
+        // Player game ratings
+        $allRatings = PlayerGameRating::where('result_id', $gameId)->get();
+        $ratings = [];
+
+        foreach ($allRatings as $r)
+        {
+            if (!isset($ratings[$r->player_id]))
+            {
+                $ratings[$r->player_id] = [
+                    'userRating' => null,
+                    'average'    => null,
+                    'total'      => 0,
+                    'count'      => 0,
+                ];
+            }
+
+            $ratings[$r->player_id]['total'] += $r->rating;
+            $ratings[$r->player_id]['count']++;
+            $ratings[$r->player_id]['average'] = round($ratings[$r->player_id]['total'] / $ratings[$r->player_id]['count'], 1);
+
+            if ($r->created_user_id == auth()->id())
+            {
+                $ratings[$r->player_id]['userRating'] = $r->rating;
+            }
+        }
+
         return view('games.show.index', [
             'result'               => $result,
             'shootout'             => $shootout,
@@ -792,6 +819,7 @@ class GameController extends Controller
             'teamColors'           => $teamColors,
             'fulltime'             => $fulltime,
             'possession'           => $possession,
+            'ratings'              => $ratings,
         ]);
     }
 
