@@ -6,7 +6,6 @@
     <div class="container main-content">
 
         <div class="rounded rounded-3 bg-white p-4 mb-1">
-            @dump($liveState)
             <div id="game-controls" class="initial row text-center mb-3">
                 <div class="d-none d-lg-block col-lg-1"></div>
                 <div class="col-4 col-lg-3">
