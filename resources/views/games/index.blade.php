@@ -5,12 +5,13 @@
 @section('content')
     <div class="container main-content">
 
-        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2">
-            <div class="d-flex align-items-center justify-content-end">
+        <div class="d-flex justify-content-between mb-3">
+            <div><h2>Games</h2></div>
+            <div class="d-flex gap-2 align-items-center justify-content-end">
                 <div class="pe-2">
                     <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
-                            Sort<span class="bi-chevron-expand ps-1"></span>
+                            <span class="d-none d-lg-inline-block">Sort</span><span class="bi-chevron-expand ps-1"></span>
                         </button>
                         <div class="dropdown-menu p-3">
                             <button type="button" class="btn btn-secondary">
@@ -25,7 +26,7 @@
                 <div class="pe-2">
                     <div class="dropdown">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false">
-                            Filter<span class="bi-filter ps-1"></span>
+                            <span class="d-none d-lg-inline-block">Filter</span><span class="bi-filter ps-1"></span>
                         </button>
                         <div class="dropdown-menu p-3" style="width:300px">
                             <form id="filter" class="">
@@ -74,8 +75,8 @@
                     <div class="vr"></div>
                 </div>
                 <div class="ps-2">
-                    <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-game">
-                        <span class="bi-plus-lg pe-2"></span>Add Game
+                    <a href="#" class="btn btn-sm btn-dark text-white rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#create-game">
+                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Game</span>
                     </a>
                 </div>
             @endcan
@@ -132,10 +133,10 @@
             @endforeach
         @empty
             <div class="p-5 text-center">
-                <img class="opacity-50 w-50" src="{{ asset('img/empty-state.svg') }}">
-                <div class="fw-bold mt-5 pb-1 text-secondary">No Games Yet...</div>
-                <small class="pb-3 d-block text-secondary">Click the button below to schedule a new game.</small>
-                <a href="#" class="btn btn-sm btn-secondary text-white" data-bs-toggle="modal" data-bs-target="#create-game">Add Game</a>
+                <img class="opacity-50 w-25" src="{{ asset('img/empty-state.svg') }}">
+                <div class="fs-3 fw-bold mt-5 pb-1">No Games Yet...</div>
+                <small class="pb-3 d-block text-muted">Click the button below to schedule a new game.</small>
+                <a href="#" class="btn btn-lg btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-game">Add Game</a>
             </div>
         @endforelse
         </div>

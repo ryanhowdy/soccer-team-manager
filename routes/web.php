@@ -29,6 +29,7 @@ Route::post('/register',              [\App\Http\Controllers\RegisterController:
 Route::middleware(['auth'])->group(function () {
     Route::any( '/home',          [\App\Http\Controllers\HomeController::class, 'home'])->name('home');
     Route::any( '/home/{teamId}', [\App\Http\Controllers\HomeController::class, 'home'])->name('homeByTeam');
+    Route::post('/pick-team/{teamId}', [\App\Http\Controllers\HomeController::class, 'pickTeam'])->name('pickTeam');
 
     // Games
     Route::get( '/games',              [\App\Http\Controllers\GameController::class, 'index'])->name('games.index');

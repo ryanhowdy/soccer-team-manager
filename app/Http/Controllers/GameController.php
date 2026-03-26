@@ -41,6 +41,11 @@ class GameController extends Controller
      */
     public function index(Request $request)
     {
+        if (!session()->has('selectedTeamId'))
+        {
+            return redirect()->route('index');
+        }
+
         // Get all seasons
         $seasons = Season::all()->keyBy('id');
 
@@ -131,10 +136,20 @@ class GameController extends Controller
 
         // Get all the results
         $query = Result::query()
-            ->where('status', ResultStatus::Scheduled)
+            ->where(function (Builder $q) {
+                $q->where('status', ResultStatus::Scheduled)
+                    ->where(function (Builder $q) {
+                        $q->where('home_team_id', session('selectedTeamId'))
+                            ->orWhere('away_team_id', session('selectedTeamId'));
+                    });
+            })
             ->orWhere(function (Builder $q) use ($clubTeamSeasonIds, $clubIds, $teamIds) {
                 $q->where('status', ResultStatus::Done)
-                  ->whereIn('club_team_season_id', $clubTeamSeasonIds);
+                    ->whereIn('club_team_season_id', $clubTeamSeasonIds)
+                    ->where(function (Builder $sub) {
+                        $sub->where('home_team_id', session('selectedTeamId'))
+                            ->orWhere('away_team_id', session('selectedTeamId'));
+                    });
 
                 if ($clubIds)
                 {
@@ -162,6 +177,12 @@ class GameController extends Controller
             $results['S'] = $results['S']->reverse();
         }
 
+        // Show scheduled games before done games
+        $statusOrder = ['S' => 0, 'C' => 1, 'D' => 2];
+        $results = $results->sortBy(function ($items, $status) use ($statusOrder) {
+            return $statusOrder[$status] ?? 99;
+        });
+
         return view('games.index', [
             'selectedSeason' => $selected['seasonId'],
             'selectedClub'   => $selected['clubId'],
@@ -184,7 +205,7 @@ class GameController extends Controller
      */
     public function store(Request $request)
     {
-        if (Auth()->user()->cannot('update things')) {
+        if (Auth()->user()->cannot('edit things')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -1020,7 +1041,7 @@ class GameController extends Controller
      */
     public function edit($gameId)
     {
-        if (Auth()->user()->cannot('update things')) {
+        if (Auth()->user()->cannot('edit things')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -1090,7 +1111,7 @@ class GameController extends Controller
      */
     public function update($id, Request $request)
     {
-        if (Auth()->user()->cannot('update things')) {
+        if (Auth()->user()->cannot('edit things')) {
             abort(403, 'Unauthorized action.');
         }
 

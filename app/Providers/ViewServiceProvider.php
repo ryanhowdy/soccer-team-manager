@@ -7,6 +7,7 @@ use Illuminate\Support\Facades;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
 use App\Models\ManagedPlayer;
+use App\Models\ClubTeam;
  
 class ViewServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,15 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Add managed teams to the navigation
+        Facades\View::composer('partials.navigation', function (View $view) {
+            $managedTeams = ClubTeam::where('managed', 1)
+                ->with('club')
+                ->get();
+
+            $view->with('navManagedTeams', $managedTeams); 
+        });
+
         // Add managed players to the navigation
         Facades\View::composer('partials.navigation', function (View $view) {
             $managedPlayers = ManagedPlayer::where('user_id', Auth()->user()->id)

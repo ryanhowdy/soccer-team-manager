@@ -21,16 +21,24 @@ class CompetitionController extends Controller
      */
     public function index()
     {
+        if (!session()->has('selectedTeamId'))
+        {
+            return redirect()->route('index');
+        }
+
         // Get all competitions
         $leagues = Competition::where('type', 'League')
+            ->where('club_team_id', session('selectedTeamId'))
             ->orderBy('started_at', 'desc')
             ->get();
 
         $cups = Competition::where('type', 'Cup')
+            ->where('club_team_id', session('selectedTeamId'))
             ->orderBy('started_at', 'desc')
             ->get();
 
         $friendlys = Competition::where('type', 'Friendly')
+            ->where('club_team_id', session('selectedTeamId'))
             ->orderBy('started_at', 'desc')
             ->get();
 

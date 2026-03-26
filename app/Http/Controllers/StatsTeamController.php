@@ -22,22 +22,11 @@ class StatsTeamController extends Controller
      */
     public function index(Request $request)
     {
-        // Get all managed teams
-        $managedTeams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
-            ->join('clubs as c', 't.club_id', '=', 'c.id')
-            ->where('managed', 1)
-            ->orderBy('club_name')
-            ->orderBy('t.name')
-            ->get()
-            ->keyBy('id');
-
         // Get all seasons
         $seasons = Season::all()->keyBy('id');
 
         // Any filters
-        $managedTeamId = $request->has('filter-managed') ? $request->input('filter-managed') : $managedTeams->keys()->first();
-        $seasonId      = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
+        $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
 
         // Turn the season_id into a club_team_season_id
         $clubTeamSeasonIds = ClubTeamSeason::where('season_id', $seasonId)
@@ -47,9 +36,9 @@ class StatsTeamController extends Controller
 
         // Get all the results for the currently selected filters
         $results = Result::where('status', 'D')
-            ->where(function (Builder $q) use ($managedTeamId) {
-                $q->where('home_team_id', $managedTeamId)
-                    ->orWhere('away_team_id', $managedTeamId);
+            ->where(function (Builder $q) {
+                $q->where('home_team_id', session('selectedTeamId'))
+                    ->orWhere('away_team_id', session('selectedTeamId'));
             })
             ->whereIn('club_team_season_id', $clubTeamSeasonIds)
             ->get();
@@ -89,8 +78,8 @@ class StatsTeamController extends Controller
         {
             $resultIds[$result->id] = $result->id;
 
-            $goodGuys = $result->home_team_id == $managedTeamId ? 'home' : 'away';
-            $badGuys  = $goodGuys === 'home'                    ? 'away' : 'home';
+            $goodGuys = $result->home_team_id == session('selectedTeamId') ? 'home' : 'away';
+            $badGuys  = $goodGuys === 'home' ? 'away' : 'home';
 
             $resultToGoodGuyLkup[$result->id] = $goodGuys;
 
@@ -389,12 +378,10 @@ class StatsTeamController extends Controller
         }
 
         return view('stats.team', [
-            'selectedManagedTeamId' => $managedTeamId,
-            'selectedSeason'        => $seasonId,
-            'managedTeams'          => $managedTeams,
-            'seasons'               => $seasons,
-            'results'               => $results,
-            'stats'                 => $stats,
+            'selectedSeason' => $seasonId,
+            'seasons'        => $seasons,
+            'results'        => $results,
+            'stats'          => $stats,
         ]);
     }
 }

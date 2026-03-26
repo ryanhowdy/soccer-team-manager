@@ -1,11 +1,32 @@
-<nav class="navbar navbar-expand-lg sticky-top border-5 border-top border-dark bg-white {{ config('app.env') }}">
+<nav class="navbar navbar-expand-lg sticky-top bg-light">
     <div class="container">
-        <a class="navbar-brand me-5" href="{{ route('home') }}">STM</a>
+        <a class="navbar-brand me-5" href="{{ route('index') }}">
+            <span class="bi bi-gear-wide-connected"></span>
+            STM
+        </a>
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item me-2">
+                <div class="dropdown">
+                <button class="btn bg-white rounded-5 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ session('selectedTeamName') }}
+                </button>
+                <ul class="dropdown-menu">
+                @foreach($navManagedTeams as $team)
+                    <li><a class="dropdown-item pick-team" href="#" data-team-id="{{ $team->id }}">{{ $team->club->name }}: {{ $team->name }}</a></li>
+                @endforeach
+                </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+<nav class="navbar navbar-expand-lg sticky-top-2 border-bottom border-secondary-sublte py-0 bg-light">
+    <div class="container">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-links">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbar-links">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav nav-underline me-auto mb-2 mb-lg-0">
                 <li class="nav-item me-2">
                     <a class="nav-link" href="{{ route('games.index') }}">Games</a>
                 </li>

@@ -11,13 +11,6 @@
             <div class="rounded rounded-3 bg-white py-2 px-3 mb-3">
                 <div class="d-flex align-items-center justify-content-end">
                     <div class="pe-2">
-                        <select class="form-select form-select-sm bg-light border border-light" id="filter-managed" name="filter-managed">
-                        @foreach ($managedTeams as $i => $team)
-                            <option value="{{ $team->id }}" @selected($selectedManagedTeamId == $team->id)>{{ $team->name }}</option>
-                        @endforeach
-                        </select>
-                    </div>
-                    <div class="pe-2">
                         <select class="form-select form-select-sm bg-light border border-light" id="filter-seasons" name="filter-seasons">
                             <option value="">All Seasons</option>
                     @foreach ($seasons as $i => $season)

@@ -15,61 +15,66 @@
         </div>
     @endif
 
-        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 d-flex align-items-center justify-content-between">
-            <input class="d-none d-lg-inline-block w-50" type="text" id="search">
-            <div>
-                <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-club">
-                    <span class="bi-plus-lg pe-2"></span>Add Club
-                </a>
-                <a href="#" class="btn btn-sm btn-primary text-white text-nowrap" data-bs-toggle="modal" data-bs-target="#create-team">
-                    <span class="bi-plus-lg pe-2"></span>Add Team
-                </a>
+        <div class="d-flex justify-content-between mb-3">
+            <div><h2>Club Teams</h2></div>
+            <div class="d-flex gap-2 align-items-center justify-content-end">
+                <div>
+                    <input class="d-none d-lg-inline-block bg-light" type="text" id="search">
+                </div>
+            @can('edit things')
+                <div>
+                    <a href="#" class="btn btn-sm btn-dark text-white rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#create-club">
+                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Club</span>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-dark text-white rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#create-team">
+                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Team</span>
+                    </a>
+                </div>
+            @endcan
             </div>
         </div>
 
-        <div class="rounded rounded-3 bg-white p-4 mb-1">
-            <table id="clubs-table" class="table align-middle">
-                <thead class="">
-                    <tr>
-                        <th class="club-name">Club</th>
-                        <th class="d-none d-lg-table-cell">Location</th>
-                        <th class="teams">Teams</th>
-                    </tr>
-                </thead>
-                <tbody class="table-group-divider">
-                @foreach($clubs as $club)
-                    <tr class="{{ strtolower(str_replace(' ', '-', $club->name)) }}">
-                        <td class="club-name position-relative" data-bs-toggle="modal" data-bs-target="#club-{{ $club->id }}">
-                            <img class="logo img-fluid ms-2 me-3" src="{{ asset($club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                            {{ $club->name }}
-                            <span class="bi-chevron-down position-absolute"></span>
-                        </td>
-                        <td class="d-none d-lg-table-cell">
-                        @if($club->city)
+        <div id="clubs-cards" class="d-flex flex-wrap mb-5">
+        @foreach($clubs as $club)
+            <div class="card p-3 me-3 mb-3 {{ strtolower(str_replace(' ', '-', $club->name)) }}" style="width:400px">
+            @can('edit things')
+                <div class="position-absolute end-0" style="top:2px">
+                    <div class="dropdown">
+                        <span class="bi-three-dots-vertical pe-1" role="button" data-bs-toggle="dropdown"></span>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('clubs.edit', ['club' => $club->id]) }}">Edit</a></li>
+                        </ul>
+                    </div>
+                </div>
+            @endcan
+                <div class="d-flex align-items-center mb-3">
+                    <div><img class="logo img-fluid me-3" src="{{ asset($club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/></div>
+                    <div class="fw-bold">{{ $club->name }}</div>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <span class="badge text-bg-light">{{ $club->teams->count() }} Teams</span>
+                    </div>
+                @if($club->city)
+                    <div>
+                        <span class="border rounded-pill small p-2">
+                            <span class="bi bi-geo-alt"></span>
                             {{ $club->city }}, 
-                            @if($club->city)
-                                {{ $club->state }}
-                            @endif
+                        @if($club->city)
+                            {{ $club->state }}
                         @endif
-                        </td>
-                        <td>
-                            <div class="d-flex">
-                                <div>
-                                    <span class="badge text-bg-secondary fs-3 d-none d-lg-inline-block">{{ $club->teams->count() }}</span>
-                                </div>
-                                <div class="dropdown">
-                                    <span class="bi-three-dots-vertical fs-4 ms-3" data-bs-toggle="dropdown"></span>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ route('clubs.edit', ['club' => $club->id]) }}">Edit</a></li>
-                                        <li><a class="dropdown-item" target="_blank" href="{{ $club->website }}">Website</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
+                        </span>
+                    </div>
+                @endif
+                </div>
+                <div>
+                    <a href="#" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#club-{{ $club->id }}" class="card-link">Details</a>
+                @if($club->website)
+                    <a href="{{ $club->website }}" class="btn btn-sm btn-outline-dark" target="_blank" class="card-link">Website</a>
+                @endif
+                </div>
+            </div>
+        @endforeach
         </div>
 
     </div><!--/container-->
@@ -149,9 +154,9 @@ $(document).on('input', '#search', function() {
 
     if ((curSearch) && curSearch != '')
     {
-        $('#clubs-table tr').hide();
+        $('#clubs-cards .card').hide();
         curSearch = curSearch.toLowerCase();
-        $('tr[class^=' + curSearch + '], tr[class*=' + curSearch + ']').show();
+        $('#clubs-cards > div[class^=' + curSearch + '], #clubs-cards > div[class*=' + curSearch + ']').show();
     }
 });
 </script>

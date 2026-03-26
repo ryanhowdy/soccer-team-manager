@@ -10,6 +10,17 @@
 <script>
 const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
 const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
+
+document.querySelectorAll('.pick-team').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+        e.preventDefault();
+        var teamId = this.dataset.teamId;
+        axios.post('/pick-team/' + teamId)
+            .then(function() {
+                window.location.reload();
+            });
+    });
+});
 function optgroupMatcher (params, data) {
   data.parentText = data.parentText || "";
 
