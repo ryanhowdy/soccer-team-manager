@@ -41,11 +41,6 @@ class GameController extends Controller
      */
     public function index(Request $request)
     {
-        if (!session()->has('selectedTeamId'))
-        {
-            return redirect()->route('index');
-        }
-
         // Get all seasons
         $seasons = Season::all()->keyBy('id');
 
@@ -139,16 +134,16 @@ class GameController extends Controller
             ->where(function (Builder $q) {
                 $q->where('status', ResultStatus::Scheduled)
                     ->where(function (Builder $q) {
-                        $q->where('home_team_id', session('selectedTeamId'))
-                            ->orWhere('away_team_id', session('selectedTeamId'));
+                        $q->where('home_team_id', auth()->user()->selected_club_team_id)
+                            ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
                     });
             })
             ->orWhere(function (Builder $q) use ($clubTeamSeasonIds, $clubIds, $teamIds) {
                 $q->where('status', ResultStatus::Done)
                     ->whereIn('club_team_season_id', $clubTeamSeasonIds)
                     ->where(function (Builder $sub) {
-                        $sub->where('home_team_id', session('selectedTeamId'))
-                            ->orWhere('away_team_id', session('selectedTeamId'));
+                        $sub->where('home_team_id', auth()->user()->selected_club_team_id)
+                            ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
                     });
 
                 if ($clubIds)

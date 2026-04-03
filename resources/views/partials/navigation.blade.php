@@ -8,7 +8,7 @@
             <li class="nav-item me-2">
                 <div class="dropdown">
                 <button class="btn bg-white rounded-5 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ session('selectedTeamName') }}
+                    {{ auth()->user()->selectedTeam->name ?? 'Select Team' }}
                 </button>
                 <ul class="dropdown-menu">
                 @foreach($navManagedTeams as $team)

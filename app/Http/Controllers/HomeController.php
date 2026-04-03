@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Result;
 use App\Models\Season;
 use App\Models\ClubTeam;
+use App\Models\ClubTeamSeason;
 use App\Models\Competition;
 use App\Models\ResultEvent;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,13 +48,6 @@ class HomeController extends Controller
             return redirect()->route('login');
         }
 
-        // set a default selected team is we don't have one already
-        if (!session()->has('selectedTeamId'))
-        {
-            session(['selectedTeamId' => $managedTeam->id]);
-            session(['selectedTeamName' => $managedTeam->name]);
-        }
-
         return redirect()->route('home');
     }
 
@@ -64,6 +58,8 @@ class HomeController extends Controller
      */
     public function home()
     {
+        $selectedTeamId = Auth()->user()->selected_club_team_id;
+
         // Get all scheduled games for today
         $todayStart = \Carbon\Carbon::now()->inUserTimezone()->startOfDay()->tz('UTC');
         $todayEnd   = \Carbon\Carbon::now()->inUserTimezone()->endOfDay()->tz('UTC');
@@ -126,17 +122,38 @@ class HomeController extends Controller
             $lastResultsAgainstTeam[$r->{$badGuys . 'Team'}->id][] = $r;
         }
 
-        $resultsByTeam = ClubTeam::from('club_teams as t')
-            ->with('latestHomeResults')
-            ->with('latestAwayResults')
-            ->where('managed', 1)
-            ->get();
+        // Get the most recent season for the selected team
+        $latestSeason = ClubTeamSeason::where('club_team_id', $selectedTeamId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        // Get the most recent competition of each type with their completed results
+        $resultsByCompetition = collect();
+
+        if ($latestSeason)
+        {
+            $competitionIds = Result::where('club_team_season_id', $latestSeason->id)
+                ->distinct()
+                ->pluck('competition_id');
+
+            $resultsByCompetition = Competition::whereIn('id', $competitionIds)
+                ->with(['results' => function ($query) use ($selectedTeamId) {
+                    $query->where('status', 'D')
+                        ->where(function (Builder $query) use ($selectedTeamId) {
+                            $query->where('home_team_id', $selectedTeamId)
+                                ->orWhere('away_team_id', $selectedTeamId);
+                        })
+                        ->orderBy('date', 'desc');
+                }])
+                ->orderBy('started_at', 'desc')
+                ->get();
+        }
 
         return view('home', [
             'scheduledToday'         => $scheduledToday,
             'scheduled'              => $scheduled,
             'lastResultsAgainstTeam' => $lastResultsAgainstTeam,
-            'results'                => $resultsByTeam,
+            'resultsByCompetition'   => $resultsByCompetition,
         ]);
     }
 
@@ -156,8 +173,7 @@ class HomeController extends Controller
 
         if ($team)
         {
-            session(['selectedTeamId' => $team->id]);
-            session(['selectedTeamName' => $team->name]);
+            Auth()->user()->update(['selected_club_team_id' => $team->id]);
         }
 
         return back();

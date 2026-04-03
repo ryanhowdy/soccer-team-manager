@@ -37,8 +37,8 @@ class StatsTeamController extends Controller
         // Get all the results for the currently selected filters
         $results = Result::where('status', 'D')
             ->where(function (Builder $q) {
-                $q->where('home_team_id', session('selectedTeamId'))
-                    ->orWhere('away_team_id', session('selectedTeamId'));
+                $q->where('home_team_id', auth()->user()->selected_club_team_id)
+                    ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
             })
             ->whereIn('club_team_season_id', $clubTeamSeasonIds)
             ->get();
@@ -78,7 +78,7 @@ class StatsTeamController extends Controller
         {
             $resultIds[$result->id] = $result->id;
 
-            $goodGuys = $result->home_team_id == session('selectedTeamId') ? 'home' : 'away';
+            $goodGuys = $result->home_team_id == auth()->user()->selected_club_team_id ? 'home' : 'away';
             $badGuys  = $goodGuys === 'home' ? 'away' : 'home';
 
             $resultToGoodGuyLkup[$result->id] = $goodGuys;

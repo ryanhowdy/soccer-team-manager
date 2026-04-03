@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\ClubTeam;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
@@ -23,6 +25,7 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
+        'selected_club_team_id',
     ];
 
     /**
@@ -48,5 +51,10 @@ class User extends Authenticatable
     public function managedPlayers(): HasMany
     {
         return $this->hasMany(ManagedPlayer::class);
+    }
+
+    public function selectedTeam(): BelongsTo
+    {
+        return $this->belongsTo(ClubTeam::class, 'selected_club_team_id');
     }
 }
