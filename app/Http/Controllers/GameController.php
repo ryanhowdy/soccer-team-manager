@@ -81,10 +81,27 @@ class GameController extends Controller
         $allLocations = Location::orderBy('name')
             ->get();
 
-        // Get 5 most recently created locations
-        $recentLocations = Location::orderByDesc('created_at')
+        // Recent = locations created in the last 7 days + most recently used locations, capped at 5 total
+        $newLocations = Location::where('created_at', '>=', now()->subDays(7))
+            ->orderByDesc('created_at')
             ->limit(5)
             ->get();
+
+        $recentlyUsedIds = Result::whereNotNull('location_id')
+            ->whereNotIn('location_id', $newLocations->pluck('id'))
+            ->orderByDesc('date')
+            ->limit(20)
+            ->pluck('location_id')
+            ->unique()
+            ->take(max(0, 5 - $newLocations->count()))
+            ->values();
+
+        $recentlyUsed = Location::whereIn('id', $recentlyUsedIds)
+            ->get()
+            ->sortBy(fn ($l) => $recentlyUsedIds->search($l->id))
+            ->values();
+
+        $recentLocations = $newLocations->concat($recentlyUsed)->take(5);
 
         $locations = collect([
             'Recent' => $recentLocations,
