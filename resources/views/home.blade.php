@@ -7,15 +7,23 @@
 @section('content')
     <div class="container main-content">
 
-        @if (count($scheduledToday))
-            @include('home.scheduled-today')
-        @endif
+        <h2>Scheduled</h2>
 
-        @if (count($scheduled))
-            @include('home.scheduled')
-        @endif
+    @if (count($scheduledToday))
+        @include('home.scheduled-today')
+    @endif
+
+    @if (count($scheduled))
+        @include('home.scheduled')
+    @endif
+
+    @if($dashboard['seasonRecord']['games'])
+        <h2>Stats</h2>
+        @include('home.dashboard')
+    @endif
 
     @if($resultsByCompetition->isNotEmpty())
+        <h2>Results</h2>
         <div class="row">
         @foreach($resultsByCompetition as $competition)
             @if($competition->results->isNotEmpty())

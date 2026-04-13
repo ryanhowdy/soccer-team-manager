@@ -129,6 +129,7 @@ class HomeController extends Controller
 
         // Get the most recent competition of each type with their completed results
         $resultsByCompetition = collect();
+        $allSeasonResults = collect();
 
         if ($latestSeason)
         {
@@ -147,14 +148,182 @@ class HomeController extends Controller
                 }])
                 ->orderBy('started_at', 'desc')
                 ->get();
+
+            // Collect all completed results for this season (for dashboard widgets)
+            $allSeasonResults = Result::with('formation')
+                ->where('club_team_season_id', $latestSeason->id)
+                ->where('status', 'D')
+                ->where(function (Builder $query) use ($selectedTeamId) {
+                    $query->where('home_team_id', $selectedTeamId)
+                        ->orWhere('away_team_id', $selectedTeamId);
+                })
+                ->orderBy('date')
+                ->get();
         }
+
+        // Build dashboard stats from season results
+        $dashboard = $this->buildDashboardStats($allSeasonResults, $selectedTeamId);
 
         return view('home', [
             'scheduledToday'         => $scheduledToday,
             'scheduled'              => $scheduled,
             'lastResultsAgainstTeam' => $lastResultsAgainstTeam,
             'resultsByCompetition'   => $resultsByCompetition,
+            'dashboard'              => $dashboard,
         ]);
+    }
+
+    /**
+     * Build all dashboard stats from season results
+     */
+    private function buildDashboardStats($results, $teamId)
+    {
+        $dashboard = [
+            'formStreak'      => [],
+            'seasonRecord'    => ['wins' => 0, 'draws' => 0, 'losses' => 0, 'games' => 0, 'goals' => 0, 'goals_against' => 0, 'clean_sheets' => 0, 'win_percent' => 0],
+            'homeAway'        => [
+                'home' => ['wins' => 0, 'draws' => 0, 'losses' => 0, 'games' => 0, 'goals' => 0, 'goals_against' => 0],
+                'away' => ['wins' => 0, 'draws' => 0, 'losses' => 0, 'games' => 0, 'goals' => 0, 'goals_against' => 0],
+            ],
+            'topScorers'      => [],
+            'topAssisters'    => [],
+            'formations'      => [],
+            'goalTiming'      => array_fill(0, 6, ['for' => 0, 'against' => 0]),
+        ];
+
+        if ($results->isEmpty())
+        {
+            return $dashboard;
+        }
+
+        $resultIds = [];
+
+        foreach ($results as $result)
+        {
+            $resultIds[] = $result->id;
+
+            $goodGuys = $result->home_team_id == $teamId ? 'home' : 'away';
+            $badGuys  = $goodGuys === 'home' ? 'away' : 'home';
+
+            $usGoals   = $result->{$goodGuys . '_team_score'};
+            $themGoals = $result->{$badGuys . '_team_score'};
+
+            // Form streak (last 10)
+            $dashboard['formStreak'][] = $result->win_draw_loss;
+
+            // Season record
+            $dashboard['seasonRecord']['games']++;
+            $dashboard['seasonRecord']['goals'] += $usGoals;
+            $dashboard['seasonRecord']['goals_against'] += $themGoals;
+
+            if ($themGoals == 0)
+            {
+                $dashboard['seasonRecord']['clean_sheets']++;
+            }
+
+            if ($usGoals > $themGoals)
+            {
+                $dashboard['seasonRecord']['wins']++;
+                $dashboard['homeAway'][$goodGuys]['wins']++;
+            }
+            else if ($usGoals < $themGoals)
+            {
+                $dashboard['seasonRecord']['losses']++;
+                $dashboard['homeAway'][$goodGuys]['losses']++;
+            }
+            else
+            {
+                $dashboard['seasonRecord']['draws']++;
+                $dashboard['homeAway'][$goodGuys]['draws']++;
+            }
+
+            $dashboard['homeAway'][$goodGuys]['games']++;
+            $dashboard['homeAway'][$goodGuys]['goals'] += $usGoals;
+            $dashboard['homeAway'][$goodGuys]['goals_against'] += $themGoals;
+
+            // Formation effectiveness
+            if ($result->formation_id)
+            {
+                $formName = $result->formation ? $result->formation->name : 'Unknown';
+
+                if (!isset($dashboard['formations'][$formName]))
+                {
+                    $dashboard['formations'][$formName] = ['wins' => 0, 'draws' => 0, 'losses' => 0, 'games' => 0, 'goals' => 0, 'goals_against' => 0];
+                }
+
+                $dashboard['formations'][$formName]['games']++;
+                $dashboard['formations'][$formName]['goals'] += $usGoals;
+                $dashboard['formations'][$formName]['goals_against'] += $themGoals;
+
+                if ($usGoals > $themGoals) $dashboard['formations'][$formName]['wins']++;
+                else if ($usGoals < $themGoals) $dashboard['formations'][$formName]['losses']++;
+                else $dashboard['formations'][$formName]['draws']++;
+            }
+        }
+
+        // Win percent
+        if ($dashboard['seasonRecord']['games'])
+        {
+            $dashboard['seasonRecord']['win_percent'] = round(($dashboard['seasonRecord']['wins'] / $dashboard['seasonRecord']['games']) * 100);
+        }
+
+        // Reverse form streak so most recent is last, then take last 10
+        $dashboard['formStreak'] = array_slice($dashboard['formStreak'], -10);
+
+        // Get events for all season results
+        $goalEvents = Event::getGoalValues();
+
+        $events = ResultEvent::whereIn('result_id', $resultIds)->get();
+
+        $scorers   = [];
+        $assisters = [];
+
+        foreach ($events as $event)
+        {
+            // Goal timing (15-min buckets)
+            if (in_array($event->event_id, $goalEvents))
+            {
+                $secs = eventTimeToSeconds($event->time);
+                $bucket = min((int) floor($secs / 900), 5);
+
+                if ($event->against)
+                {
+                    $dashboard['goalTiming'][$bucket]['against']++;
+                }
+                else
+                {
+                    $dashboard['goalTiming'][$bucket]['for']++;
+                }
+            }
+
+            // Skip opponent events for remaining stats
+            if ($event->against)
+            {
+                continue;
+            }
+
+            if (in_array($event->event_id, $goalEvents))
+            {
+                // Top scorers
+                $name = $event->player_name;
+                $scorers[$name] = ($scorers[$name] ?? 0) + 1;
+
+                // Top assisters
+                if (!empty($event->additional) && $event->additionalPlayer)
+                {
+                    $aName = $event->additionalPlayer->name;
+                    $assisters[$aName] = ($assisters[$aName] ?? 0) + 1;
+                }
+            }
+        }
+
+        // Sort and take top 5
+        arsort($scorers);
+        arsort($assisters);
+        $dashboard['topScorers']   = array_slice($scorers, 0, 5, true);
+        $dashboard['topAssisters'] = array_slice($assisters, 0, 5, true);
+
+        return $dashboard;
     }
 
     /**
