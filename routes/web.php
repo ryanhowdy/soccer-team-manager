@@ -124,6 +124,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/ajax/games/{result}/live-state',       [\App\Http\Controllers\Ajax\ResultController::class, 'getLiveState'])->name('ajax.results.live-state.get');
     Route::post('/ajax/games/{result}/live-state',       [\App\Http\Controllers\Ajax\ResultController::class, 'updateLiveState'])->name('ajax.results.live-state');
     Route::post('/ajax/games/{result}/events',           [\App\Http\Controllers\Ajax\ResultEventController::class, 'store'])->name('ajax.results.events.store');
+    Route::post('/ajax/games/{result}/events/{resultEvent}/edit', [\App\Http\Controllers\Ajax\ResultEventController::class, 'update'])->name('ajax.results.events.update');
+    Route::post('/ajax/games/{result}/events/{resultEvent}/destroy', [\App\Http\Controllers\Ajax\ResultEventController::class, 'destroy'])->name('ajax.results.events.destroy');
     Route::get( '/ajax/games/{result}/possession',       [\App\Http\Controllers\Ajax\ResultEventController::class, 'getPossession'])->name('ajax.results.events.possession');
     Route::get( '/ajax/games/{result}/momentum',         [\App\Http\Controllers\Ajax\ResultEventController::class, 'getMomentum'])->name('ajax.results.events.momentum');
     Route::post('/ajax/games/{result}/pk/start',         [\App\Http\Controllers\Ajax\PenaltiesController::class, 'start'])->name('ajax.results.pk.start');

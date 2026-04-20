@@ -84,6 +84,71 @@ class ResultEventController extends Controller
     }
 
     /**
+     * update
+     *
+     * @param Request $request
+     * @param Result $result
+     * @param ResultEvent $resultEvent
+     * @return json
+     */
+    public function update(Request $request, Result $result, ResultEvent $resultEvent)
+    {
+        if (Auth()->user()->cannot('edit things'))
+        {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'player_id'   => 'sometimes|exists:players,id',
+            'against'     => 'sometimes|integer',
+            'time'        => 'required|regex:/^\d?\d?\d:\d\d$/',
+            'event_id'    => 'required|integer',
+            'additional'  => 'nullable',
+            'xg'          => 'nullable|integer',
+            'notes'       => 'nullable|min:3|max:255',
+        ]);
+
+        $resultEvent->time     = $request->time;
+        $resultEvent->event_id = $request->event_id;
+        $resultEvent->updated_user_id = Auth()->user()->id;
+
+        $resultEvent->player_id  = $request->filled('player_id') ? $request->player_id : null;
+        $resultEvent->against    = $request->filled('against') ? $request->against : 0;
+        $resultEvent->additional = $request->filled('additional') ? $request->additional : null;
+        $resultEvent->xg         = $request->filled('xg') ? $request->xg : null;
+        $resultEvent->notes      = $request->filled('notes') ? $request->notes : null;
+
+        $resultEvent->save();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $resultEvent->toArray(),
+        ], 200);
+    }
+
+    /**
+     * destroy
+     *
+     * @param Request $request
+     * @param Result $result
+     * @param ResultEvent $resultEvent
+     * @return json
+     */
+    public function destroy(Request $request, Result $result, ResultEvent $resultEvent)
+    {
+        if (Auth()->user()->cannot('edit things'))
+        {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $resultEvent->delete();
+
+        return response()->json([
+            'success' => true,
+        ], 200);
+    }
+
+    /**
      * getPossession
      * 
      * @param Result $result

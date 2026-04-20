@@ -18,7 +18,7 @@
     @endif
 
     @if($dashboard['seasonRecord']['games'])
-        <h2>Stats</h2>
+        <h2 class="d-flex align-items-center gap-2">Stats @if($latestSeason && $latestSeason->season)<span class="text-muted small">{{ $latestSeason->season->season_year }}</span>@endif</h2>
         @include('home.dashboard')
     @endif
 

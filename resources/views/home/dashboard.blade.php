@@ -21,27 +21,43 @@
 @endif
 
 {{-- 2. Season Record Summary --}}
+@php
+    $games = max($dashboard['seasonRecord']['games'], 1);
+    $cleanSheetPct = round(($dashboard['seasonRecord']['clean_sheets'] / $games) * 100);
+@endphp
 <div class="row">
-    <div class="col-6 col-md-3 mb-3">
+    <div class="col-6 col-md-2 mb-3">
         <div class="rounded rounded-3 bg-white p-3 p-lg-4 text-center">
             <div class="text-uppercase text-secondary small">Record</div>
             <div class="fw-bold fs-4 text-primary">{{ $dashboard['seasonRecord']['wins'] }}-{{ $dashboard['seasonRecord']['draws'] }}-{{ $dashboard['seasonRecord']['losses'] }}</div>
         </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
+    <div class="col-6 col-md-2 mb-3">
         <div class="rounded rounded-3 bg-white p-3 p-lg-4 text-center">
             <div class="text-uppercase text-secondary small">Win %</div>
             <div class="fw-bold fs-4 text-primary">{{ $dashboard['seasonRecord']['win_percent'] }}%</div>
         </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
+    <div class="col-6 col-md-2 mb-3">
         <div class="rounded rounded-3 bg-white p-3 p-lg-4 text-center">
             <div class="text-uppercase text-secondary small">Goal Diff</div>
             <div class="fw-bold fs-4 text-primary">{{ sprintf("%+d", $dashboard['seasonRecord']['goals'] - $dashboard['seasonRecord']['goals_against']) }}</div>
         </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
-        <div class="rounded rounded-3 bg-white p-3 p-lg-4 text-center">
+    <div class="col-6 col-md-2 mb-3">
+        <div class="rounded rounded-3 bg-white p-3 p-lg-4 text-center" data-bs-toggle="tooltip" data-bs-title="Total goals scored: {{ $dashboard['seasonRecord']['goals'] }}">
+            <div class="text-uppercase text-secondary small">Goals / Game</div>
+            <div class="fw-bold fs-4 text-primary">{{ number_format($dashboard['seasonRecord']['goals'] / $games, 2) }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2 mb-3">
+        <div class="rounded rounded-3 bg-white p-3 p-lg-4 text-center" data-bs-toggle="tooltip" data-bs-title="Total goals conceded: {{ $dashboard['seasonRecord']['goals_against'] }}">
+            <div class="text-uppercase text-secondary small">Conceded / Game</div>
+            <div class="fw-bold fs-4 text-primary">{{ number_format($dashboard['seasonRecord']['goals_against'] / $games, 2) }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2 mb-3">
+        <div class="rounded rounded-3 bg-white p-3 p-lg-4 text-center" data-bs-toggle="tooltip" data-bs-title="Clean sheet %: {{ $cleanSheetPct }}%">
             <div class="text-uppercase text-secondary small">Clean Sheets</div>
             <div class="fw-bold fs-4 text-primary">{{ $dashboard['seasonRecord']['clean_sheets'] }}</div>
         </div>
@@ -52,7 +68,7 @@
 
     {{-- 6. Top Scorers --}}
     @if(count($dashboard['topScorers']))
-    <div class="col-12 col-md-6 col-lg-4 mb-3">
+    <div class="col-12 col-lg-6 mb-3">
         <div class="rounded rounded-3 bg-white p-3 p-lg-4">
             <div class="fw-bold text-secondary mb-3">Top Scorers</div>
             @foreach($dashboard['topScorers'] as $name => $goals)
@@ -67,7 +83,7 @@
 
     {{-- 6b. Top Assisters --}}
     @if(count($dashboard['topAssisters']))
-    <div class="col-12 col-md-6 col-lg-4 mb-3">
+    <div class="col-12 col-lg-6 mb-3">
         <div class="rounded rounded-3 bg-white p-3 p-lg-4">
             <div class="fw-bold text-secondary mb-3">Top Assists</div>
             @foreach($dashboard['topAssisters'] as $name => $assists)

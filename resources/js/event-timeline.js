@@ -1,8 +1,9 @@
 export default class EventTimeline
 {
-    constructor(selector)
+    constructor(selector, canEdit = false)
     {
         this.selector = selector;
+        this.canEdit  = canEdit;
 
         this.eventToIcon = {
             'start'                : 'watch_arrow',
@@ -153,7 +154,55 @@ export default class EventTimeline
         typeDiv.append(iconSpan);
         typeDiv.append(typeB);
         headerDiv.append(typeDiv);
-        headerDiv.append(timeDiv);
+
+        if (this.canEdit)
+        {
+            let menuDiv = document.createElement('div');
+            menuDiv.className = 'd-flex align-items-center gap-2';
+
+            let timeClone = timeDiv;
+
+            let dropDiv = document.createElement('div');
+            dropDiv.className = 'dropdown';
+
+            let dropBtn = document.createElement('button');
+            dropBtn.className = 'btn btn-sm btn-link text-secondary p-0 lh-1';
+            dropBtn.setAttribute('data-bs-toggle', 'dropdown');
+            dropBtn.innerHTML = '<i class="bi bi-three-dots-vertical"></i>';
+
+            let dropMenu = document.createElement('ul');
+            dropMenu.className = 'dropdown-menu';
+
+            let editLi = document.createElement('li');
+            let editA  = document.createElement('a');
+            editA.className = 'dropdown-item edit-event';
+            editA.href = '#';
+            editA.dataset.eventId = eventData.id;
+            editA.innerHTML = '<span class="bi bi-pencil pe-2"></span>Edit';
+            editLi.append(editA);
+
+            let deleteLi = document.createElement('li');
+            let deleteA  = document.createElement('a');
+            deleteA.className = 'dropdown-item text-danger delete-event';
+            deleteA.href = '#';
+            deleteA.dataset.eventId = eventData.id;
+            deleteA.innerHTML = '<span class="bi bi-trash pe-2"></span>Delete';
+            deleteLi.append(deleteA);
+
+            dropMenu.append(editLi);
+            dropMenu.append(deleteLi);
+            dropDiv.append(dropBtn);
+            dropDiv.append(dropMenu);
+
+            menuDiv.append(timeClone);
+            menuDiv.append(dropDiv);
+            headerDiv.append(menuDiv);
+        }
+        else
+        {
+            headerDiv.append(timeDiv);
+        }
+
         eventDiv.append(headerDiv);
         eventDiv.append(detailsDiv);
 

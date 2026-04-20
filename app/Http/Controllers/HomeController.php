@@ -170,6 +170,7 @@ class HomeController extends Controller
             'lastResultsAgainstTeam' => $lastResultsAgainstTeam,
             'resultsByCompetition'   => $resultsByCompetition,
             'dashboard'              => $dashboard,
+            'latestSeason'           => $latestSeason,
         ]);
     }
 

@@ -344,6 +344,62 @@
         </div>
     </div>
 
+    @can('edit things')
+    <div id="edit-event" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-event-form" method="post">
+                        @csrf
+                        <input type="hidden" name="edit_event_id" id="edit_event_id">
+                        <div class="mb-3">
+                            <label for="edit_time" class="form-label">Time</label>
+                            <input type="text" class="form-control" id="edit_time" name="time" placeholder="00:00">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_player_id" class="form-label">Player</label>
+                            <select id="edit_player_id" name="player_id" class="form-select">
+                                <option></option>
+                            @foreach($players as $p)
+                                <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_event_type" class="form-label">Event</label>
+                            <select id="edit_event_type" name="event_id" class="form-select">
+                                <option></option>
+                            @foreach(\App\Enums\Event::cases() as $e)
+                                <option value="{{ $e->value }}">{{ ucwords(str_replace('_', ' ', $e->name)) }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_against" class="form-label">Against</label>
+                            <select id="edit_against" name="against" class="form-select">
+                                <option value="0">No (For)</option>
+                                <option value="1">Yes (Against)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_notes" class="form-label">Notes</label>
+                            <input type="text" class="form-control" id="edit_notes" name="notes" maxlength="255">
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endcan
+
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 <script>
 $(document).ready(function() {
@@ -444,6 +500,61 @@ $(document).ready(function() {
         });
     });
 
+    @can('edit things')
+    // Edit event - populate modal
+    $('#game-timeline').on('click', '.edit-event', function(e) {
+        e.preventDefault();
+        let eventId = $(this).data('event-id');
+        let data = resultEvents.find(ev => ev.id == eventId);
+
+        if (!data) return;
+
+        let time = data.time.substring(0, 5);
+
+        $('#edit_event_id').val(data.id);
+        $('#edit_time').val(time);
+        $('#edit_player_id').val(data.player_id);
+        $('#edit_event_type').val(data.event_id);
+        $('#edit_against').val(data.against ? 1 : 0);
+        $('#edit_notes').val(data.notes);
+
+        new bootstrap.Modal('#edit-event').show();
+    });
+
+    // Edit event - submit
+    $('#edit-event').on('submit', 'form', function(e) {
+        e.preventDefault();
+        let eventId = $('#edit_event_id').val();
+
+        $.ajax({
+            url  : '/ajax/games/{{ $result->id }}/events/' + eventId + '/edit',
+            type : 'POST',
+            data : $(this).serialize(),
+        }).done(function(data) {
+            window.location.reload();
+        }).fail(function(data) {
+            console.log(data.responseJSON.message);
+        });
+    });
+
+    // Delete event
+    $('#game-timeline').on('click', '.delete-event', function(e) {
+        e.preventDefault();
+        let eventId = $(this).data('event-id');
+
+        if (!confirm('Are you sure you want to delete this event?')) return;
+
+        $.ajax({
+            url  : '/ajax/games/{{ $result->id }}/events/' + eventId + '/destroy',
+            type : 'POST',
+        }).done(function(data) {
+            window.location.reload();
+        }).fail(function(data) {
+            console.log(data.responseJSON.message);
+        });
+    });
+    @endcan
+
     // Player ratings
     $('#ratings-pane').on('change', '.rating-input', function() {
         let $input    = $(this);
@@ -487,7 +598,8 @@ $(document).ready(function() {
     drawer.addPlayerStarters(starters, '#field');
     @endif
 
-    let timeline = new EventTimeline('#game-timeline');
+    let canEdit = {{ Auth()->user()->can('edit things') ? 'true' : 'false' }};
+    let timeline = new EventTimeline('#game-timeline', canEdit);
 
     for (let [i, data] of Object.entries(resultEvents))
     {
