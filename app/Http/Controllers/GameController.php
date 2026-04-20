@@ -545,18 +545,21 @@ class GameController extends Controller
                 $modes['live']        = 1;
                 $modes['playingTime'] = 1;
 
-                foreach($playingTime[$e->player_id]['spans'] as $i => $span)
+                if (isset($playingTime[$e->player_id]))
                 {
-                    if ($span['end'] === null)
+                    foreach($playingTime[$e->player_id]['spans'] as $i => $span)
                     {
-                        $playingTime[$e->player_id]['spans'][$i]['end'] = $e->time;
+                        if ($span['end'] === null)
+                        {
+                            $playingTime[$e->player_id]['spans'][$i]['end'] = $e->time;
 
-                        $start = eventTimeToSeconds($span['start']);
-                        $end   = eventTimeToSeconds($e->time);
+                            $start = eventTimeToSeconds($span['start']);
+                            $end   = eventTimeToSeconds($e->time);
 
-                        $secs = $end - $start;
+                            $secs = $end - $start;
 
-                        $playingTime[$e->player_id]['seconds'] += $secs;
+                            $playingTime[$e->player_id]['seconds'] += $secs;
+                        }
                     }
                 }
             }
