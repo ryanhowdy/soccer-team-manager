@@ -160,6 +160,15 @@ export default class EventTimeline
             let menuDiv = document.createElement('div');
             menuDiv.className = 'd-flex align-items-center gap-2';
 
+            let selectDiv = document.createElement('div');
+            selectDiv.className = 'form-check select-event-wrap d-none m-0';
+            let selectInput = document.createElement('input');
+            selectInput.type = 'checkbox';
+            selectInput.className = 'form-check-input select-event';
+            selectInput.dataset.eventId = eventData.id;
+            selectDiv.append(selectInput);
+            menuDiv.append(selectDiv);
+
             let timeClone = timeDiv;
 
             let dropDiv = document.createElement('div');

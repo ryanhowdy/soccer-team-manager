@@ -21849,6 +21849,13 @@ label.required:after {
   left: 50%;
   margin-left: -1px;
 }
+.event-timeline.select-mode .event {
+  cursor: pointer;
+}
+.event-timeline.select-mode .event.selected {
+  background-color: var(--bs-danger-bg-subtle);
+  box-shadow: 0 0 0 2px var(--bs-danger);
+}
 .event-timeline .event {
   background-color: white;
   position: relative;

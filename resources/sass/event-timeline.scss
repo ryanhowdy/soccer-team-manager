@@ -18,6 +18,17 @@
         margin-left: -1px;
     }
 
+    &.select-mode .event
+    {
+        cursor: pointer;
+
+        &.selected
+        {
+            background-color: var(--bs-danger-bg-subtle);
+            box-shadow: 0 0 0 2px var(--bs-danger);
+        }
+    }
+
     .event
     {
         background-color: white;

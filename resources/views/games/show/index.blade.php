@@ -261,7 +261,23 @@
     @if(isset($modes['live']) || isset($modes['scoresPlus']))
             <div class="tab-pane fade" id="timeline-pane">
                 <div class="rounded rounded-3 bg-white p-4 mb-3">
-                    <h3 class="mb-3">Timeline</h3>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="mb-0">Timeline</h3>
+                    @can('edit things')
+                        <div id="timeline-bulk-controls" class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="toggle-select-mode">
+                                <i class="bi bi-trash pe-1"></i>Multiple
+                            </button>
+                            <span id="selected-count" class="small text-muted d-none">0 selected</span>
+                            <button type="button" class="btn btn-sm btn-danger d-none" id="delete-selected">
+                                <i class="bi bi-trash pe-1"></i>Delete Selected
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary d-none" id="cancel-select-mode">
+                                Cancel
+                            </button>
+                        </div>
+                    @endcan
+                    </div>
                     <small class="text-muted pe-3">Filter:</small>
                     <label class="btn btn-sm btn-light" for="subs">
                         <input class="form-check-input" checked type="checkbox" id="subs"> Subs
@@ -551,6 +567,65 @@ $(document).ready(function() {
             window.location.reload();
         }).fail(function(data) {
             console.log(data.responseJSON.message);
+        });
+    });
+
+    // Bulk select/delete
+    function updateSelectedCount() {
+        let count = $('#game-timeline .select-event:checked').length;
+        $('#selected-count').text(count + ' selected');
+        $('#delete-selected').prop('disabled', count === 0);
+    }
+
+    $('#toggle-select-mode').on('click', function() {
+        $('#game-timeline').addClass('select-mode');
+        $('#game-timeline .select-event-wrap').removeClass('d-none');
+        $('#game-timeline .dropdown').addClass('d-none');
+        $('#toggle-select-mode').addClass('d-none');
+        $('#selected-count, #delete-selected, #cancel-select-mode').removeClass('d-none');
+        updateSelectedCount();
+    });
+
+    $('#cancel-select-mode').on('click', function() {
+        $('#game-timeline').removeClass('select-mode');
+        $('#game-timeline .select-event').prop('checked', false);
+        $('#game-timeline .event').removeClass('selected');
+        $('#game-timeline .select-event-wrap').addClass('d-none');
+        $('#game-timeline .dropdown').removeClass('d-none');
+        $('#toggle-select-mode').removeClass('d-none');
+        $('#selected-count, #delete-selected, #cancel-select-mode').addClass('d-none');
+    });
+
+    $('#game-timeline').on('change', '.select-event', function() {
+        $(this).closest('.event').toggleClass('selected', this.checked);
+        updateSelectedCount();
+    });
+
+    // In select mode, clicking anywhere on an event toggles its checkbox
+    $('#game-timeline').on('click', '.event', function(e) {
+        if (!$('#game-timeline').hasClass('select-mode')) return;
+        if ($(e.target).is('input, a, button') || $(e.target).closest('a, button').length) return;
+
+        let $cb = $(this).find('.select-event');
+        $cb.prop('checked', !$cb.prop('checked')).trigger('change');
+    });
+
+    $('#delete-selected').on('click', function() {
+        let ids = $('#game-timeline .select-event:checked').map(function() {
+            return $(this).data('event-id');
+        }).get();
+
+        if (ids.length === 0) return;
+        if (!confirm('Delete ' + ids.length + ' selected event' + (ids.length === 1 ? '' : 's') + '?')) return;
+
+        $.ajax({
+            url  : '{{ route('ajax.results.events.bulk-destroy', ['result' => $result->id]) }}',
+            type : 'POST',
+            data : { event_ids: ids },
+        }).done(function(data) {
+            window.location.reload();
+        }).fail(function(data) {
+            console.log(data.responseJSON ? data.responseJSON.message : 'Bulk delete failed');
         });
     });
     @endcan

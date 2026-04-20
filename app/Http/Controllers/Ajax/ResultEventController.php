@@ -149,6 +149,37 @@ class ResultEventController extends Controller
     }
 
     /**
+     * bulkDestroy
+     *
+     * Admin-only bulk deletion of timeline events.
+     *
+     * @param Request $request
+     * @param Result $result
+     * @return json
+     */
+    public function bulkDestroy(Request $request, Result $result)
+    {
+        if (Auth()->user()->cannot('edit things'))
+        {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'event_ids'   => 'required|array|min:1',
+            'event_ids.*' => 'integer|exists:result_events,id',
+        ]);
+
+        $deleted = ResultEvent::where('result_id', $result->id)
+            ->whereIn('id', $validated['event_ids'])
+            ->delete();
+
+        return response()->json([
+            'success' => true,
+            'deleted' => $deleted,
+        ], 200);
+    }
+
+    /**
      * getPossession
      * 
      * @param Result $result

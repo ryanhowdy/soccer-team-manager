@@ -126,6 +126,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/ajax/games/{result}/events',           [\App\Http\Controllers\Ajax\ResultEventController::class, 'store'])->name('ajax.results.events.store');
     Route::post('/ajax/games/{result}/events/{resultEvent}/edit', [\App\Http\Controllers\Ajax\ResultEventController::class, 'update'])->name('ajax.results.events.update');
     Route::post('/ajax/games/{result}/events/{resultEvent}/destroy', [\App\Http\Controllers\Ajax\ResultEventController::class, 'destroy'])->name('ajax.results.events.destroy');
+    Route::post('/ajax/games/{result}/events/bulk-destroy', [\App\Http\Controllers\Ajax\ResultEventController::class, 'bulkDestroy'])->name('ajax.results.events.bulk-destroy');
     Route::get( '/ajax/games/{result}/possession',       [\App\Http\Controllers\Ajax\ResultEventController::class, 'getPossession'])->name('ajax.results.events.possession');
     Route::get( '/ajax/games/{result}/momentum',         [\App\Http\Controllers\Ajax\ResultEventController::class, 'getMomentum'])->name('ajax.results.events.momentum');
     Route::post('/ajax/games/{result}/pk/start',         [\App\Http\Controllers\Ajax\PenaltiesController::class, 'start'])->name('ajax.results.pk.start');
