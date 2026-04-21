@@ -23,33 +23,27 @@ class StatsLocationController extends Controller
     public function index(Request $request)
     {
         $results = Result::where('status', 'D')
+            ->where(function (Builder $q) {
+                $q->where('home_team_id', auth()->user()->selected_club_team_id)
+                    ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
+            })
             ->with('location')
             ->get();
 
-        $resultsByTeamLocation = [];
+        $resultsByLocation = [];
 
         foreach ($results as $result)
         {
-            $teamId = $result->home_team_id;
-            if ($result->awayTeam->managed)
+            if (!isset($resultsByLocation[$result->location_id]))
             {
-                $teamId = $result->away_team_id;
+                $resultsByLocation[$result->location_id] = [];
             }
 
-            if (!isset($resultsByTeamLocation[$teamId]))
-            {
-                $resultsByTeamLocation[$teamId] = [];
-            }
-            if (!isset($resultsByTeamLocation[$teamId][$result->location_id]))
-            {
-                $resultsByTeamLocation[$teamId][$result->location_id] = [];
-            }
-
-            $resultsByTeamLocation[$teamId][$result->location_id][] = $result;
+            $resultsByLocation[$result->location_id][] = $result;
         }
 
         return view('stats.locations.index', [
-            'resultsByTeamLocation' => $resultsByTeamLocation,
+            'resultsByLocation' => $resultsByLocation,
         ]);
     }
 }
