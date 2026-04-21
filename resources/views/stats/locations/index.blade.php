@@ -59,7 +59,12 @@
                         $isSingle = count($results) <= 1;
                     @endphp
                     <tr @class(['single-game' => $isSingle, 'opacity-50' => $isSingle])>
-                        <td>{{ $results[0]['location']['name'] }}</td>
+                        <td>
+                            <a href="{{ route('stats.locations.show', ['location' => $locationId]) }}"
+                                class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                                {{ $results[0]['location']['name'] }}
+                            </a>
+                        </td>
                         <td>{{ count($results) }}</td>
                         <td data-order="{{ $winPct }}">
                             <span class="badge bg-{{ $badgeClass }}" style="min-width:35px">{{ $winPct }}</span>

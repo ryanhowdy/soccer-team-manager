@@ -60,7 +60,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Stats
     Route::get( '/stats/teams',     [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.teams.index');
-    Route::get( '/stats/locations', [\App\Http\Controllers\StatsLocationController::class, 'index'])->name('stats.locations.index');
+    Route::get( '/stats/locations',            [\App\Http\Controllers\StatsLocationController::class, 'index'])->name('stats.locations.index');
+    Route::get( '/stats/locations/{location}', [\App\Http\Controllers\StatsLocationController::class, 'show'])->name('stats.locations.show');
     Route::get( '/stats/lineups',   [\App\Http\Controllers\StatsLineupController::class, 'index'])->name('stats.lineups.index');
     //Route::get( '/stats/players',   [\App\Http\Controllers\StatsTeamController::class, 'index'])->name('stats.players.index');
 
