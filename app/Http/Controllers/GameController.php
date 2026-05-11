@@ -766,7 +766,7 @@ class GameController extends Controller
         }
 
         // Do some final playing time cleanup
-        if ($modes['playingTime'])
+        if (isset($modes['playingTime']))
         {
             foreach($playingTime as $playerId => $data)
             {

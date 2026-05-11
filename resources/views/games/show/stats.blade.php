@@ -148,6 +148,7 @@
                 </div>
 
                 {{-- Playing Time --}}
+            @isset($modes['playingTime'])
                 <div class="tab-pane fade" id="playing-time-pane" tabindex="0">
                     <table class="table">
                         <thead>
@@ -217,6 +218,7 @@
                     </table>
                     <i>* Indicates a Starter</i>
                 </div>
+            @endisset
 
             </div><!--/.tab-content-->
         </div>
