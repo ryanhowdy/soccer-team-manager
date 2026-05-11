@@ -453,6 +453,10 @@ class GameController extends Controller
         $playingTime = [];
         $fulltime    = 0;
 
+        if ($result->formation_id) {
+            $modes['starters'] = 1;
+        }
+
         $playerStatsWeTrack = [
             EnumEvent::goal->value,
             EnumEvent::shot_on_target->value,
@@ -522,10 +526,6 @@ class GameController extends Controller
 
             if ($e->event_id == EnumEvent::start->value)
             {
-                $modes['live']        = 1;
-                $modes['playingTime'] = 1;
-                $modes['starters']    = 1;
-
                 $starters[$e->player_id] = $e->additional;
 
                 $playingTime[$e->player_id] = [
@@ -542,8 +542,7 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_out->value)
             {
-                $modes['live']        = 1;
-                $modes['playingTime'] = 1;
+                $modes['live'] = 1;
 
                 if (isset($playingTime[$e->player_id]))
                 {
@@ -565,8 +564,7 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::sub_in->value)
             {
-                $modes['live']        = 1;
-                $modes['playingTime'] = 1;
+                $modes['live'] = 1;
 
                 if (isset($playingTime[$e->player_id]))
                 {
@@ -592,7 +590,8 @@ class GameController extends Controller
             }
             if ($e->event_id == EnumEvent::fulltime->value)
             {
-                $fulltime = $e->time;
+                $fulltime             = $e->time;
+                $modes['playingTime'] = 1;
             }
             if (in_array($e->event_id, $goalEvents))
             {
@@ -767,28 +766,29 @@ class GameController extends Controller
         }
 
         // Do some final playing time cleanup
-        foreach($playingTime as $playerId => $data)
+        if ($modes['playingTime'])
         {
-            // End the time range for everyone who was in the game at fulltime
-            foreach($playingTime[$playerId]['spans'] as $i => $span)
+            foreach($playingTime as $playerId => $data)
             {
-                if ($span['end'] === null)
+                // End the time range for everyone who was in the game at fulltime
+                foreach($playingTime[$playerId]['spans'] as $i => $span)
                 {
-                    $playingTime[$playerId]['spans'][$i]['end'] = $fulltime;
+                    if ($span['end'] === null)
+                    {
+                        $playingTime[$playerId]['spans'][$i]['end'] = $fulltime;
 
-                    $start = eventTimeToSeconds($span['start']);
-                    $end   = eventTimeToSeconds($fulltime);
+                        $start = eventTimeToSeconds($span['start']);
+                        $end   = eventTimeToSeconds($fulltime);
 
-                    $secs = $end - $start;
+                        $secs = $end - $start;
 
-                    $playingTime[$playerId]['seconds'] += $secs;
+                        $playingTime[$playerId]['seconds'] += $secs;
+                    }
                 }
+
+                // format everyones time in minutes
+                $playingTime[$playerId]['minutes'] = secondsToMinutes($playingTime[$playerId]['seconds']);
             }
-
-            $modes['playingTime'] = 1;
-
-            // format everyones time in minutes
-            $playingTime[$playerId]['minutes'] = secondsToMinutes($playingTime[$playerId]['seconds']);
         }
 
         // Do some final possession cleanup
