@@ -19,23 +19,21 @@ class CompetitionController extends Controller
      * 
      * @return null
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Get all competitions
-        $leagues = Competition::where('type', 'League')
-            ->where('club_team_id', auth()->user()->selected_club_team_id)
-            ->orderBy('started_at', 'desc')
-            ->get();
+        $seasons = Season::all()->keyBy('id');
 
-        $cups = Competition::where('type', 'Cup')
-            ->where('club_team_id', auth()->user()->selected_club_team_id)
-            ->orderBy('started_at', 'desc')
-            ->get();
+        $seasonId = $request->has('filter-seasons')
+            ? $request->input('filter-seasons')
+            : $seasons->keys()->last();
 
-        $friendlys = Competition::where('type', 'Friendly')
-            ->where('club_team_id', auth()->user()->selected_club_team_id)
+        $selectedSeason = $seasons[$seasonId] ?? null;
+
+        $competitions = Competition::where('club_team_id', auth()->user()->selected_club_team_id)
+            ->when($selectedSeason, fn ($q) => $q->whereYear('started_at', $selectedSeason->year))
             ->orderBy('started_at', 'desc')
-            ->get();
+            ->get()
+            ->groupBy('status');
 
         $managedTeams = ClubTeam::from('club_teams as t')
             ->select('t.*', 'c.name as club_name')
@@ -46,10 +44,10 @@ class CompetitionController extends Controller
             ->get();
 
         return view('competitions.index', [
-            'leagues'      => $leagues,
-            'cups'         => $cups,
-            'friendlys'    => $friendlys,
-            'managedTeams' => $managedTeams,
+            'competitions'   => $competitions,
+            'seasons'        => $seasons,
+            'selectedSeason' => $seasonId,
+            'managedTeams'   => $managedTeams,
         ]);
     }
 
