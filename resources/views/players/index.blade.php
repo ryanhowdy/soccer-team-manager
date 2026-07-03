@@ -7,10 +7,17 @@
 @section('content')
     <div class="container main-content">
 
-        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 text-end">
-            <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-player">
-                <span class="bi-plus-lg pe-2"></span>Add Player
-            </a>
+        <div class="d-flex justify-content-between mb-3 align-items-center">
+            <div><h2>Players</h2></div>
+            <div class="d-flex gap-2 align-items-center justify-content-end">
+            @can('edit things')
+                <div class="ps-2">
+                    <a href="#" class="btn btn-sm btn-dark text-white rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#create-player">
+                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Player</span>
+                    </a>
+                </div>
+            @endcan
+            </div>
         </div>
 
         <div class="rounded rounded-3 bg-white position-relative p-4 mb-3">
@@ -25,31 +32,14 @@
             </div>
         @endif
 
-            <ul id="managed-teams" class="nav nav-underline">
-            @foreach($managedTeams as $team)
-                <li class="nav-item">
-                    <a @class([
-                        'nav-link',
-                        'active' => $loop->first
-                        ]) id="{{ Str::of($team->name)->slug('-') }}-tab" data-bs-toggle="tab" 
-                        data-bs-target="#{{ Str::of($team->name)->slug('-') }}-pane" href="#">{{ $team->name }}</a>
-                </li>
-            @endforeach
-            </ul>
-
             <div class="btn-group btn-group-sm my-3" role="group">
                 <input type="radio" checked class="btn-check" id="active" name="status" autocomplete="off">
-                <label class="btn btn-outline-light" for="active">Active</label>
+                <label class="btn btn-outline-light" for="active">Current</label>
                 <input type="radio" class="btn-check" id="inactive" name="status" autocomplete="off">
                 <label class="btn btn-outline-light" for="inactive">Inactive</label>
             </div>
 
-            <div id="players-content" class="tab-content">
-            @foreach($managedTeams as $team)
-                <div @class([
-                    'tab-pane fade',
-                    'show active' => $loop->first,
-                    ]) id="{{ Str::of($team->name)->slug('-') }}-pane" tabindex="0">
+            <div id="players-content">
                     <table class="table table-bordered">
                         <thead>
                             <th>Name</th>
@@ -57,8 +47,8 @@
                             <th></th>
                         </thead>
                         <tbody>
-                    @isset($activePlayers[$team->id])
-                        @foreach($activePlayers[$team->id] as $p)
+                    @isset($activePlayers[$selectedTeam->id])
+                        @foreach($activePlayers[$selectedTeam->id] as $p)
                             <tr class="active">
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -94,8 +84,8 @@
                             </tr>
                         @endforeach
                     @endisset
-                    @isset($inactivePlayers[$team->id])
-                        @foreach($inactivePlayers[$team->id] as $p)
+                    @isset($inactivePlayers[$selectedTeam->id])
+                        @foreach($inactivePlayers[$selectedTeam->id] as $p)
                             <tr class="inactive">
                                 <td>
                                     <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['player' => $p->id]) }}">
@@ -112,8 +102,6 @@
                     @endisset
                         </tbody>
                     </table>
-                </div>
-            @endforeach
             </div>
         </div>
 

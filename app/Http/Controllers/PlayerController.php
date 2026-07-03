@@ -44,6 +44,15 @@ class PlayerController extends Controller
             return redirect()->route('clubs.first');
         }
 
+        // The team to display is the globally selected team (from the navbar
+        // picker), falling back to the first managed team.
+        $selectedTeam = auth()->user()->selectedTeam;
+
+        if (!$selectedTeam || !$managedTeams->contains('id', $selectedTeam->id))
+        {
+            $selectedTeam = $managedTeams->first();
+        }
+
         // Get all possible position
         $positions = Position::all();
 
@@ -113,6 +122,7 @@ class PlayerController extends Controller
             'inactivePlayers'  => $inactivePlayers,
             'positions'        => $positions,
             'managedTeams'     => $managedTeams,
+            'selectedTeam'     => $selectedTeam,
             'action'           => route('players.store'),
             'allPlayers'       => $allPlayers,
         ]);
