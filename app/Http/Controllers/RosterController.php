@@ -8,6 +8,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Database\Query\Builder;
 use App\Models\PlayerTeam;
 use App\Models\ClubTeamSeason;
+use App\Models\ClubTeam;
+use App\Models\Season;
 use App\Models\Roster;
 
 class RosterController extends Controller
@@ -151,12 +153,52 @@ class RosterController extends Controller
             }
         }
 
-        $playersBySeasonTeam = array_reverse($playersBySeasonTeam, true);
+        // Managed teams and every season, so we can offer an "Add Team" control
+        // per season and still show a tab for seasons that have no teams yet.
+        $managedTeams = ClubTeam::where('managed', 1)
+            ->orderBy('name')
+            ->get();
+
+        $allSeasons = Season::orderBy('id', 'desc')
+            ->get();
+
+        $seasonLkup             = [];
+        $availableTeamsBySeason = [];
+        $orderedSeasons         = [];
+
+        foreach ($allSeasons as $season)
+        {
+            $seasonName = $season->season_year;
+
+            $seasonLkup[$seasonName] = $season->id;
+
+            // Show every season as a tab, newest first, even ones without teams
+            $orderedSeasons[$seasonName] = $playersBySeasonTeam[$seasonName] ?? [];
+
+            // Teams that aren't already linked to this season
+            $availableTeamsBySeason[$seasonName] = [];
+
+            foreach ($managedTeams as $team)
+            {
+                if (!isset($clubTeamSeasonLkup[$seasonName . '-' . $team->name]))
+                {
+                    $availableTeamsBySeason[$seasonName][] = [
+                        'id'   => $team->id,
+                        'name' => $team->name,
+                    ];
+                }
+            }
+        }
+
+        $playersBySeasonTeam = $orderedSeasons;
 
         return view('rosters.index', [
             'playersBySeasonTeam'          => $playersBySeasonTeam,
             'availablePlayersBySeasonTeam' => $availablePlayersBySeasonTeam,
             'clubTeamSeasonLkup'           => $clubTeamSeasonLkup,
+            'availableTeamsBySeason'       => $availableTeamsBySeason,
+            'seasonLkup'                   => $seasonLkup,
+            'managedTeams'                 => $managedTeams,
         ]);
     }
 

@@ -17,8 +17,10 @@ class SeasonController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'season' => ['required', 'max:50'],
-            'year'   => ['required', 'date_format:Y'],
+            'season'  => ['required', 'max:50'],
+            'year'    => ['required', 'date_format:Y'],
+            'teams'   => ['nullable', 'array'],
+            'teams.*' => ['integer', 'exists:club_teams,id'],
         ]);
 
         // Create the new season
@@ -31,21 +33,28 @@ class SeasonController extends Controller
 
         $season->save();
 
-        // Get all managed teams
-        $managedTeams = ClubTeam::where('managed', 1)
-            ->get();
+        // Only create team seasons for the teams the user selected. Teams can
+        // always be added to (or removed from) the season later on the rosters
+        // page, so we no longer force a record for every managed team.
+        $teamIds = $request->input('teams', []);
 
-        // Create new team seasons for each managed team
-        foreach ($managedTeams as $team)
+        if (!empty($teamIds))
         {
-            $teamSeason = new ClubTeamSeason;
+            $managedTeams = ClubTeam::where('managed', 1)
+                ->whereIn('id', $teamIds)
+                ->get();
 
-            $teamSeason->club_team_id    = $team->id;
-            $teamSeason->season_id       = $season->id;
-            $teamSeason->created_user_id = Auth()->user()->id;
-            $teamSeason->updated_user_id = Auth()->user()->id;
+            foreach ($managedTeams as $team)
+            {
+                $teamSeason = new ClubTeamSeason;
 
-            $teamSeason->save();
+                $teamSeason->club_team_id    = $team->id;
+                $teamSeason->season_id       = $season->id;
+                $teamSeason->created_user_id = Auth()->user()->id;
+                $teamSeason->updated_user_id = Auth()->user()->id;
+
+                $teamSeason->save();
+            }
         }
 
         if ($request->wantsJson())

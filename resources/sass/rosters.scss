@@ -12,11 +12,24 @@
     {
         font-weight: bold;
         color: green;
+
+        // Keep the player-name link green (overrides Bootstrap's .link-dark),
+        // but leave the red delete icon alone.
+        a:not(.rem-roster-player)
+        {
+            color: green !important;
+        }
     }
     .rem
     {
         font-weight: bold;
         color: red;
+
+        // Keep the player-name link red (overrides Bootstrap's .link-dark)
+        a:not(.rem-roster-player)
+        {
+            color: red !important;
+        }
     }
 
     .list-group-item

@@ -21995,9 +21995,15 @@ label.required:after {
   font-weight: bold;
   color: green;
 }
+#rosters .add a:not(.rem-roster-player) {
+  color: green !important;
+}
 #rosters .rem {
   font-weight: bold;
   color: red;
+}
+#rosters .rem a:not(.rem-roster-player) {
+  color: red !important;
 }
 #rosters .list-group-item .rem-roster-player {
   display: none;
