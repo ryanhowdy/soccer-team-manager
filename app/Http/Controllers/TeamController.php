@@ -93,16 +93,26 @@ class TeamController extends Controller
 
         $team->save();
 
+        // Whether this came from the first-run "create your first team" screen
+        $isFirstFlow = $request->session()->get('first') === 'team';
+
         if ($team->managed)
         {
             $request->session()->forget('first');
+
+            // After creating the first managed team, drop the user straight into
+            // the roster page to start building the squad.
+            if ($isFirstFlow)
+            {
+                return redirect()->route('rosters.index');
+            }
         }
 
         return redirect()->route('teams.index');
     }
 
     /**
-     * edit 
+     * edit
      * 
      * @param int $id
      * @return Illuminate\View\View
