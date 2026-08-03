@@ -14,34 +14,7 @@
                     <input class="form-check-input" type="checkbox" id="toggle-low-sample">
                     <label class="form-check-label small" for="toggle-low-sample">Show low-sample</label>
                 </div>
-                <div class="pe-2">
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <span class="d-none d-lg-inline-block">
-                            @php
-                                $currentSeason = $selectedSeason ? $seasons[$selectedSeason] ?? null : null;
-                            @endphp
-                            {{ $currentSeason ? $currentSeason->season . ' ' . $currentSeason->year : 'All Seasons' }}
-                            </span><span class="bi-filter ps-1"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item @if(!$selectedSeason) active @endif" href="{{ route('stats.lineups.index') }}">All Seasons</a>
-                            </li>
-                        @foreach ($seasons as $i => $season)
-                            @if ($loop->first || $seasons[$i]->year !== $seasons[$i-1]->year)
-                                <li><h6 class="dropdown-header">{{ $season->year }}</h6></li>
-                            @endif
-                            <li>
-                                <a class="dropdown-item ps-4 @if($selectedSeason == $season->id) active @endif"
-                                    href="{{ route('stats.lineups.index', ['filter-seasons' => $season->id]) }}">
-                                    {{ $season->season }} {{ $season->year }}
-                                </a>
-                            </li>
-                        @endforeach
-                        </ul>
-                    </div><!--/.dropdown-->
-                </div>
+                @include('partials.season-filter', ['filterRoute' => 'stats.lineups.index'])
             </div>
         </div>
 

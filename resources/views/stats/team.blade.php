@@ -7,32 +7,12 @@
 @section('content')
     <div class="container main-content">
 
-        <form id="filter">
-            <div class="rounded rounded-3 bg-white py-2 px-3 mb-3">
-                <div class="d-flex align-items-center justify-content-end">
-                    <div class="pe-2">
-                        <select class="form-select form-select-sm bg-light border border-light" id="filter-seasons" name="filter-seasons">
-                            <option value="">All Seasons</option>
-                    @foreach ($seasons as $i => $season)
-                        @if ($loop->first)
-                            <optgroup label="{{ $season->year }}">
-                        @else
-                            @if ($seasons[$i]->year !== $seasons[$i-1]->year)
-                            <optgroup label="{{ $season->year }}">
-                            @endif
-                        @endif
-                            <option value="{{ $season->id }}" @selected($selectedSeason == $season->id)>{{ $season->season }} {{ $season->year }}</option>
-                    @endforeach
-                        </select>
-                    </div>
-                    <div class="pe-2">
-                        <button type="submit" class="btn btn-sm btn-primary text-white">Filter</button>
-                    </div>
-                </div>
+        <div class="d-flex justify-content-between mb-3">
+            <div><h2>Team Stats</h2></div>
+            <div class="d-flex gap-2 align-items-center justify-content-end">
+                @include('partials.season-filter', ['filterRoute' => 'stats.teams.index'])
             </div>
-        </form>
-
-        <div class="fw-bold text-secondary fs-5 ps-1 pb-2">Team Stats</div>
+        </div>
 
         <div class="row">
 

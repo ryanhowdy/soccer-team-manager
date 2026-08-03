@@ -64,11 +64,12 @@
                     <a @class(['nav-link', 'active' => request()->routeIs('rosters.*', 'players.*')]) href="{{ route('rosters.index') }}">Roster</a>
                 </li>
                 <li class="nav-item me-2 dropdown">
-                    <a @class(['nav-link dropdown-toggle', 'active' => request()->routeIs('stats.*')]) href="#" role="button" data-bs-toggle="dropdown">Stats</a>
+                    <a @class(['nav-link dropdown-toggle', 'active' => request()->routeIs('stats.*', 'competitions.show')]) href="#" role="button" data-bs-toggle="dropdown">Stats</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('stats.teams.index') }}">Team</a></li>
+                        <li><a class="dropdown-item" href="{{ route('stats.teams.index') }}">Teams</a></li>
                         <li><a class="dropdown-item" href="{{ route('stats.lineups.index') }}">Lineups</a></li>
                         <li><a class="dropdown-item" href="{{ route('stats.locations.index') }}">Locations</a></li>
+                        <li><a class="dropdown-item" href="{{ route('stats.competitions.index') }}">Competitions</a></li>
                     </ul>
                 </li>
             </ul>
@@ -76,7 +77,7 @@
             {{-- Non-team-scoped management + admin --}}
             <ul class="navbar-nav nav-underline mb-2 mb-lg-0">
                 <li class="nav-item me-2 dropdown">
-                    <a @class(['nav-link dropdown-toggle', 'active' => request()->routeIs('teams.*', 'clubs.*', 'competitions.*', 'locations.*', 'formations.*')]) href="#" role="button" data-bs-toggle="dropdown">Manage</a>
+                    <a @class(['nav-link dropdown-toggle', 'active' => request()->routeIs('teams.*', 'clubs.*', 'competitions.index', 'locations.*', 'formations.*')]) href="#" role="button" data-bs-toggle="dropdown">Manage</a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ route('teams.index') }}">Teams &amp; Clubs</a></li>
                         <li><a class="dropdown-item" href="{{ route('competitions.index') }}">Competitions</a></li>

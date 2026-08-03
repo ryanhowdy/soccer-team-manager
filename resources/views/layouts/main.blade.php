@@ -1,6 +1,16 @@
 @include('partials.header')
 
-<body id="@yield('body-id', '')" class="bg-light pb-5 mb-5">
+@php
+    // Anything but production gets a coloured band across the top of the navbar
+    // (see base.scss). null in production, so no classes are added at all.
+    $env = app()->isProduction() ? null : app()->environment();
+@endphp
+
+<body id="@yield('body-id', '')" @class([
+    'bg-light pb-5 mb-5',
+    'env-nonprod'      => $env,
+    'env-' . $env      => $env,
+    ])>
 
     @include('partials.navigation')
 

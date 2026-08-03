@@ -29,11 +29,12 @@ class StatsLineupController extends Controller
         // Any filters
         $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
 
+        $selectedSeason = $seasonId ? ($seasons[$seasonId] ?? null) : null;
+
         // Turn the season_id into a club_team_season_id
-        $clubTeamSeasonIds = ClubTeamSeason::where('season_id', $seasonId)
-            ->get()
-            ->pluck('id')
-            ->toArray();
+        $clubTeamSeasonIds = $selectedSeason
+            ? ClubTeamSeason::where('season_id', $selectedSeason->id)->pluck('id')->toArray()
+            : null;
 
         $clubTeamId = auth()->user()->selected_club_team_id;
 
@@ -43,7 +44,7 @@ class StatsLineupController extends Controller
                 $q->where('home_team_id', $clubTeamId)
                     ->orWhere('away_team_id', $clubTeamId);
             })
-            ->whereIn('club_team_season_id', $clubTeamSeasonIds)
+            ->when($clubTeamSeasonIds !== null, fn ($q) => $q->whereIn('club_team_season_id', $clubTeamSeasonIds))
             ->get()
             ->keyBy('id');
 
@@ -346,7 +347,7 @@ class StatsLineupController extends Controller
         }
 
         return view('stats.lineup', [
-            'selectedSeason' => $seasonId,
+            'selectedSeason' => $selectedSeason ? $selectedSeason->id : null,
             'seasons'        => $seasons,
             'stats'          => $stats,
         ]);

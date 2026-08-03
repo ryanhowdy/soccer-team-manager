@@ -21369,10 +21369,21 @@ textarea.form-control-lg {
     z-index: 1020;
     border: none !important;
   }
+  body.env-nonprod .sticky-top-2 {
+    top: 25px;
+  }
 }
-.navbar.local {
-  border-color: #992F9E !important;
-  border-width: 20px !important;
+body.env-nonprod .navbar.sticky-top {
+  border-top: 20px solid #F26666;
+}
+body.env-nonprod.env-local .navbar.sticky-top {
+  border-top-color: #992F9E;
+}
+body.env-nonprod.env-staging .navbar.sticky-top {
+  border-top-color: #FFCA2C;
+}
+body.env-nonprod .sticky-top-2 {
+  top: 76px;
 }
 
 .main-content {

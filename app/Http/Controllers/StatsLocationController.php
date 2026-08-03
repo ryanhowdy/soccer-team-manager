@@ -24,11 +24,25 @@ class StatsLocationController extends Controller
      */
     public function index(Request $request)
     {
+        // Get all seasons
+        $seasons = Season::all()->keyBy('id');
+
+        // Any filters
+        $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
+
+        $selectedSeason = $seasonId ? ($seasons[$seasonId] ?? null) : null;
+
+        // Turn the season_id into a club_team_season_id
+        $clubTeamSeasonIds = $selectedSeason
+            ? ClubTeamSeason::where('season_id', $selectedSeason->id)->pluck('id')->toArray()
+            : null;
+
         $results = Result::where('status', 'D')
             ->where(function (Builder $q) {
                 $q->where('home_team_id', auth()->user()->selected_club_team_id)
                     ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
             })
+            ->when($clubTeamSeasonIds !== null, fn ($q) => $q->whereIn('club_team_season_id', $clubTeamSeasonIds))
             ->with('location')
             ->get();
 
@@ -46,6 +60,8 @@ class StatsLocationController extends Controller
 
         return view('stats.locations.index', [
             'resultsByLocation' => $resultsByLocation,
+            'seasons'           => $seasons,
+            'selectedSeason'    => $selectedSeason ? $selectedSeason->id : null,
         ]);
     }
 

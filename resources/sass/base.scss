@@ -1,8 +1,11 @@
+$env-banner-height: 20px;
+$navbar-height:     56px;
+
 .sticky-top-2
 {
     position: -webki-sticky;
     position: sticky;
-    top: 56px;
+    top: $navbar-height;
     z-index: 1019;
 }
 @media (max-width: 992px) {
@@ -18,11 +21,42 @@
         z-index: 1020;
         border: none !important;
     }
+    // Here .sticky-top-2 is the toggler, pinned top-right against the viewport,
+    // so the band pushes it down rather than the navbar height
+    body.env-nonprod .sticky-top-2
+    {
+        top: 5px + $env-banner-height;
+    }
 }
-.navbar.local
+//
+// Non-production environment indicator.
+//
+// A thick coloured band across the top of the navbar so it's obvious at a glance
+// that you're not looking at production. The navbar is sticky, so the band stays
+// visible while scrolling. Applied by layouts/main.blade.php, which puts
+// .env-nonprod (+ .env-<name>) on <body> for any environment but production.
+//
+body.env-nonprod
 {
-    border-color: $purple !important;
-    border-width: 20px !important;
+    // An unrecognised environment gets the loudest colour on purpose
+    .navbar.sticky-top
+    {
+        border-top: $env-banner-height solid $danger;
+    }
+    &.env-local .navbar.sticky-top
+    {
+        border-top-color: $purple;
+    }
+    &.env-staging .navbar.sticky-top
+    {
+        border-top-color: $warning;
+    }
+
+    // The second nav bar sits below the first, so it has to clear the band too
+    .sticky-top-2
+    {
+        top: $navbar-height + $env-banner-height;
+    }
 }
 .main-content
 {

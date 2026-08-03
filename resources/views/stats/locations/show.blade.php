@@ -7,6 +7,15 @@
 @section('content')
     <div class="container main-content">
 
+        <div class="d-flex justify-content-between mb-3">
+            <div><h2>Location Stats</h2></div>
+            <div class="d-flex gap-2 align-items-center justify-content-end">
+                <a class="btn btn-sm btn-light" href="{{ route('stats.locations.index') }}">
+                    <span class="bi-arrow-left pe-1"></span>All Locations
+                </a>
+            </div>
+        </div>
+
         <div class="rounded rounded-3 bg-white position-relative p-4 mb-3">
             <div class="d-flex pb-3 border-bottom">
                 <div>

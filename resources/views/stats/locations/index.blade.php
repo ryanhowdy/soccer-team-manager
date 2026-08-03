@@ -7,14 +7,24 @@
 @section('content')
     <div class="container main-content">
 
-        <div class="d-flex justify-content-between align-items-center ps-1 pb-2">
-            <div class="fw-bold text-secondary fs-5">Location Stats</div>
-            <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="toggle-single-game">
-                <label class="form-check-label" for="toggle-single-game">Show single-game locations</label>
+        <div class="d-flex justify-content-between mb-3">
+            <div><h2>Location Stats</h2></div>
+            <div class="d-flex gap-2 align-items-center justify-content-end">
+                <div class="form-check form-switch pe-3">
+                    <input class="form-check-input" type="checkbox" id="toggle-single-game">
+                    <label class="form-check-label small" for="toggle-single-game">Show single-game locations</label>
+                </div>
+                @include('partials.season-filter', ['filterRoute' => 'stats.locations.index'])
             </div>
         </div>
 
+    @if (empty($resultsByLocation))
+        <div class="rounded rounded-3 bg-white p-5 text-center mb-3">
+            <img class="opacity-50 w-25" src="{{ asset('img/empty-state.svg') }}">
+            <div class="fs-3 fw-bold mt-5 pb-1">No Games</div>
+            <small class="pb-3 d-block text-muted">No completed games found for this team and season.</small>
+        </div>
+    @else
         <div class="rounded rounded-3 bg-white p-4 mb-3">
             <table class="table" id="locations-table">
                 <thead>
@@ -77,10 +87,13 @@
                 </tbody>
             </table>
         </div>
+    @endif
     </div><!--/container-->
 
 <script>
 let showSingleGame = false;
+
+if ($('#locations-table').length) {
 
 $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
     if (settings.nTable.id !== 'locations-table') return true;
@@ -101,5 +114,6 @@ $('#toggle-single-game').on('change', function() {
     showSingleGame = this.checked;
     locationsTable.draw();
 });
+}
 </script>
 @endsection

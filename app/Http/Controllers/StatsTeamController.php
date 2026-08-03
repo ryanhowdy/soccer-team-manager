@@ -28,11 +28,12 @@ class StatsTeamController extends Controller
         // Any filters
         $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
 
+        $selectedSeason = $seasonId ? ($seasons[$seasonId] ?? null) : null;
+
         // Turn the season_id into a club_team_season_id
-        $clubTeamSeasonIds = ClubTeamSeason::where('season_id', $seasonId)
-            ->get()
-            ->pluck('id')
-            ->toArray();
+        $clubTeamSeasonIds = $selectedSeason
+            ? ClubTeamSeason::where('season_id', $selectedSeason->id)->pluck('id')->toArray()
+            : null;
 
         // Get all the results for the currently selected filters
         $results = Result::where('status', 'D')
@@ -40,7 +41,7 @@ class StatsTeamController extends Controller
                 $q->where('home_team_id', auth()->user()->selected_club_team_id)
                     ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
             })
-            ->whereIn('club_team_season_id', $clubTeamSeasonIds)
+            ->when($clubTeamSeasonIds !== null, fn ($q) => $q->whereIn('club_team_season_id', $clubTeamSeasonIds))
             ->get();
 
         $defaults = [
@@ -378,7 +379,7 @@ class StatsTeamController extends Controller
         }
 
         return view('stats.team', [
-            'selectedSeason' => $seasonId,
+            'selectedSeason' => $selectedSeason ? $selectedSeason->id : null,
             'seasons'        => $seasons,
             'results'        => $results,
             'stats'          => $stats,
