@@ -18,7 +18,7 @@
                 @can('update rosters')
                     <li>
                         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#add-guest-player">
-                            <span class="bi bi-person-add pe-2"></span>Add Guest Player
+                            <span class="bi bi-person-add pe-2"></span>Add Guest
                         </a>
                     </li>
                 @endcan
@@ -244,7 +244,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content py-4 px-2">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Guest Player</h5>
+                    <h5 class="modal-title">Add Guest</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -254,7 +254,7 @@
                         <input type="hidden" name="result_id" value="{{ $result->id }}">
                         <div class="mb-3">
                             <select class="form-select" name="player_id">
-                                <option>Add Player</option>
+                                <option value="">Choose a player&hellip;</option>
                             @foreach($availablePlayers as $p)
                                 <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
                             @endforeach

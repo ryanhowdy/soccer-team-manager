@@ -21,29 +21,7 @@
             <div><h2>Competitions</h2></div>
             <div class="d-flex gap-2 align-items-center justify-content-end">
                 <div class="pe-2">
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <span class="d-none d-lg-inline-block">
-                            @php
-                                $currentSeason = $selectedSeason ? $seasons[$selectedSeason] ?? null : null;
-                            @endphp
-                            {{ $currentSeason ? $currentSeason->season . ' ' . $currentSeason->year : 'All Seasons' }}
-                            </span><span class="bi-filter ps-1"></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                        @foreach ($seasons as $i => $season)
-                            @if ($loop->first || $seasons[$i]->year !== $seasons[$i-1]->year)
-                                <li><h6 class="dropdown-header">{{ $season->year }}</h6></li>
-                            @endif
-                            <li>
-                                <a class="dropdown-item ps-4 @if($selectedSeason == $season->id) active @endif"
-                                    href="{{ route('competitions.index', ['filter-seasons' => $season->id]) }}">
-                                    {{ $season->season }} {{ $season->year }}
-                                </a>
-                            </li>
-                        @endforeach
-                        </ul>
-                    </div><!--/.dropdown-->
+                    @include('partials.season-filter', ['filterRoute' => 'competitions.index'])
                 </div>
             @can('edit things')
                 <div class="">

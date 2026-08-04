@@ -2,7 +2,7 @@
 
 @section('body-id', 'rosters')
 @section('page-title', 'Roster')
-@section('page-desc', "Manage the selected team's squad for each season.")
+@section('page-desc', "Manage the selected team's roster for each season.")
 
 @section('content')
     <div class="container main-content">
@@ -14,30 +14,16 @@
             </div>
             <div class="d-flex gap-2 align-items-center justify-content-end">
                 <div>
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            {{ $selectedSeason?->season_year ?? 'Season' }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                        @forelse($seasons as $season)
-                            <li>
-                                <a @class(['dropdown-item', 'active' => $selectedSeason && $selectedSeason->id === $season->id])
-                                    href="{{ route('rosters.index', ['filter-seasons' => $season->id]) }}">{{ $season->season_year }}</a>
-                            </li>
-                        @empty
-                            <li><span class="dropdown-item-text text-muted">No seasons</span></li>
-                        @endforelse
-                        </ul>
-                    </div>
+                    @include('partials.season-filter', ['filterRoute' => 'rosters.index', 'allowAll' => false])
                 </div>
             @can('edit things')
                 <div><div class="vr"></div></div>
                 <div>
                     <a href="#" class="btn btn-sm btn-dark text-white rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#create-season">
-                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Season</span>
+                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">New Season</span>
                     </a>
                     <a href="#" class="btn btn-sm btn-dark text-white rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#create-player">
-                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Player</span>
+                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Team Player</span>
                     </a>
                 </div>
             @endcan
@@ -58,9 +44,9 @@
 
         @if($seasons->isEmpty())
             <div class="text-center py-4">
-                <p class="mb-3 text-muted">No seasons exist yet. Add a season to start building a roster.</p>
+                <p class="mb-3 text-muted">No seasons exist yet. Create a season to start building a roster.</p>
             @can('edit things')
-                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-season">Add Season</a>
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-season">New Season</a>
             @endcan
             </div>
         @elseif(!$clubTeamSeason)
@@ -69,7 +55,7 @@
             @can('edit things')
                 <button id="activate-season" class="btn btn-primary"
                     data-season-id="{{ $selectedSeason->id }}" data-club-team-id="{{ $selectedTeam->id }}">
-                    Add {{ $selectedSeason->season_year }} for this team
+                    Add {{ $selectedSeason->season_year }} to this team
                 </button>
             @endcan
             </div>
@@ -135,7 +121,8 @@
                         @can('edit things')
                             <a href="{{ route('ajax.rosters.destroy', ['roster' => $r->id]) }}"
                                 data-confirm-message="Are you sure you want to remove this player from the roster?"
-                                data-btn="danger" class="rem-roster-player confirm-link link-danger">
+                                data-btn="danger" class="rem-roster-player confirm-link link-danger"
+                                title="Remove from roster" aria-label="Remove from roster">
                                 <i class="bi bi-trash3"></i>
                             </a>
                         @endcan
@@ -143,7 +130,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-muted">No players on this roster yet. Add one below.</td>
+                        <td colspan="4" class="text-muted">No players on this roster yet. Add a team player below.</td>
                     </tr>
                 @endforelse
                 @can('edit things')
@@ -152,7 +139,7 @@
                             <div class="d-flex gap-2 align-items-center">
                                 <input type="text" class="form-control form-control-sm add-number" style="width:60px" placeholder="#">
                                 <select class="add-player form-select form-select-sm w-auto d-inline-block" data-club-team-season-id="{{ $clubTeamSeason->id }}">
-                                    <option value="">Add Player</option>
+                                    <option value="">Add to roster&hellip;</option>
                                 @foreach($availablePlayers as $p)
                                     <option value="{{ $p->id }}">{{ $p->name }}</option>
                                 @endforeach
@@ -173,7 +160,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    Create New Season
+                    New Season
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -187,7 +174,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content py-4 px-2">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Player</h5>
+                    <h5 class="modal-title">Add Player to Team</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

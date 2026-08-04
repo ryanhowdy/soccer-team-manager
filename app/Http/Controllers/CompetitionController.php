@@ -21,13 +21,9 @@ class CompetitionController extends Controller
      */
     public function index(Request $request)
     {
-        $seasons = Season::all()->keyBy('id');
+        $seasons = Season::newestFirst()->get()->keyBy('id');
 
-        $seasonId = $request->has('filter-seasons')
-            ? $request->input('filter-seasons')
-            : $seasons->keys()->last();
-
-        $selectedSeason = $seasons[$seasonId] ?? null;
+        $selectedSeason = resolveSeasonFilter($request, $seasons);
 
         $competitions = Competition::where('club_team_id', auth()->user()->selected_club_team_id)
             ->when($selectedSeason, fn ($q) => $q->whereYear('started_at', $selectedSeason->year))
@@ -46,7 +42,7 @@ class CompetitionController extends Controller
         return view('competitions.index', [
             'competitions'   => $competitions,
             'seasons'        => $seasons,
-            'selectedSeason' => $seasonId,
+            'selectedSeason' => $selectedSeason,
             'managedTeams'   => $managedTeams,
         ]);
     }

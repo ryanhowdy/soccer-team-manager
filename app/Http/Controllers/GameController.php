@@ -41,8 +41,8 @@ class GameController extends Controller
      */
     public function index(Request $request)
     {
-        // Get all seasons
-        $seasons = Season::all()->keyBy('id');
+        // Get all seasons, newest first
+        $seasons = Season::newestFirst()->get()->keyBy('id');
 
         // Get all non managed teams, group them by club
         $teams = ClubTeam::from('club_teams as t')
@@ -109,28 +109,20 @@ class GameController extends Controller
         ]);
 
         // Any filters
+        $selectedSeason = resolveSeasonFilter($request, $seasons);
+
         $selected = [
-            'seasonId' => $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last(),
-            'clubId'   => $request->has('filter-clubs')   ? $request->input('filter-clubs')   : null,
-            'teamId'   => $request->has('filter-teams')   ? $request->input('filter-teams')   : null,
+            'clubId' => $request->has('filter-clubs') ? $request->input('filter-clubs') : null,
+            'teamId' => $request->has('filter-teams') ? $request->input('filter-teams') : null,
         ];
 
         $clubTeamSeasonIds = [];
-        $seasonIds         = [ $seasons->keys()->last() ];
         $clubIds           = [];
         $teamIds           = [];
 
-        if ($request->has('filter-seasons'))
-        {
-            if (is_null($request->input('filter-seasons')))
-            {
-                $seasonIds = $seasons->keys();
-            }
-            else
-            {
-                $seasonIds = [ $request->input('filter-seasons') ];
-            }
-        }
+        // No season means "all seasons"
+        $seasonIds = $selectedSeason ? [ $selectedSeason->id ] : $seasons->keys();
+
         if ($request->has('filter-clubs') && !is_null($request->input('filter-clubs')))
         {
             $clubIds = $teamIdsByClub[ $request->input('filter-clubs') ];
@@ -196,7 +188,7 @@ class GameController extends Controller
         });
 
         return view('games.index', [
-            'selectedSeason' => $selected['seasonId'],
+            'selectedSeason' => $selectedSeason,
             'selectedClub'   => $selected['clubId'],
             'selectedTeam'   => $selected['teamId'],
             'seasons'        => $seasons,

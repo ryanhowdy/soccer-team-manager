@@ -23,13 +23,11 @@ class StatsLineupController extends Controller
      */
     public function index(Request $request)
     {
-        // Get all seasons
-        $seasons = Season::all()->keyBy('id');
+        // Get all seasons, newest first
+        $seasons = Season::newestFirst()->get()->keyBy('id');
 
         // Any filters
-        $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
-
-        $selectedSeason = $seasonId ? ($seasons[$seasonId] ?? null) : null;
+        $selectedSeason = resolveSeasonFilter($request, $seasons);
 
         // Turn the season_id into a club_team_season_id
         $clubTeamSeasonIds = $selectedSeason
@@ -347,7 +345,7 @@ class StatsLineupController extends Controller
         }
 
         return view('stats.lineup', [
-            'selectedSeason' => $selectedSeason ? $selectedSeason->id : null,
+            'selectedSeason' => $selectedSeason,
             'seasons'        => $seasons,
             'stats'          => $stats,
         ]);

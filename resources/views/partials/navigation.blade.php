@@ -36,7 +36,7 @@
                 <a class="dropdown-item" href="{{ route('players.show', ['player' => $p->player->id]) }}">{{ $p->player->name }}</a>
                 @endforeach
             @endif
-                <a class="dropdown-item link-secondary" href="{{ route('managed-players.create') }}">Add Player</a>
+                <a class="dropdown-item link-secondary" href="{{ route('managed-players.create') }}">Add Managed Player</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{{ route('settings') }}">Settings</a>
                 <a class="dropdown-item link-danger" href="{{ route('logout') }}">Logout</a>

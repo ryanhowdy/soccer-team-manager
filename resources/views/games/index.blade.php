@@ -33,15 +33,8 @@
                                 <div class="mb-3">
                                     <select class="form-select" id="filter-seasons" name="filter-seasons">
                                         <option value="">All Seasons</option>
-                                @foreach ($seasons as $i => $season)
-                                    @if ($loop->first)
-                                        <optgroup label="{{ $season->year }}">
-                                    @else
-                                        @if ($seasons[$i]->year !== $seasons[$i-1]->year)
-                                        <optgroup label="{{ $season->year }}">
-                                        @endif
-                                    @endif
-                                        <option value="{{ $season->id }}" @selected($selectedSeason == $season->id)>{{ $season->season }} {{ $season->year }}</option>
+                                @foreach ($seasons as $season)
+                                        <option value="{{ $season->id }}" @selected($selectedSeason && $selectedSeason->id == $season->id)>{{ $season->season_year }}</option>
                                 @endforeach
                                     </select>
                                 </div>
@@ -161,7 +154,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content py-4 px-2">
                 <div class="modal-header">
-                    <h5 class="modal-title">Create New Season</h5>
+                    <h5 class="modal-title">New Season</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

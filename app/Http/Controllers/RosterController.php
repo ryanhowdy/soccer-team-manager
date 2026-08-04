@@ -51,15 +51,13 @@ class RosterController extends Controller
             $selectedTeam = $managedTeams->first();
         }
 
-        // Seasons for the per-page filter (newest first, default to latest)
-        $seasons = Season::orderBy('id', 'desc')->get();
+        // Seasons for the filter (newest first). A roster belongs to a single
+        // team-season, so "All Seasons" isn't offered here.
+        $seasons = Season::newestFirst()->get()->keyBy('id');
 
-        $selectedSeason = null;
-        if ($seasons->isNotEmpty())
-        {
-            $seasonId       = $request->input('filter-seasons', $seasons->first()->id);
-            $selectedSeason = $seasons->firstWhere('id', $seasonId) ?? $seasons->first();
-        }
+        $selectedSeason = $seasons->isEmpty()
+            ? null
+            : resolveSeasonFilter($request, $seasons, allowAll: false);
 
         // The team-season link (may not exist yet for this team/season)
         $clubTeamSeason = null;

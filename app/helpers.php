@@ -231,3 +231,60 @@ if (!function_exists('getLineupForEventTime'))
         return $lineup;
     }
 }
+
+if (!function_exists('resolveSeasonFilter'))
+{
+    /**
+     * Resolve which season a season-filtered page should show.
+     *
+     * Precedence:
+     *   1. ?filter-seasons on the request — also remembered for later pages
+     *   2. the season last picked, from the session
+     *   3. the most recent season
+     *
+     * An empty ?filter-seasons means "all seasons" and returns null. Pages that
+     * can't render every season at once (a roster belongs to one team-season)
+     * pass $allowAll = false and fall back to the most recent season instead.
+     *
+     * @param  Illuminate\Http\Request $request
+     * @param  Illuminate\Support\Collection $seasons  newest-first, keyed by id
+     * @param  bool $allowAll
+     * @return App\Models\Season|null
+     */
+    function resolveSeasonFilter($request, $seasons, bool $allowAll = true)
+    {
+        $latest = $seasons->first();
+
+        if ($request->has('filter-seasons'))
+        {
+            $seasonId = $request->input('filter-seasons');
+
+            if ($seasonId === '' || is_null($seasonId))
+            {
+                session(['selected_season_id' => 'all']);
+
+                return $allowAll ? null : $latest;
+            }
+
+            $season = $seasons[$seasonId] ?? null;
+
+            if ($season)
+            {
+                session(['selected_season_id' => $season->id]);
+
+                return $season;
+            }
+
+            return $latest;
+        }
+
+        $remembered = session('selected_season_id');
+
+        if ($remembered === 'all')
+        {
+            return $allowAll ? null : $latest;
+        }
+
+        return $seasons[$remembered] ?? $latest;
+    }
+}

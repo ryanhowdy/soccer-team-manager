@@ -22,13 +22,11 @@ class StatsTeamController extends Controller
      */
     public function index(Request $request)
     {
-        // Get all seasons
-        $seasons = Season::all()->keyBy('id');
+        // Get all seasons, newest first
+        $seasons = Season::newestFirst()->get()->keyBy('id');
 
         // Any filters
-        $seasonId = $request->has('filter-seasons') ? $request->input('filter-seasons') : $seasons->keys()->last();
-
-        $selectedSeason = $seasonId ? ($seasons[$seasonId] ?? null) : null;
+        $selectedSeason = resolveSeasonFilter($request, $seasons);
 
         // Turn the season_id into a club_team_season_id
         $clubTeamSeasonIds = $selectedSeason
@@ -355,22 +353,26 @@ class StatsTeamController extends Controller
                 'shotConversion' => $player['goals'] ? round(($player['goals'] / $player['shots']) * 100) : 0,
             ];
 
-            if ($fulltime)
+            // Close any unclosed spans at each game's recorded fulltime. Older
+            // games were tracked without a fulltime event, so there's nothing to
+            // close the span against — leave it open and count no time for it.
+            foreach ($stats['players'][$name]['time']['spans'] as $i => $span)
             {
-                foreach ($stats['players'][$name]['time']['spans'] as $i => $span)
+                if ($span['end'] !== null || !isset($fulltime[ $span['game'] ]))
                 {
-                    if ($span['end'] === null)
-                    {
-                        $stats['players'][$name]['time']['spans'][$i]['end'] = $fulltime[ $span['game'] ];
-
-                        $start = eventTimeToSeconds($span['start']);
-                        $end   = eventTimeToSeconds($fulltime[ $span['game'] ]);
-
-                        $secs = $end - $start;
-
-                        $stats['players'][$name]['time']['secs'] += $secs;
-                    }
+                    continue;
                 }
+
+                $ft = $fulltime[ $span['game'] ];
+
+                $stats['players'][$name]['time']['spans'][$i]['end'] = $ft;
+
+                $start = eventTimeToSeconds($span['start']);
+                $end   = eventTimeToSeconds($ft);
+
+                $secs = $end - $start;
+
+                $stats['players'][$name]['time']['secs'] += $secs;
             }
 
             // format everyones time in minutes
@@ -379,7 +381,7 @@ class StatsTeamController extends Controller
         }
 
         return view('stats.team', [
-            'selectedSeason' => $selectedSeason ? $selectedSeason->id : null,
+            'selectedSeason' => $selectedSeason,
             'seasons'        => $seasons,
             'results'        => $results,
             'stats'          => $stats,

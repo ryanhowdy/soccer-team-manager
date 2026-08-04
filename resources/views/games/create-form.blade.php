@@ -4,18 +4,20 @@
         <div class="d-flex justify-content-between">
             <label class="form-label" for="season_id">Season</label>
             <a href="#" class="smaller lh-lg link-secondary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                data-bs-toggle="modal" data-bs-target="#create-season">Add Season</a>
+                data-bs-toggle="modal" data-bs-target="#create-season">New Season</a>
         </div>
+        {{-- Ids are chronological, so the highest is the newest season --}}
+        @php
+            $newestSeasonId = $seasons->max('id');
+            $prevYear       = null;
+        @endphp
         <select class="form-select" id="season_id" name="season_id">
-    @foreach ($seasons as $i => $season)
-        @if ($loop->first)
+    @foreach ($seasons as $season)
+        @if ($prevYear !== $season->year)
             <optgroup label="{{ $season->year }}">
-        @else
-            @if ($seasons[$i]->year !== $seasons[$i-1]->year)
-            <optgroup label="{{ $season->year }}">
-            @endif
         @endif
-            <option value="{{ $season->id }}" @if($loop->last) selected @endif>{{ $season->season }} {{ $season->year }}</option>
+            <option value="{{ $season->id }}" @selected($season->id == $newestSeasonId)>{{ $season->season_year }}</option>
+        @php $prevYear = $season->year; @endphp
     @endforeach
         </select>
     </div>
