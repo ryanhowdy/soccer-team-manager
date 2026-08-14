@@ -127,6 +127,16 @@ class HomeController extends Controller
             ->orderBy('id', 'desc')
             ->first();
 
+        // Seed the shared season filter from the team's latest season, so the
+        // season-filtered pages open on the same season the dashboard is showing.
+        // 'all' is a legitimate stored value, so this checks for the key being
+        // absent rather than empty.  With no team season yet there's nothing to
+        // seed, and resolveSeasonFilter() falls back to the newest season.
+        if ($latestSeason && !session()->has('selected_season_id'))
+        {
+            session(['selected_season_id' => $latestSeason->season_id]);
+        }
+
         // Get the most recent competition of each type with their completed results
         $resultsByCompetition = collect();
         $allSeasonResults = collect();
