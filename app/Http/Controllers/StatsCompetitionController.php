@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Result;
 use App\Models\Season;
+use App\Models\ClubTeam;
 use App\Models\Competition;
 use App\Enums\ResultStatus;
 
@@ -48,11 +49,21 @@ class StatsCompetitionController extends Controller
             $recordsByCompetition[$result->competition_id][ $result->win_draw_loss ]++;
         }
 
+        // For the shared create-competition modal
+        $managedTeams = ClubTeam::from('club_teams as t')
+            ->select('t.*', 'c.name as club_name')
+            ->join('clubs as c', 't.club_id', '=', 'c.id')
+            ->where('managed', 1)
+            ->orderBy('club_name')
+            ->orderBy('t.name')
+            ->get();
+
         return view('stats.competitions.index', [
             'competitions'         => $competitions->groupBy('status'),
             'recordsByCompetition' => $recordsByCompetition,
             'seasons'              => $seasons,
             'selectedSeason'       => $selectedSeason,
+            'managedTeams'         => $managedTeams,
         ]);
     }
 }

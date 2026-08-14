@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/compeitions',               [\App\Http\Controllers\CompetitionController::class, 'index'])->name('competitions.index');
     Route::post('/compeitions',               [\App\Http\Controllers\CompetitionController::class, 'store'])->name('competitions.store');
     Route::get( '/compeitions/{competition}', [\App\Http\Controllers\CompetitionController::class, 'show'])->name('competitions.show');
+    Route::post('/compeitions/{competition}/edit', [\App\Http\Controllers\CompetitionController::class, 'update'])->name('competitions.update');
 
     // Players
     Route::get( '/players',                           [\App\Http\Controllers\PlayerController::class, 'index'])->name('players.index');

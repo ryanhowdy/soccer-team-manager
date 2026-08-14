@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('body-id', 'stats')
+@section('body-id', 'competitions')
 
 @section('content')
     <div class="container main-content">
@@ -54,6 +54,7 @@
                                 <th class="d-none d-md-table-cell">End Date</th>
                                 <th>Website</th>
                                 <th>Notes</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,12 +65,22 @@
                                         {{ $comp->type }}
                                     </div>
                                     <div>
+                                    @can('edit things')
+                                        {{-- This is the management screen, so the name opens the editor;
+                                             the report lives under Stats and is linked in the actions column --}}
                                         <a @class([
                                             'link-underline link-underline-opacity-0 link-underline-opacity-100-hover',
                                             'fw-bold link-dark' => $comp->status == 'A',
                                             'fst-italic link-dark' => $comp->status == 'D',
                                             'fst-italic link-secondary text-decoration-line-through' => $comp->status == 'C',
-                                            ]) href="{{ route('competitions.show', ['competition' => $comp->id]) }}">{{ $comp->name }}</a>
+                                            ]) href="#" data-bs-toggle="modal" data-bs-target="#edit-competition-{{ $comp->id }}">{{ $comp->name }}</a>
+                                    @else
+                                        <span @class([
+                                            'fw-bold' => $comp->status == 'A',
+                                            'fst-italic' => $comp->status == 'D',
+                                            'fst-italic text-secondary text-decoration-line-through' => $comp->status == 'C',
+                                            ])>{{ $comp->name }}</span>
+                                    @endcan
                                     </div>
                                     <span class="smaller fw-bold text-primary">{{ $comp->division }}</span>
                                 </td>
@@ -122,6 +133,18 @@
                                     </a>
                                 @endif
                                 </td>
+                                <td class="text-end text-nowrap">
+                                @can('edit things')
+                                    <a href="#" class="link-secondary pe-2" data-bs-toggle="modal" data-bs-target="#edit-competition-{{ $comp->id }}"
+                                        title="Edit competition" aria-label="Edit competition">
+                                        <span class="bi-pencil"></span>
+                                    </a>
+                                @endcan
+                                    <a href="{{ route('competitions.show', ['competition' => $comp->id]) }}" class="link-secondary"
+                                        title="View report" aria-label="View report">
+                                        <span class="bi-graph-up"></span>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>
@@ -155,6 +178,24 @@
         </div>
     </div>
 
+@can('edit things')
+    @foreach ($competitions->flatten() as $comp)
+    <div id="edit-competition-{{ $comp->id }}" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content py-4 px-2">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit {{ $comp->name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+@include('competitions.edit-form', ['comp' => $comp])
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
+@endcan
+
 <script>
 $(document).ready(function() {
     $('.comp-table').DataTable({
@@ -163,6 +204,10 @@ $(document).ready(function() {
         searching: false,
         info: false,
         order: [[3, 'desc']],
+        columnDefs: [
+            // Website, Notes and the actions column aren't meaningfully sortable
+            { targets: [5, 6, 7], orderable: false },
+        ],
     });
 
     $('td button.save-place').on('click', function (e) {

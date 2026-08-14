@@ -39,6 +39,14 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
+                                    <select class="form-select" id="filter-competitions" name="filter-competitions">
+                                        <option value="">All Competitions</option>
+                                @foreach ($filterCompetitions as $comp)
+                                        <option value="{{ $comp->id }}" @selected($selectedCompetition == $comp->id)>{{ $comp->name }} &mdash; {{ $comp->division }}</option>
+                                @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
                                     <select class="form-select" id="filter-clubs" name="filter-clubs">
                                         <option value="">All Clubs</option>
                                     @foreach ($teamsByClub as $clubName => $teams)

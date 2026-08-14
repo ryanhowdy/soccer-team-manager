@@ -21995,6 +21995,13 @@ label.required:after {
   height: 50px;
   line-height: 50px;
 }
+#stats a.notes-toggle > span {
+  display: inline-block;
+  transition: transform 0.2s ease-in-out;
+}
+#stats a.notes-toggle:not(.collapsed) > span {
+  transform: rotate(180deg);
+}
 
 #rosters .card {
   max-width: 400px;

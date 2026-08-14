@@ -19,5 +19,20 @@
         height: 50px;
         line-height: 50px;
     }
+    // Competition card notes toggle.  Bootstrap drops .collapsed off the
+    // trigger while the panel is open, so the caret flips to point up.
+    a.notes-toggle
+    {
+        > span
+        {
+            display: inline-block;
+            transition: transform .2s ease-in-out;
+        }
+
+        &:not(.collapsed) > span
+        {
+            transform: rotate(180deg);
+        }
+    }
 }
 

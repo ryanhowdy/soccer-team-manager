@@ -1,3 +1,7 @@
+@php
+    // Competitions are team-scoped, so default to the team in the navbar picker
+    $defaultTeamId = auth()->user()->selected_club_team_id;
+@endphp
 <form method="post" action="{{ route('competitions.store') }}">
     @csrf
     <div class="mb-3">
@@ -5,7 +9,7 @@
         <select class="form-select" id="club_team_id" name="club_team_id" required>
             <option></option>
     @foreach ($managedTeams as $team)
-            <option value="{{ $team->id }}">{{ $team->club->name }}: {{ $team->name }} {{ $team->birth_year }}</option>
+            <option value="{{ $team->id }}" @selected($team->id == $defaultTeamId)>{{ $team->club->name }}: {{ $team->name }} {{ $team->birth_year }}</option>
     @endforeach
         </select>
     </div>
@@ -38,7 +42,7 @@
     <div class="row align-items-start mb-3">
         <div class="col-auto">
             <label class="form-label required" for="started_at">Start Date</label>
-            <input type="date" class="form-control" id="started_at" name="started_at" required value="{{ date('Y-m-d H:00') }}">
+            <input type="date" class="form-control" id="started_at" name="started_at" required value="{{ date('Y-m-d') }}">
         </div>
         <div class="col-auto">
             <label class="form-label required" for="ended_at">End Date</label>

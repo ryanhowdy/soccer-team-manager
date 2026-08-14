@@ -112,9 +112,12 @@ class GameController extends Controller
         $selectedSeason = resolveSeasonFilter($request, $seasons);
 
         $selected = [
-            'clubId' => $request->has('filter-clubs') ? $request->input('filter-clubs') : null,
-            'teamId' => $request->has('filter-teams') ? $request->input('filter-teams') : null,
+            'clubId'        => $request->has('filter-clubs') ? $request->input('filter-clubs') : null,
+            'teamId'        => $request->has('filter-teams') ? $request->input('filter-teams') : null,
+            'competitionId' => $request->filled('filter-competitions') ? $request->input('filter-competitions') : null,
         ];
+
+        $competitionId = $selected['competitionId'];
 
         $clubTeamSeasonIds = [];
         $clubIds           = [];
@@ -138,22 +141,61 @@ class GameController extends Controller
             ->pluck('id')
             ->toArray();
 
+        // Competitions offered in the filter, derived from the games actually on
+        // the page rather than from competitions.started_at. A competition can
+        // start in one year and run into the next season, so matching on its year
+        // would leave those games unreachable from the filter.
+        // ($competitions above is Active-only and drives the create-game form.)
+        $filterCompetitionIds = Result::query()
+            ->whereNotNull('competition_id')
+            ->where(function (Builder $q) use ($clubTeamSeasonIds) {
+                $q->where(function (Builder $sub) {
+                    $sub->where('status', ResultStatus::Scheduled);
+                })
+                ->orWhere(function (Builder $sub) use ($clubTeamSeasonIds) {
+                    $sub->where('status', ResultStatus::Done)
+                        ->whereIn('club_team_season_id', $clubTeamSeasonIds);
+                });
+            })
+            ->where(function (Builder $q) {
+                $q->where('home_team_id', auth()->user()->selected_club_team_id)
+                    ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
+            })
+            ->distinct()
+            ->pluck('competition_id');
+
+        $filterCompetitions = Competition::whereIn('id', $filterCompetitionIds)
+            ->orderBy('started_at', 'desc')
+            ->get();
+
         // Get all the results
         $query = Result::query()
-            ->where(function (Builder $q) {
+            ->where(function (Builder $q) use ($competitionId) {
                 $q->where('status', ResultStatus::Scheduled)
                     ->where(function (Builder $q) {
                         $q->where('home_team_id', auth()->user()->selected_club_team_id)
                             ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
                     });
+
+                // Upcoming games normally ignore the filters, but showing games
+                // from other competitions while one is selected reads as a bug
+                if ($competitionId)
+                {
+                    $q->where('competition_id', $competitionId);
+                }
             })
-            ->orWhere(function (Builder $q) use ($clubTeamSeasonIds, $clubIds, $teamIds) {
+            ->orWhere(function (Builder $q) use ($clubTeamSeasonIds, $clubIds, $teamIds, $competitionId) {
                 $q->where('status', ResultStatus::Done)
                     ->whereIn('club_team_season_id', $clubTeamSeasonIds)
                     ->where(function (Builder $sub) {
                         $sub->where('home_team_id', auth()->user()->selected_club_team_id)
                             ->orWhere('away_team_id', auth()->user()->selected_club_team_id);
                     });
+
+                if ($competitionId)
+                {
+                    $q->where('competition_id', $competitionId);
+                }
 
                 if ($clubIds)
                 {
@@ -188,10 +230,12 @@ class GameController extends Controller
         });
 
         return view('games.index', [
-            'selectedSeason' => $selectedSeason,
-            'selectedClub'   => $selected['clubId'],
-            'selectedTeam'   => $selected['teamId'],
-            'seasons'        => $seasons,
+            'selectedSeason'      => $selectedSeason,
+            'selectedClub'        => $selected['clubId'],
+            'selectedTeam'        => $selected['teamId'],
+            'selectedCompetition' => $selected['competitionId'],
+            'filterCompetitions'  => $filterCompetitions,
+            'seasons'             => $seasons,
             'teamsByClub'    => $teamsByClub,
             'results'        => $results,
             'action'         => route('games.store'),

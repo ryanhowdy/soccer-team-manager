@@ -98,15 +98,63 @@ class CompetitionController extends Controller
             ], 200);
         }
 
-        return redirect()->route('competitions.index');
+        // Return to whichever page opened the modal — Manage → Competitions or
+        // Stats → Competitions both host it. (The games page posts as JSON above.)
+        return redirect()->back();
     }
 
 
     /**
-     * show 
-     * 
-     * @param Competition $competition 
-     * @param Request $request 
+     * update
+     *
+     * @param Competition $competition
+     * @param Request $request
+     * @return null
+     */
+    public function update(Competition $competition, Request $request)
+    {
+        $validated = $request->validate([
+            'name'         => 'required|string|max:255',
+            'club_team_id' => 'required|exists:club_teams,id',
+            'type'         => 'required|in:Cup,Friendly,League',
+            'status'       => 'required|in:A,C,D',
+            'division'     => 'required|string|max:255',
+            'place'        => 'nullable|integer',
+            'level'        => 'nullable|integer',
+            'total_levels' => 'nullable|integer',
+            'started_at'   => 'required|date_format:Y-m-d',
+            'ended_at'     => 'required|date_format:Y-m-d',
+            'website'      => 'nullable|string|max:255',
+            'notes'        => 'nullable|string|max:255',
+        ]);
+
+        $competition->name         = $request->name;
+        $competition->club_team_id = $request->club_team_id;
+        $competition->type         = $request->type;
+        $competition->status       = $request->status;
+        $competition->division     = $request->division;
+        $competition->place        = $request->place;
+        $competition->level        = $request->level;
+        $competition->total_levels = $request->total_levels;
+        $competition->started_at   = Carbon::parse($request->started_at);
+        $competition->ended_at     = Carbon::parse($request->ended_at);
+        $competition->website      = $request->website;
+        $competition->notes        = $request->notes;
+
+        $competition->updated_user_id = Auth()->user()->id;
+
+        $competition->save();
+
+        // The edit modal is hosted on both Manage → Competitions and
+        // Stats → Competitions, so return to whichever page opened it.
+        return redirect()->back();
+    }
+
+    /**
+     * show
+     *
+     * @param Competition $competition
+     * @param Request $request
      * @return null
      */
     public function show(Competition $competition, Request $request)
