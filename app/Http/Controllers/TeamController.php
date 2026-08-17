@@ -20,7 +20,11 @@ class TeamController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('teams', [
+        return view('teams.index', [
+            // Only the clubs we manage a team for; the view then shows just that
+            // club's managed teams.  Everything else is on the Opponents page.
+            'myClubs'          => $clubs->filter(fn ($club) => clubHasManagedTeam($club)),
+            // The create-team form offers every club, not just ours
             'clubs'            => $clubs,
             'createTeamAction' => route('teams.store'),
             'createClubAction' => route('clubs.store'),
@@ -108,7 +112,9 @@ class TeamController extends Controller
             }
         }
 
-        return redirect()->route('teams.index');
+        // Managed teams list on Teams, the rest on Opponents — land on whichever
+        // page the new team actually shows up on.
+        return redirect()->route($team->managed ? 'teams.index' : 'opponents.index');
     }
 
     /**
@@ -174,6 +180,8 @@ class TeamController extends Controller
 
         $team->save();
 
-        return redirect()->route('teams.index');
+        // Ticking/unticking "Managed" moves the team between the two pages, so
+        // follow it rather than always returning to Teams.
+        return redirect()->route($team->managed ? 'teams.index' : 'opponents.index');
     }
 }

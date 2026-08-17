@@ -10,6 +10,50 @@ use App\Enums\ResultStatus;
  * Some usefule global helper/utility functions
  */
 
+if (!function_exists('clubHasManagedTeam'))
+{
+    /**
+     * Does this club have at least one team we manage? Decides whether it lists
+     * on Manage -> Teams.
+     *
+     * "managed" is a column on club_teams rather than on clubs, so a club counts
+     * as ours as soon as one of its teams is managed.
+     *
+     * @param  App\Models\Club $club  with teams loaded
+     * @return bool
+     */
+    function clubHasManagedTeam($club): bool
+    {
+        return $club->teams->where('managed', 1)->isNotEmpty();
+    }
+}
+
+if (!function_exists('clubListsAsOpponent'))
+{
+    /**
+     * Does this club belong on Manage -> Opponents?
+     *
+     * Deliberately NOT the inverse of clubHasManagedTeam(): a club with a mix of
+     * managed and unmanaged teams shows on both pages, so those unmanaged teams
+     * stay reachable from Opponents instead of being hidden behind the managed
+     * half. The two pages therefore overlap rather than partition.
+     *
+     * @param  App\Models\Club $club  with teams loaded
+     * @return bool
+     */
+    function clubListsAsOpponent($club): bool
+    {
+        // A club with no teams yet — one just created from the Add Club modal —
+        // still belongs here, or it would vanish the moment it was added.
+        if ($club->teams->isEmpty())
+        {
+            return true;
+        }
+
+        return $club->teams->where('managed', '!=', 1)->isNotEmpty();
+    }
+}
+
 if (!function_exists('addOrdinalNumberSuffix'))
 {
     function addOrdinalNumberSuffix($num)

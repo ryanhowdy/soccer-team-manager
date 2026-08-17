@@ -44,7 +44,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get( '/games/{id}/live/possession', [\App\Http\Controllers\LiveGameController::class, 'possession'])->name('games.live.possession');
     Route::get( '/games/{id}/live/pk',         [\App\Http\Controllers\LiveGameController::class, 'pk'])->name('games.live.pk');
 
-    // Teams
+    // Opponents (the clubs we play against)
+    Route::get( '/opponents', [\App\Http\Controllers\OpponentController::class, 'index'])->name('opponents.index');
+
+    // Teams (the teams we manage)
     Route::get( '/teams',           [\App\Http\Controllers\TeamController::class, 'index'])->name('teams.index');
     Route::post('/teams',           [\App\Http\Controllers\TeamController::class, 'store'])->name('teams.store');
     Route::get( '/teams/first',     [\App\Http\Controllers\TeamController::class, 'first'])->name('teams.first');

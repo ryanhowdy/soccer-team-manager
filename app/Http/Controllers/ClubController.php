@@ -95,7 +95,8 @@ class ClubController extends Controller
             return redirect()->route('teams.first');
         }
 
-        return redirect()->route('teams.index');
+        // A brand new club has no teams yet, so it lists under Opponents
+        return redirect()->route('opponents.index');
     }
 
     /**
@@ -187,6 +188,7 @@ class ClubController extends Controller
 
         $club->save();
 
-        return redirect()->route('teams.index');
+        // Return to whichever page lists this club
+        return redirect()->route(clubHasManagedTeam($club) ? 'teams.index' : 'opponents.index');
     }
 }

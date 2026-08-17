@@ -5,10 +5,15 @@
 @section('content')
     <div class="container main-content">
 
-        <div class="rounded rounded-3 bg-white py-2 px-3 mb-2 text-end">
-            <a href="#" class="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#create-formation">
-                <span class="bi-plus-lg pe-2"></span>Add Formation
-            </a>
+        <div class="d-flex justify-content-between mb-3">
+            <div><h2>Formations</h2></div>
+            <div class="d-flex gap-2 align-items-center justify-content-end">
+                <div class="ps-2">
+                    <a href="#" class="btn btn-sm btn-dark text-white rounded-pill py-2 px-3" data-bs-toggle="modal" data-bs-target="#create-formation">
+                        <span class="bi-plus-lg pe-0 pe-lg-2"></span><span class="d-none d-lg-inline-block">Add Formation</span>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="rounded rounded-3 bg-white position-relative p-4 mb-3">

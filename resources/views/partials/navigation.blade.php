@@ -77,9 +77,10 @@
             {{-- Non-team-scoped management + admin --}}
             <ul class="navbar-nav nav-underline mb-2 mb-lg-0">
                 <li class="nav-item me-2 dropdown">
-                    <a @class(['nav-link dropdown-toggle', 'active' => request()->routeIs('teams.*', 'clubs.*', 'competitions.index', 'locations.*', 'formations.*')]) href="#" role="button" data-bs-toggle="dropdown">Manage</a>
+                    <a @class(['nav-link dropdown-toggle', 'active' => request()->routeIs('teams.*', 'opponents.*', 'clubs.*', 'competitions.index', 'locations.*', 'formations.*')]) href="#" role="button" data-bs-toggle="dropdown">Manage</a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ route('teams.index') }}">Teams &amp; Clubs</a></li>
+                        <li><a class="dropdown-item" href="{{ route('teams.index') }}">Teams</a></li>
+                        <li><a class="dropdown-item" href="{{ route('opponents.index') }}">Opponents</a></li>
                         <li><a class="dropdown-item" href="{{ route('competitions.index') }}">Competitions</a></li>
                         <li><a class="dropdown-item" href="{{ route('locations.index') }}">Locations</a></li>
                         <li><a class="dropdown-item" href="{{ route('formations.index') }}">Formations</a></li>

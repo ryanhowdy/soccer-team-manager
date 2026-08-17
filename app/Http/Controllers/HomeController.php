@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Result;
-use App\Models\Season;
 use App\Models\ClubTeam;
 use App\Models\ClubTeamSeason;
 use App\Models\Competition;
@@ -342,7 +341,7 @@ class HomeController extends Controller
      *
      * @return Illuminate\View\View
      */
-    public function pickTeam($teamId)
+    public function pickTeam($teamId, Request $request)
     {
         $team = ClubTeam::from('club_teams as t')
             ->select('t.*', 'c.name as club_name')
@@ -354,6 +353,17 @@ class HomeController extends Controller
         if ($team)
         {
             Auth()->user()->update(['selected_club_team_id' => $team->id]);
+        }
+
+        // Manage -> Teams & Clubs links straight into a team's own pages, but those
+        // are scoped by the picker rather than by the url, so the switch has to
+        // happen first.  Only the team-scoped landings are accepted as targets;
+        // anything else (the navbar picker included) just returns where it came from.
+        $allowedTargets = ['home', 'games.index', 'rosters.index'];
+
+        if (in_array($request->input('to'), $allowedTargets, true))
+        {
+            return redirect()->route($request->input('to'));
         }
 
         return back();

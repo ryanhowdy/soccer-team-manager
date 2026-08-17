@@ -52,7 +52,8 @@
                     <textarea class="form-control" id="notes" name="notes" rows="3">{{ $club->notes }}</textarea>
                 </div>
                 <button type="submit" class="btn btn-primary text-white">Submit</button>
-                <a href="{{ route('teams.index') }}" class="btn btn-secondary">Cancel</a>
+                {{-- back to whichever page lists this club --}}
+                <a href="{{ route(clubHasManagedTeam($club) ? 'teams.index' : 'opponents.index') }}" class="btn btn-secondary">Cancel</a>
             </form>
         </div>
 
