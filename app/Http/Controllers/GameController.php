@@ -71,8 +71,12 @@ class GameController extends Controller
             ->orderBy('t.name')
             ->get();
 
-        // Get all active competitions grouped by type
+        // Active competitions for the selected team, grouped by type.  This drives
+        // the create-game form only (the filter dropdown uses $filterCompetitions),
+        // and a new game is always for the selected team, so another team's
+        // competitions would just be noise you could pick by mistake.
         $competitions = Competition::where('status', CompetitionStatus::Active)
+            ->where('club_team_id', auth()->user()->selected_club_team_id)
             ->orderBy('started_at', 'desc')
             ->get()
             ->groupBy('type');
@@ -145,7 +149,8 @@ class GameController extends Controller
         // the page rather than from competitions.started_at. A competition can
         // start in one year and run into the next season, so matching on its year
         // would leave those games unreachable from the filter.
-        // ($competitions above is Active-only and drives the create-game form.)
+        // ($competitions above is Active-and-selected-team-only and drives the
+        // create-game form; this list is deliberately broader.)
         $filterCompetitionIds = Result::query()
             ->whereNotNull('competition_id')
             ->where(function (Builder $q) use ($clubTeamSeasonIds) {
@@ -420,18 +425,31 @@ class GameController extends Controller
             'away' => '#003282',
         ];
 
-        // Get the team colors
-        if (File::exists(public_path($result->homeTeam->club->logo)))
+        // Get the team colors.
+        //
+        // club.logo is stored relative to public/ (that's what asset() wants), so
+        // resolve it once and hand the SAME absolute path to both the check and the
+        // read. Passing the bare relative path to Palette makes it resolve against
+        // the process's working directory instead, which only happens to match
+        // under a web server whose cwd is the docroot.
+        //
+        // isFile() rather than exists(): public_path() of a blank logo is the
+        // public/ directory itself, and exists() is true for directories — it would
+        // wave that through into Palette to be read as an image.
+        $homeLogo = public_path($result->homeTeam->club->logo);
+        $awayLogo = public_path($result->awayTeam->club->logo);
+
+        if (File::isFile($homeLogo))
         {
-            $homePalette   = Palette::fromFilename($result->homeTeam->club->logo);
+            $homePalette   = Palette::fromFilename($homeLogo);
             $homeExtractor = new ColorExtractor($homePalette);
             $homeColors    = $homeExtractor->extract(1);
 
             $teamColors['home'] = Color::fromIntToHex($homeColors[0]);
         }
-        if (File::exists(public_path($result->awayTeam->club->logo)))
+        if (File::isFile($awayLogo))
         {
-            $awayPalette   = Palette::fromFilename($result->awayTeam->club->logo);
+            $awayPalette   = Palette::fromFilename($awayLogo);
             $awayExtractor = new ColorExtractor($awayPalette);
             $awayColors    = $awayExtractor->extract(1);
 
@@ -1051,18 +1069,31 @@ class GameController extends Controller
             'away' => '#003282',
         ];
 
-        // Get the team colors
-        if (File::exists(public_path($result->homeTeam->club->logo)))
+        // Get the team colors.
+        //
+        // club.logo is stored relative to public/ (that's what asset() wants), so
+        // resolve it once and hand the SAME absolute path to both the check and the
+        // read. Passing the bare relative path to Palette makes it resolve against
+        // the process's working directory instead, which only happens to match
+        // under a web server whose cwd is the docroot.
+        //
+        // isFile() rather than exists(): public_path() of a blank logo is the
+        // public/ directory itself, and exists() is true for directories — it would
+        // wave that through into Palette to be read as an image.
+        $homeLogo = public_path($result->homeTeam->club->logo);
+        $awayLogo = public_path($result->awayTeam->club->logo);
+
+        if (File::isFile($homeLogo))
         {
-            $homePalette   = Palette::fromFilename($result->homeTeam->club->logo);
+            $homePalette   = Palette::fromFilename($homeLogo);
             $homeExtractor = new ColorExtractor($homePalette);
             $homeColors    = $homeExtractor->extract(1);
 
             $teamColors['home'] = Color::fromIntToHex($homeColors[0]);
         }
-        if (File::exists(public_path($result->awayTeam->club->logo)))
+        if (File::isFile($awayLogo))
         {
-            $awayPalette   = Palette::fromFilename($result->awayTeam->club->logo);
+            $awayPalette   = Palette::fromFilename($awayLogo);
             $awayExtractor = new ColorExtractor($awayPalette);
             $awayColors    = $awayExtractor->extract(1);
 
@@ -1106,8 +1137,22 @@ class GameController extends Controller
         // Get all seasons
         $seasons = Season::all()->keyBy('id');
 
-        // Get all active competitions grouped by type
-        $competitions = Competition::orderBy('started_at', 'desc')
+        // Competitions for this game's own managed team, grouped by type — the same
+        // scoping as the create-game form, with two deliberate differences:
+        //   - keyed off the game's team, not the navbar picker, because you can
+        //     reach this page for a game belonging to a team that isn't selected;
+        //   - no Active-only filter, since an older game legitimately sits in a
+        //     competition that has since finished.
+        // The game's current competition is always kept in the list: the view marks
+        // the selected option by id, so dropping it would blank the field and make
+        // saving an unrelated change either fail validation or lose the competition.
+        $myTeamId = $result->{$goodGuys . '_team_id'};
+
+        $competitions = Competition::where(function (Builder $query) use ($myTeamId, $result) {
+                $query->where('club_team_id', $myTeamId)
+                    ->orWhere('id', $result->competition_id);
+            })
+            ->orderBy('started_at', 'desc')
             ->get()
             ->groupBy('type');
 
