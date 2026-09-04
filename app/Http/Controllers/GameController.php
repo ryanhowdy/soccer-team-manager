@@ -967,7 +967,7 @@ class GameController extends Controller
         $poolTeams = $poolTeams->filter()->keyBy('id');
 
         $availablePlayers = PlayerTeam::from('player_teams as pt')
-            ->select('p.id', 'p.name', 'p.birth_year', 'pt.club_team_id')
+            ->select('p.id', 'p.name', 'p.birth_year', 'p.graduation_year', 'pt.club_team_id')
             ->join('players as p', 'pt.player_id', '=', 'p.id')
             ->whereIn('pt.club_team_id', $poolTeams->keys())
             // Club teams only. A high school player may also have no birth year
@@ -985,6 +985,18 @@ class GameController extends Controller
             ->get()
             // A player sitting in more than one sibling pool would appear twice
             ->unique('id')
+            ->values();
+
+        // A student who has graduated cannot be called up. Same rule as the roster
+        // page, via the same helper so the two cannot drift apart.
+        $gameSeason = Season::find($clubTeamSeason->season_id);
+
+        $availablePlayers = $availablePlayers
+            ->filter(fn ($player) => playerEligibleForTeamSeason(
+                $player->graduation_year,
+                $gameSeason,
+                $isSchool
+            ))
             ->values();
 
         // Tag anyone coming from a sibling team with where they come from, so the

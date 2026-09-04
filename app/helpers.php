@@ -432,3 +432,40 @@ if (!function_exists('gradeForSeason'))
         ];
     }
 }
+
+if (!function_exists('playerEligibleForTeamSeason'))
+{
+    /**
+     * Can this player still be rostered on (or called up to) a team for a season?
+     *
+     * Only high school teams age players out: a student who has graduated is gone
+     * the following Fall. Club teams have no such notion - a player may carry a
+     * graduation year because they also play high school, and that must not make
+     * them ineligible for their club side.
+     *
+     * A player with no graduation year recorded is treated as eligible. Absence of
+     * data is not evidence they have left, and most players do not have one set.
+     *
+     * Keyed off gradeForSeason() rather than re-deriving the year arithmetic, so
+     * this can never disagree with the grade shown on the roster.
+     *
+     * @param  int|null          $graduationYear
+     * @param  App\Models\Season $season
+     * @param  bool              $isSchoolTeam
+     * @return bool
+     */
+    function playerEligibleForTeamSeason($graduationYear, $season, bool $isSchoolTeam): bool
+    {
+        if (!$isSchoolTeam)
+        {
+            return true;
+        }
+
+        if (empty($graduationYear))
+        {
+            return true;
+        }
+
+        return gradeForSeason($graduationYear, $season) !== null;
+    }
+}

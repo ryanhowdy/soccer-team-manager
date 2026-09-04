@@ -84,12 +84,21 @@ class RosterController extends Controller
         $rosteredPlayerIds = $rosterPlayers->pluck('player_id')->filter()->all();
 
         $availablePlayers = PlayerTeam::from('player_teams as pt')
-            ->select('p.id', 'p.name')
+            ->select('p.id', 'p.name', 'p.graduation_year')
             ->join('players as p', 'pt.player_id', '=', 'p.id')
             ->where('pt.club_team_id', $selectedTeam->id)
             ->whereNotIn('p.id', $rosteredPlayerIds ?: [0])
             ->orderBy('p.name')
-            ->get();
+            ->get()
+            // A graduated student is no longer on the school's roster. Applies to
+            // school teams only - a club player who also plays high school keeps
+            // a graduation year and must stay eligible for their club side.
+            ->filter(fn ($player) => playerEligibleForTeamSeason(
+                $player->graduation_year,
+                $selectedSeason,
+                $selectedTeam->isSchoolTeam()
+            ))
+            ->values();
 
         // Varsity/JV overlap: a high school player commonly plays on both
         // rosters, so flag it rather than letting it read as a duplicate entry.
