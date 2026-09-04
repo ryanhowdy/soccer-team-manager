@@ -61,7 +61,27 @@
                     </form>
                 </div>
                 <div class="col-12 col-lg-6">
-                    <h4>Teams</h4>
+                    <div class="alert alert-secondary">
+                    @if ($teams->isEmpty())
+                        <span class="text-danger fw-bold fst-italic">Not yet assigned to a team.</span>
+                    @else
+                        <ul class="list-unstyled mb-0">
+                        @foreach ($teams as $t)
+                            <li class="mb-1">
+                                {{ $t->club_name }}: {{ $t->name }}
+                            @if ($t->cohort_label)
+                                <span class="text-muted smaller">{{ $t->cohort_label }}</span>
+                            @endif
+                            </li>
+                        @endforeach
+                        </ul>
+                    @endif
+                    </div>
+
+                    <h4 class="mt-4">Seasons Played</h4>
+                @if ($seasonsPlayed->isEmpty())
+                    <p class="text-danger fw-bold fst-italic">Not yet rostered.</p>
+                @else
                     <table class="table">
                         <thead>
                             <tr>
@@ -71,7 +91,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach ($teams as $t)
+                        @foreach ($seasonsPlayed as $t)
                             <tr>
                                 <td>{{ $t->year }} {{ $t->season }}</td>
                                 <td>{{ $t->name }}</td>
@@ -80,6 +100,7 @@
                         @endforeach
                         </tbody>
                     </table>
+                @endif
                 </div>
             </div>
         </div>{{-- /.rounded --}}

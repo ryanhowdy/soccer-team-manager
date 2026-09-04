@@ -557,7 +557,28 @@ class PlayerController extends Controller
      */
     public function edit(Player $player, Request $request)
     {
-        $teams = DB::table('rosters as r')
+        // Two different things, and they are easy to confuse:
+        //
+        //   $teams        - the team pool(s) this player belongs to (player_teams).
+        //                   This is what makes them selectable for a roster, and it
+        //                   is what Manage -> Players lists in its "Teams" column.
+        //   $seasonsPlayed - the team-seasons they were actually rostered on
+        //                   (rosters). A player can sit in a pool for years and
+        //                   never be rostered, so this can be empty while $teams
+        //                   is not.
+        // Based on ClubTeam rather than PlayerTeam so the display accessors
+        // (cohort_label / rank_label) are available; club_type is selected to keep
+        // them from firing a lookup per row.
+        $teams = ClubTeam::from('club_teams as t')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
+            ->join('player_teams as pt', 'pt.club_team_id', '=', 't.id')
+            ->join('clubs as c', 't.club_id', '=', 'c.id')
+            ->where('pt.player_id', $player->id)
+            ->orderBy('c.name')
+            ->orderBy('t.name')
+            ->get();
+
+        $seasonsPlayed = DB::table('rosters as r')
             ->select('t.*', 'r.number', 's.season', 's.year')
             ->join('club_team_seasons as cts', 'r.club_team_season_id', '=', 'cts.id')
             ->join('club_teams as t', 'cts.club_team_id', '=', 't.id')
@@ -571,9 +592,10 @@ class PlayerController extends Controller
             ->get();
 
         return view('players.edit', [
-            'player'    => $player,
-            'teams'     => $teams,
-            'isManaged' => $managedPlayer->isNotEmpty(),
+            'player'        => $player,
+            'teams'         => $teams,
+            'seasonsPlayed' => $seasonsPlayed,
+            'isManaged'     => $managedPlayer->isNotEmpty(),
         ]);
     }
 
