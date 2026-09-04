@@ -83,7 +83,7 @@
         @endphp
         <select class="form-select" id="my_team_id" name="my_team_id">
     @foreach ($managedTeams as $i => $team)
-            <option value="{{ $team->id }}" @selected($team->id == $defaultTeamId)>{{ $team->club->name }}: {{ $team->name }} {{ $team->birth_year }}</option>
+            <option value="{{ $team->id }}" @selected($team->id == $defaultTeamId)>{{ $team->club->name }}: {{ $team->name }} {{ $team->cohort_label }}</option>
     @endforeach
         </select>
     </div>
@@ -107,7 +107,7 @@
         @foreach ($teamsByClub as $clubName => $teams)
                 <optgroup label="{{ $clubName }}">
             @foreach ($teamsByClub[$clubName] as $team)
-                <option value="{{ $team['id'] }}">{{ $team['name'] }} {{ $team['birth_year'] }}</option>
+                <option value="{{ $team['id'] }}">{{ $team['name'] }} {{ $team['cohort_label'] }}</option>
             @endforeach
         @endforeach
             </select>

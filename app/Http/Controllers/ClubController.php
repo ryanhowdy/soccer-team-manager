@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Club;
+use App\Enums\ClubType;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -42,6 +43,7 @@ class ClubController extends Controller
     {
         $validated = $request->validate([
             'name'    => 'required|string|max:255|unique:clubs,name',
+            'type'    => ['required', Rule::enum(ClubType::class)],
             'city'    => 'nullable|string|max:255',
             'state'   => 'nullable|string|max:2',
             'logo'    => 'nullable|image',
@@ -52,6 +54,7 @@ class ClubController extends Controller
         $club = new Club;
 
         $club->name            = $request->name;
+        $club->type            = $request->type;
         $club->created_user_id = Auth()->user()->id;
         $club->updated_user_id = Auth()->user()->id;
 
@@ -128,6 +131,7 @@ class ClubController extends Controller
                 'max:255',
                 Rule::unique('clubs', 'name')->ignore($club->id)
             ],
+            'type'    => ['required', Rule::enum(ClubType::class)],
             'city'    => 'nullable|string|max:255',
             'state'   => 'nullable|string|max:2',
             'logo'    => 'nullable|image',
@@ -136,6 +140,7 @@ class ClubController extends Controller
         ]);
 
         $club->name            = $request->name;
+        $club->type            = $request->type;
         $club->updated_user_id = Auth()->user()->id;
 
         $club->city    = $request->filled('city')    ? $request->city              : null;

@@ -13,6 +13,7 @@ use App\Models\Season;
 use App\Models\Roster;
 use App\Models\Position;
 use App\Models\Player;
+use App\Models\ManagedPlayer;
 
 class RosterController extends Controller
 {
@@ -29,7 +30,7 @@ class RosterController extends Controller
     {
         // All managed teams (needed for the picker + Add Player modal)
         $managedTeams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->where('managed', 1)
             ->orderBy('club_name')
@@ -90,6 +91,49 @@ class RosterController extends Controller
             ->orderBy('p.name')
             ->get();
 
+        // Varsity/JV overlap: a high school player commonly plays on both
+        // rosters, so flag it rather than letting it read as a duplicate entry.
+        // Club teams under one club are independent birth-year cohorts that do
+        // not share players, so this is deliberately school-only.
+        $alsoRosteredOn = [];
+
+        if ($clubTeamSeason && !empty($rosteredPlayerIds) && $selectedTeam->isSchoolTeam())
+        {
+            $siblings = $selectedTeam->siblings()->with('club')->get()->keyBy('id');
+
+            if ($siblings->isNotEmpty())
+            {
+                // Raw rows on purpose - the Roster model eager-loads `player`
+                // globally, which this doesn't need.
+                $overlaps = DB::table('rosters as r')
+                    ->select('r.player_id', 'cts.club_team_id')
+                    ->join('club_team_seasons as cts', 'r.club_team_season_id', '=', 'cts.id')
+                    ->where('cts.season_id', $selectedSeason->id)
+                    ->whereIn('cts.club_team_id', $siblings->keys())
+                    ->whereIn('r.player_id', $rosteredPlayerIds)
+                    ->get();
+
+                foreach ($overlaps as $overlap)
+                {
+                    $sibling = $siblings[$overlap->club_team_id] ?? null;
+
+                    if ($sibling)
+                    {
+                        $alsoRosteredOn[$overlap->player_id][] = $sibling->rank_label ?: $sibling->name;
+                    }
+                }
+            }
+        }
+
+        // The user's favourites, so the roster can flag them. Same shape as
+        // StatsLineupController uses. players.managed was dropped in migration
+        // 0.7.0 and replaced by managed_players; this view was still reading the
+        // dead column, so the flag never rendered.
+        $managedPlayerIds = ManagedPlayer::where('user_id', auth()->user()->id)
+            ->pluck('player_id')
+            ->flip()
+            ->toArray();
+
         // Inline position editing + Add Player modal
         $positions  = Position::orderBy('position')->get();
         $allPlayers = Player::orderBy('name')->get();
@@ -101,6 +145,8 @@ class RosterController extends Controller
             'selectedSeason'   => $selectedSeason,
             'clubTeamSeason'   => $clubTeamSeason,
             'rosterPlayers'    => $rosterPlayers,
+            'managedPlayerIds' => $managedPlayerIds,
+            'alsoRosteredOn'   => $alsoRosteredOn,
             'availablePlayers' => $availablePlayers,
             'positions'        => $positions,
             'allPlayers'       => $allPlayers,

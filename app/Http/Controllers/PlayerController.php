@@ -30,9 +30,31 @@ class PlayerController extends Controller
      */
     public function index(Request $request)
     {
-        // The Players page has been merged into the team-scoped Roster page
-        // Keep this route resolving so existing links/redirects work
-        return redirect()->route('rosters.index');
+        // The team-scoped player list is the Roster page. This is the global one,
+        // under Manage: a player's identity - name, birth year, graduation year -
+        // belongs to the player, not to a team-season, so there has to be one
+        // place to edit it that isn't scoped to a single roster.
+        $players = Player::with(['teams.clubTeam.club', 'positions'])
+            ->orderBy('name')
+            ->get();
+
+        // For the Add Player modal, which needs a team to attach the player to
+        $managedTeams = ClubTeam::from('club_teams as t')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
+            ->join('clubs as c', 't.club_id', '=', 'c.id')
+            ->where('managed', 1)
+            ->orderBy('club_name')
+            ->orderBy('t.name')
+            ->with('club')
+            ->get();
+
+        return view('players.index', [
+            'players'      => $players,
+            'managedTeams' => $managedTeams,
+            'selectedTeam' => auth()->user()->selectedTeam,
+            'allPlayers'   => $players,
+            'action'       => route('players.store'),
+        ]);
     }
 
     /**
@@ -43,13 +65,18 @@ class PlayerController extends Controller
      */
     public function store(Request $request)
     {
+        // A club player is identified by birth year, a high school player by
+        // graduation year (grade is derived from it per season). A new player
+        // needs at least one of the two, not both - a player who plays club and
+        // high school will have both.
         $validated = $request->validate([
-            'player_id'    => 'nullable|required_without:name|exists:players,id',
-            'name'         => 'nullable|required_without:player_id|string|max:255|unique:players,name',
-            'nickname'     => 'nullable|string|max:255',
-            'birth_year'   => 'nullable|required_without:player_id|date_format:Y',
-            'club_team_id' => 'required|exists:club_teams,id',
-            'photo'        => 'nullable|image',
+            'player_id'       => 'nullable|required_without:name|exists:players,id',
+            'name'            => 'nullable|required_without:player_id|string|max:255|unique:players,name',
+            'nickname'        => 'nullable|string|max:255',
+            'birth_year'      => 'nullable|required_without_all:player_id,graduation_year|date_format:Y',
+            'graduation_year' => 'nullable|date_format:Y',
+            'club_team_id'    => 'required|exists:club_teams,id',
+            'photo'           => 'nullable|image',
         ]);
 
         DB::beginTransaction();
@@ -69,7 +96,8 @@ class PlayerController extends Controller
                 $player = new Player;
 
                 $player->name            = $request->name;
-                $player->birth_year      = $request->birth_year;
+                $player->birth_year      = $request->filled('birth_year')      ? $request->birth_year      : null;
+                $player->graduation_year = $request->filled('graduation_year') ? $request->graduation_year : null;
                 $player->created_user_id = Auth()->user()->id;
                 $player->updated_user_id = Auth()->user()->id;
 
@@ -111,7 +139,10 @@ class PlayerController extends Controller
             dd($e->getMessage());
         }
 
-        return redirect()->route('players.index');
+        // The Add Player form is shared by the Roster page and Manage -> Players,
+        // so return to whichever one it was submitted from rather than always
+        // landing on the Manage list.
+        return back(302, [], route('players.index'));
     }
 
     /**
@@ -562,15 +593,18 @@ class PlayerController extends Controller
                 'max:255',
                 Rule::unique('players', 'name')->ignore($player),
             ],
-            'nickname'   => 'nullable|string|max:255',
-            'birth_year' => 'required|date_format:Y',
-            'photo'      => 'nullable|image',
-            'managed'    => 'nullable|integer',
+            'nickname'        => 'nullable|string|max:255',
+            // At least one of the two - see store()
+            'birth_year'      => 'nullable|required_without:graduation_year|date_format:Y',
+            'graduation_year' => 'nullable|required_without:birth_year|date_format:Y',
+            'photo'           => 'nullable|image',
+            'managed'         => 'nullable|integer',
         ]);
 
-        $player->name       = $request->name;
-        $player->birth_year = $request->birth_year;
-        $player->nickname   = $request->filled('nickname') ? $request->nickname : null;
+        $player->name            = $request->name;
+        $player->birth_year      = $request->filled('birth_year')      ? $request->birth_year      : null;
+        $player->graduation_year = $request->filled('graduation_year') ? $request->graduation_year : null;
+        $player->nickname        = $request->filled('nickname') ? $request->nickname : null;
 
         if ($request->has('photo'))
         {

@@ -5,7 +5,7 @@
             <label class="form-label" for="club_id">Club</label>
             <select class="form-select" id="club_id" name="club_id">
         @foreach ($clubs as $type => $club)
-                <option value="{{ $club->id }}">{{ $club->name }}</option>
+                <option value="{{ $club->id }}" data-club-type="{{ $club->type }}">{{ $club->name }}</option>
         @endforeach
             </select>
         </div>
@@ -24,7 +24,9 @@
         </div>
     </div>
     <div class="row align-items-start mb-3">
-        <div class="col-auto">
+        {{-- Hidden for high school clubs - they mix ages, so there is no single
+             birth year. Toggled by teams.team-type-script. --}}
+        <div class="col-auto" id="birth-year-field">
             <label class="form-label" for="birth_year">Birth Year</label>
             <input type="number" class="form-control" id="birth_year" name="birth_year">
         </div>
@@ -49,3 +51,5 @@
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+@include('teams.team-type-script')

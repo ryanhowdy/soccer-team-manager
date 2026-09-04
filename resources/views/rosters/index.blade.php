@@ -60,10 +60,18 @@
             @endcan
             </div>
         @else
+            @php
+                // Grade only means something for a high school team, and it is
+                // derived from the season rather than stored on the player.
+                $showGrade = $selectedTeam->isSchoolTeam();
+            @endphp
             <table class="table align-middle">
                 <thead>
                     <tr>
                         <th>Player</th>
+                    @if($showGrade)
+                        <th>Grade</th>
+                    @endif
                         <th>#</th>
                         <th>Positions</th>
                         <th></th>
@@ -79,12 +87,30 @@
                                     <a class="d-inline-block text-decoration-none" href="{{ route('players.show', ['player' => $r->player->id]) }}">
                                         {{ $r->player->name }}
                                     </a>
-                                @if($r->player->managed)
+                                @if(isset($managedPlayerIds[$r->player_id]))
                                     <div class="fw-bold fst-italic small">* Managed</div>
+                                @endif
+                                {{-- Dual-rostered varsity/JV player - see D5 --}}
+                                @if(!empty($alsoRosteredOn[$r->player_id]))
+                                    <div class="smaller">
+                                    @foreach($alsoRosteredOn[$r->player_id] as $alsoLabel)
+                                        <span class="badge text-bg-light fw-normal">also {{ $alsoLabel }}</span>
+                                    @endforeach
+                                    </div>
                                 @endif
                                 </div>
                             </div>
                         </td>
+                    @if($showGrade)
+                        @php $grade = gradeForSeason($r->player->graduation_year, $selectedSeason); @endphp
+                        <td>
+                        @if($grade)
+                            {{ $grade['label'] }}
+                        @else
+                            <span class="text-muted" title="No graduation year set">&mdash;</span>
+                        @endif
+                        </td>
+                    @endif
                         <td>
                         @if(is_null($r->number))
                             @can('edit things')
@@ -130,7 +156,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-muted">No players on this roster yet. Add a team player below.</td>
+                        <td colspan="{{ $showGrade ? 5 : 4 }}" class="text-muted">No players on this roster yet. Add a team player below.</td>
                     </tr>
                 @endforelse
                 @can('edit things')
@@ -146,7 +172,7 @@
                                 </select>
                             </div>
                         </td>
-                        <td colspan="3"></td>
+                        <td colspan="{{ $showGrade ? 4 : 3 }}"></td>
                     </tr>
                 @endcan
                 </tbody>

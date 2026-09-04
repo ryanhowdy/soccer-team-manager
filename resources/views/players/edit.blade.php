@@ -41,7 +41,13 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="birth_year">Birth Year</label>
-                            <input type="number" class="form-control" id="birth_year" name="birth_year" value="{{ $player->birth_year }}">
+                            <input type="number" class="form-control" id="birth_year" name="birth_year" value="{{ old('birth_year', $player->birth_year) }}">
+                            <div class="form-text">Used for club players.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="graduation_year">Graduation Year</label>
+                            <input type="number" class="form-control" id="graduation_year" name="graduation_year" value="{{ old('graduation_year', $player->graduation_year) }}">
+                            <div class="form-text">Used for high school players - grade is worked out from this each season.</div>
                         </div>
                         <div class="mb-3">
                             <div class="form-check form-check-inline">

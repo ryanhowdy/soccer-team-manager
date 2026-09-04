@@ -6,12 +6,19 @@
     <div class="container main-content">
 
         <div class="rounded rounded-3 bg-white p-4 mb-4">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('players.index') }}">Players</a></li>
-                    <li class="breadcrumb-item active">{{ $player->name }}</li>
-                </ol>
-            </nav>
+            <div class="d-flex justify-content-between align-items-center">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('players.index') }}">Players</a></li>
+                        <li class="breadcrumb-item active">{{ $player->name }}</li>
+                    </ol>
+                </nav>
+            @can('edit things')
+                <a class="link-secondary text-decoration-none" href="{{ route('players.edit', ['player' => $player->id]) }}" title="Edit player">
+                    <span class="bi bi-pencil pe-2"></span>Edit
+                </a>
+            @endcan
+            </div>
         </div>
 
         {{-- Chart Row --}}

@@ -6,7 +6,7 @@
             <label class="form-label required" for="club_team_id-{{ $comp->id }}">Team</label>
             <select class="form-select" id="club_team_id-{{ $comp->id }}" name="club_team_id" required>
         @foreach ($managedTeams as $team)
-                <option value="{{ $team->id }}" @selected($team->id == $comp->club_team_id)>{{ $team->club->name }}: {{ $team->name }} {{ $team->birth_year }}</option>
+                <option value="{{ $team->id }}" @selected($team->id == $comp->club_team_id)>{{ $team->club->name }}: {{ $team->name }} {{ $team->cohort_label }}</option>
         @endforeach
             </select>
         </div>

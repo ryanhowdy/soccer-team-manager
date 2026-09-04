@@ -8,6 +8,11 @@
 @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap-icons/font/bootstrap-icons';
 
+// DataTables (Bootstrap 5 themed). The JS is imported in resources/js/app.js;
+// this stylesheet is its counterpart and supplies the sort indicators, layout
+// control spacing and length-select sizing.
+@import '~datatables.net-bs5/css/dataTables.bootstrap5.css';
+
 @import 'base.scss';
 @import 'games.scss';
 @import 'game-listings.scss';

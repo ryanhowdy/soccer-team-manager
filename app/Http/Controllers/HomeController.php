@@ -31,7 +31,7 @@ class HomeController extends Controller
 
         // make sure we have at least 1 managed team
         $managedTeam = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->where('managed', 1)
             ->first();
@@ -344,7 +344,7 @@ class HomeController extends Controller
     public function pickTeam($teamId, Request $request)
     {
         $team = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->where('managed', 1)
             ->where('t.id', '=', $teamId)

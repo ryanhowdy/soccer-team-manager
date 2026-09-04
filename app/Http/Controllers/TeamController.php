@@ -16,7 +16,10 @@ class TeamController extends Controller
     public function index(Request $request)
     {
         // Get all clubs
-        $clubs = Club::with('teams')
+        // teams.club looks redundant, but it lets the ClubTeam display accessors
+        // (cohort_label / rank_label) read the club type without firing a lookup
+        // per team - Eloquent resolves it in one extra query.
+        $clubs = Club::with('teams.club')
             ->orderBy('name')
             ->get();
 
@@ -63,12 +66,22 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
+        // The two team types identify themselves differently, so the required
+        // fields swap. A club team is an age cohort: birth year identifies it and
+        // rank (A/B/C/D) optionally splits a big club's several teams of the same
+        // age. A high school team IS its tier - varsity, JV or freshmen - so rank
+        // is the identity and birth year means nothing, because the squad mixes
+        // ages.
+        $club     = Club::find($request->club_id);
+        $isSchool = $club && $club->isSchool();
+
         $validated = $request->validate([
             'club_id'    => 'required|exists:clubs,id',
             'managed'    => 'sometimes|accepted',
             'name'       => 'required|string|max:255',
-            'birth_year' => 'required|date_format:Y',
-            'rank'       => 'nullable|in:A,B,C,D',
+            'birth_year' => $isSchool ? ['nullable', 'date_format:Y'] : ['required', 'date_format:Y'],
+            // Only three tiers exist for a school, so 'D' is not accepted there
+            'rank'       => $isSchool ? ['required', 'in:A,B,C'] : ['nullable', 'in:A,B,C,D'],
             'website'    => 'nullable|string|max:255',
             'notes'      => 'nullable|string|max:255',
         ]);
@@ -91,7 +104,9 @@ class TeamController extends Controller
         $team->club_id         = $request->club_id;
         $team->managed         = $request->has('managed') ? 1 : 0;
         $team->name            = $request->name;
-        $team->birth_year      = $request->birth_year;
+        // A hidden <input> still posts, so the form alone cannot be trusted to
+        // keep a stale birth year out of a school team - enforce it here.
+        $team->birth_year      = (!$isSchool && $request->filled('birth_year')) ? $request->birth_year : null;
         $team->created_user_id = Auth()->user()->id;
         $team->updated_user_id = Auth()->user()->id;
 
@@ -128,7 +143,10 @@ class TeamController extends Controller
         $team = ClubTeam::find($id);
 
         // Get all clubs
-        $clubs = Club::with('teams')
+        // teams.club looks redundant, but it lets the ClubTeam display accessors
+        // (cohort_label / rank_label) read the club type without firing a lookup
+        // per team - Eloquent resolves it in one extra query.
+        $clubs = Club::with('teams.club')
             ->orderBy('name')
             ->get();
 
@@ -147,12 +165,22 @@ class TeamController extends Controller
      */
     public function update($id, Request $request)
     {
+        // The two team types identify themselves differently, so the required
+        // fields swap. A club team is an age cohort: birth year identifies it and
+        // rank (A/B/C/D) optionally splits a big club's several teams of the same
+        // age. A high school team IS its tier - varsity, JV or freshmen - so rank
+        // is the identity and birth year means nothing, because the squad mixes
+        // ages.
+        $club     = Club::find($request->club_id);
+        $isSchool = $club && $club->isSchool();
+
         $validated = $request->validate([
             'club_id'    => 'required|exists:clubs,id',
             'managed'    => 'sometimes|accepted',
             'name'       => 'required|string|max:255',
-            'birth_year' => 'required|date_format:Y',
-            'rank'       => 'nullable|in:A,B,C,D',
+            'birth_year' => $isSchool ? ['nullable', 'date_format:Y'] : ['required', 'date_format:Y'],
+            // Only three tiers exist for a school, so 'D' is not accepted there
+            'rank'       => $isSchool ? ['required', 'in:A,B,C'] : ['nullable', 'in:A,B,C,D'],
             'website'    => 'nullable|string|max:255',
             'notes'      => 'nullable|string|max:255',
         ]);
@@ -175,7 +203,9 @@ class TeamController extends Controller
         $team->club_id         = $request->club_id;
         $team->managed         = $request->has('managed') ? 1 : 0;
         $team->name            = $request->name;
-        $team->birth_year      = $request->birth_year;
+        // A hidden <input> still posts, so the form alone cannot be trusted to
+        // keep a stale birth year out of a school team - enforce it here.
+        $team->birth_year      = (!$isSchool && $request->filled('birth_year')) ? $request->birth_year : null;
         $team->updated_user_id = Auth()->user()->id;
 
         $team->save();

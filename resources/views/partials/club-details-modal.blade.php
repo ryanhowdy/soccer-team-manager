@@ -36,7 +36,7 @@
                                 <div class="fw-bold fst-italic small">* Managed</div>
                             @endif
                             </td>
-                            <td>{{ $team->birth_year }}</td>
+                            <td>{{ $team->cohort_label }}</td>
                             <td>
                                 <span @class([
                                     'badge',
@@ -45,7 +45,7 @@
                                     'text-bg-warning' => $team->rank == 'C',
                                     'text-bg-danger' => $team->rank == 'D',
                                     'text-bg-secondary' => $team->rank == null,
-                                ])>{{ $team->rank ?: '?' }}</span>
+                                ])>{{ $team->rank_label ?: '?' }}</span>
                             </td>
                             <td>{{ $team->notes }}</td>
                             <td>

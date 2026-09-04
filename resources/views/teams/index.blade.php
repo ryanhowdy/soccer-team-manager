@@ -51,7 +51,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <div class="fs-5">{{ $team->name }}</div>
-                                <div class="text-muted smaller">{{ $team->birth_year }}</div>
+                                <div class="text-muted smaller">{{ $team->cohort_label }}</div>
                             </div>
                             <span @class([
                                 'badge',
@@ -60,7 +60,7 @@
                                 'text-bg-warning' => $team->rank == 'C',
                                 'text-bg-danger' => $team->rank == 'D',
                                 'text-bg-secondary' => $team->rank == null,
-                            ])>{{ $team->rank ?: '?' }}</span>
+                            ])>{{ $team->rank_label ?: '?' }}</span>
                         </div>
                         {{-- Roster and Games read the navbar picker rather than the url,
                              so these post through pickTeam to switch team on the way in --}}

@@ -19,7 +19,10 @@ class OpponentController extends Controller
     public function index(Request $request)
     {
         // Get all clubs
-        $clubs = Club::with('teams')
+        // teams.club looks redundant, but it lets the ClubTeam display accessors
+        // (cohort_label / rank_label) read the club type without firing a lookup
+        // per team - Eloquent resolves it in one extra query.
+        $clubs = Club::with('teams.club')
             ->orderBy('name')
             ->get();
 

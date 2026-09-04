@@ -24,6 +24,15 @@
                     <label class="form-label" for="name">Name</label>
                     <input type="text" class="form-control" id="name" name="name" value="{{ $club->name }}">
                 </div>
+                <div class="mb-3">
+                    <label class="form-label" for="type">Type</label>
+                    <select class="form-select" id="type" name="type">
+                @foreach (\App\Enums\ClubType::cases() as $clubType)
+                        <option value="{{ $clubType->value }}" @selected(old('type', $club->type) == $clubType->value)>{{ $clubType->label() }}</option>
+                @endforeach
+                    </select>
+                    <div class="form-text">A high school team mixes ages, so its players use graduation year and grade rather than a team birth year.</div>
+                </div>
                 <label class="form-label" for="logo">Logo</label>
                 <div class="row g-2 mb-3">
                     <div class="col-auto">

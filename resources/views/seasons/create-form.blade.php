@@ -6,7 +6,11 @@
     @csrf
     <div class="col-12 col-sm-6">
         <label for="season" class="form-label required">Season</label>
-        <input type="text" class="form-control" name="season" id="season" required placeholder="Fall/Spring">
+        <select class="form-select" name="season" id="season" required>
+        @foreach (\App\Enums\SeasonName::cases() as $seasonName)
+            <option value="{{ $seasonName->value }}" @selected(old('season') === $seasonName->value)>{{ $seasonName->value }}</option>
+        @endforeach
+        </select>
     </div>
     <div class="col-12 col-sm-6">
         <label for="year" class="form-label required">Year</label>

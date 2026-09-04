@@ -3,6 +3,7 @@
 use App\Models\ResultEvent;
 use App\Enums\Event;
 use App\Enums\ResultStatus;
+use App\Enums\SeasonName;
 
 /*
  * Helpers
@@ -330,5 +331,104 @@ if (!function_exists('resolveSeasonFilter'))
         }
 
         return $seasons[$remembered] ?? $latest;
+    }
+}
+
+if (!function_exists('seasonIsFall'))
+{
+    /**
+     * Is this a Fall season?
+     *
+     * `seasons.season` is an enum as of 0.14.0, so the stored value is always
+     * canonical. The case-insensitive trim is now belt-and-braces rather than
+     * load-bearing - it also lets this be called on raw form input before the
+     * season exists. Every place that cares whether a season is Fall - the grade
+     * calculation and the school team-season guards - goes through here so they
+     * can never disagree.
+     *
+     * Accepts a Season model or a raw season name, so it can be used both on
+     * saved records and on submitted form input before the season exists.
+     *
+     * @param  App\Models\Season|string|null $season
+     * @return bool
+     */
+    function seasonIsFall($season): bool
+    {
+        if (empty($season))
+        {
+            return false;
+        }
+
+        $name = is_string($season) ? $season : ($season->season ?? null);
+
+        if (empty($name))
+        {
+            return false;
+        }
+
+        return strcasecmp(trim($name), SeasonName::Fall->value) === 0;
+    }
+}
+
+if (!function_exists('gradeForSeason'))
+{
+    /**
+     * What grade is a student in during a given season?
+     *
+     * Grade is never stored. It changes every year, so storing it would mean
+     * re-entering it for every player every season and letting it rot silently.
+     * It derives from the player's graduation year instead, which is stable and
+     * is how high school families already think ("class of 2028").
+     *
+     * School team-seasons are Fall-only (enforced when they are created), so the
+     * academic year always ends the following calendar year:
+     *
+     *   grade = 12 - (graduation_year - (season.year + 1))
+     *
+     * Returns null rather than a wrong grade for a non-Fall season, so a row
+     * that somehow slipped past that guard can never read a year off.
+     *
+     * @param  int|null          $graduationYear
+     * @param  App\Models\Season $season
+     * @return array|null  ['grade' => int, 'label' => string], or null
+     */
+    function gradeForSeason($graduationYear, $season): ?array
+    {
+        if (empty($graduationYear) || empty($season))
+        {
+            return null;
+        }
+
+        // Belt and braces - see the note above
+        if (!seasonIsFall($season))
+        {
+            return null;
+        }
+
+        $academicEndYear = $season->year + 1;
+
+        $grade = 12 - ($graduationYear - $academicEndYear);
+
+        // Already graduated, or the graduation year is nonsense. Render blank
+        // rather than inventing a "grade 13".
+        if ($grade > 12 || $grade < 1)
+        {
+            return null;
+        }
+
+        $labels = [
+            9  => 'Freshman',
+            10 => 'Sophomore',
+            11 => 'Junior',
+            12 => 'Senior',
+        ];
+
+        // Below 9 is a middle schooler playing up. That is a real thing and is
+        // one of the more interesting facts on a roster row, so show the true
+        // grade instead of clamping it to Freshman.
+        return [
+            'grade' => $grade,
+            'label' => $labels[$grade] ?? addOrdinalNumberSuffix($grade),
+        ];
     }
 }

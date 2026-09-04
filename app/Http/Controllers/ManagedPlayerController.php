@@ -29,10 +29,15 @@ class ManagedPlayerController extends Controller
      */
     public function create()
     {
-        $players = Player::orderBy('birth_year')
+        // A high school player may have no birth year at all, so group by
+        // whichever year identifies them rather than by birth_year alone -
+        // otherwise they all collapse into one unlabeled group.
+        $players = Player::orderByRaw('birth_year IS NULL')
+            ->orderBy('birth_year')
+            ->orderBy('graduation_year')
             ->orderBy('name')
             ->get()
-            ->groupBy('birth_year');
+            ->groupBy(fn ($player) => $player->year_label ?: 'Unknown');
 
         return view('managed-players.create', [
             'players' => $players,

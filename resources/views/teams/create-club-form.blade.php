@@ -5,6 +5,15 @@
         <input type="text" class="form-control" id="name" name="name" placeholder="Club Name">
     </div>
     <div class="mb-3">
+        <label class="form-label" for="type">Type</label>
+        <select class="form-select" id="type" name="type">
+    @foreach (\App\Enums\ClubType::cases() as $clubType)
+            <option value="{{ $clubType->value }}" @selected(old('type', 'club') == $clubType->value)>{{ $clubType->label() }}</option>
+    @endforeach
+        </select>
+        <div class="form-text">A high school team mixes ages, so its players use graduation year and grade rather than a team birth year.</div>
+    </div>
+    <div class="mb-3">
         <label class="form-label" for="logo">Logo</label>
         <input type="file" class="form-control" id="logo" name="logo">
     </div>

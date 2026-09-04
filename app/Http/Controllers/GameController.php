@@ -46,7 +46,7 @@ class GameController extends Controller
 
         // Get all non managed teams, group them by club
         $teams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->whereNot('managed', 1)
             ->orderBy('club_name')
@@ -58,13 +58,14 @@ class GameController extends Controller
         $teamIdsByClub = [];
         foreach ($teams as $team)
         {
-            $teamsByClub[$team->club_name][] = $team->toArray();
+            $teamsByClub[$team->club_name][] = $team->toArray()
+                + ['cohort_label' => $team->cohort_label];
             $teamIdsByClub[$team->club_id][] = $team->id;
         }
 
         // Get only managed teams
         $managedTeams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->where('managed', 1)
             ->orderBy('club_name')
@@ -940,21 +941,63 @@ class GameController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Who can be called up for this game.
+        //
+        // A club team keeps the youth-club age guardrail and draws only on its
+        // own player pool. A high school team drops the age cap - seniors are
+        // routinely 18 or 19, so it would exclude exactly the players most
+        // likely to be called up - and also draws on its sibling teams' pools,
+        // which is how a JV player gets called up to varsity.
         $minYear = Carbon::now()->subYear(18)->format('Y');
 
+        $poolTeam = ClubTeam::with('club')->find($clubTeamSeason->club_team_id);
+        $isSchool = $poolTeam && $poolTeam->isSchoolTeam();
+
+        // Build the list first and key it by id last. Collection::merge() runs
+        // array_merge, which RENUMBERS integer keys - keying by team id up front
+        // and merging would silently turn the ids into 0,1,2 and pull in whatever
+        // teams happen to have those ids.
+        $poolTeams = collect([$poolTeam]);
+
+        if ($isSchool)
+        {
+            $poolTeams = $poolTeams->concat($poolTeam->siblings()->with('club')->get());
+        }
+
+        $poolTeams = $poolTeams->filter()->keyBy('id');
+
         $availablePlayers = PlayerTeam::from('player_teams as pt')
-            ->select('p.id', 'p.name', 'p.birth_year')
+            ->select('p.id', 'p.name', 'p.birth_year', 'pt.club_team_id')
             ->join('players as p', 'pt.player_id', '=', 'p.id')
-            ->where('club_team_id', $clubTeamSeason->club_team_id)
-            ->where('birth_year', '>=', $minYear)
+            ->whereIn('pt.club_team_id', $poolTeams->keys())
+            // Club teams only. A high school player may also have no birth year
+            // at all, and `NULL >= $minYear` is false, so keep those either way.
+            ->when(!$isSchool, fn (Builder $q) => $q->where(function (Builder $inner) use ($minYear) {
+                $inner->where('birth_year', '>=', $minYear)
+                    ->orWhereNull('birth_year');
+            }))
             ->whereNotIn('p.id', function (QueryBuilder $q) use ($result) {
                 $q->select('player_id')
                     ->from('rosters')
-                    ->where('club_team_season_id', $result->club_team_season_id)
-                    ->get();
+                    ->where('club_team_season_id', $result->club_team_season_id);
             })
             ->orderBy('p.name')
-            ->get();
+            ->get()
+            // A player sitting in more than one sibling pool would appear twice
+            ->unique('id')
+            ->values();
+
+        // Tag anyone coming from a sibling team with where they come from, so the
+        // picker reads "Sam Ortiz - JV" rather than looking like the wrong player.
+        $availablePlayers = $availablePlayers->map(function ($player) use ($poolTeams, $clubTeamSeason) {
+            $from = $poolTeams[$player->club_team_id] ?? null;
+
+            $player->from_team = ($from && $player->club_team_id != $clubTeamSeason->club_team_id)
+                ? ($from->rank_label ?: $from->name)
+                : null;
+
+            return $player;
+        });
 
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
@@ -1162,7 +1205,7 @@ class GameController extends Controller
 
         // Get only managed teams
         $managedTeams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->where('managed', 1)
             ->orderBy('club_name')
@@ -1171,7 +1214,7 @@ class GameController extends Controller
 
         // Get all non managed teams, group them by club
         $teams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->whereNot('managed', 1)
             ->orderBy('club_name')
@@ -1182,7 +1225,8 @@ class GameController extends Controller
         $teamsByClub = [];
         foreach ($teams as $team)
         {
-            $teamsByClub[$team->club_name][] = $team->toArray();
+            $teamsByClub[$team->club_name][] = $team->toArray()
+                + ['cohort_label' => $team->cohort_label];
         }
 
         return view('games.edit', [

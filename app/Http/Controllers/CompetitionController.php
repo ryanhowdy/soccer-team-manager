@@ -32,7 +32,7 @@ class CompetitionController extends Controller
             ->groupBy('status');
 
         $managedTeams = ClubTeam::from('club_teams as t')
-            ->select('t.*', 'c.name as club_name')
+            ->select('t.*', 'c.name as club_name', 'c.type as club_type')
             ->join('clubs as c', 't.club_id', '=', 'c.id')
             ->where('managed', 1)
             ->orderBy('club_name')

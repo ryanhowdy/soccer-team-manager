@@ -28,7 +28,7 @@
                                 <div class="card-body">
                                     <div><img src="/{{ $p->player->photo }}" class="img-fluid rounded-circle" style="width:50px"/></div>
                                     <h6 class="card-title mt-3">{{ $p->player->name }}</h6>
-                                    <div class="card-subtitle mb-2 small text-body-secondary">{{ $p->player->birth_year }}</div>
+                                    <div class="card-subtitle mb-2 small text-body-secondary">{{ $p->player->year_label }}</div>
                                 </div>
                                 <div class="card-body border-top small">
                                     <a href="{{ route('players.show', ['player' => $p->player_id]) }}" class="card-link">Stats</a>

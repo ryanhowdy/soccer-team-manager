@@ -256,7 +256,7 @@
                             <select class="form-select" name="player_id">
                                 <option value="">Choose a player&hellip;</option>
                             @foreach($availablePlayers as $p)
-                                <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                                <option value="{{ $p['id'] }}">{{ $p['name'] }}@if($p['from_team']) &mdash; {{ $p['from_team'] }}@endif</option>
                             @endforeach
                             </select>
                         </div>

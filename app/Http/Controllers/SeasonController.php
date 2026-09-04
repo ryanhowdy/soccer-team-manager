@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Season;
 use App\Models\ClubTeamSeason;
 use App\Models\ClubTeam;
+use App\Enums\SeasonName;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class SeasonController extends Controller
 {
@@ -16,12 +20,41 @@ class SeasonController extends Controller
      */
     public function store(Request $request)
     {
+        // The form is a select, so this is normally a no-op. It keeps a stray
+        // seeder or API call from being rejected over casing alone, and means
+        // only the canonical value ever reaches the database.
+        if ($request->filled('season'))
+        {
+            $request->merge(['season' => Str::title(trim($request->season))]);
+        }
+
         $validated = $request->validate([
-            'season'  => ['required', 'max:50'],
+            'season'  => ['required', Rule::enum(SeasonName::class)],
             'year'    => ['required', 'date_format:Y'],
             'teams'   => ['nullable', 'array'],
             'teams.*' => ['integer', 'exists:club_teams,id'],
         ]);
+
+        // High school teams play a Fall season only. A player's grade is derived
+        // from the season, so a Spring school team-season would read a year off.
+        // Reject loudly rather than silently dropping teams the user picked -
+        // and do it before the season is created, so a rejected request doesn't
+        // leave an orphan season behind.
+        if (!seasonIsFall($request->season) && !empty($request->input('teams', [])))
+        {
+            $schoolTeams = ClubTeam::with('club')
+                ->whereIn('id', $request->input('teams', []))
+                ->get()
+                ->filter(fn ($team) => $team->isSchoolTeam());
+
+            if ($schoolTeams->isNotEmpty())
+            {
+                throw ValidationException::withMessages([
+                    'teams' => 'High school teams play a Fall season only. Remove: '
+                        . $schoolTeams->pluck('name')->implode(', ') . '.',
+                ]);
+            }
+        }
 
         // Create the new season
         $season = new Season;

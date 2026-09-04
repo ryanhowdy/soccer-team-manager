@@ -5,7 +5,7 @@
         <select class="form-select" id="club_team_id" name="club_team_id">
             <option></option>
     @foreach ($managedTeams as $team)
-            <option value="{{ $team->id }}" @selected(old('club_team_id', $selectedTeam->id ?? null) == $team->id)>{{ $team->club->name }}: {{ $team->name }} {{ $team->birth_year }}</option>
+            <option value="{{ $team->id }}" @selected(old('club_team_id', $selectedTeam->id ?? null) == $team->id)>{{ $team->club->name }}: {{ $team->name }} {{ $team->cohort_label }}</option>
     @endforeach
         </select>
     </div>
@@ -27,7 +27,12 @@
             </div>
             <div class="mb-3">
                 <label class="form-label" for="birth_year">Birth Year</label>
-                <input type="number" class="form-control" id="birth_year" name="birth_year">
+                <input type="number" class="form-control" id="birth_year" name="birth_year" value="{{ old('birth_year') }}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="graduation_year">Graduation Year</label>
+                <input type="number" class="form-control" id="graduation_year" name="graduation_year" value="{{ old('graduation_year') }}">
+                <div class="form-text">Used for high school players - grade is worked out from this each season.</div>
             </div>
         </div>
         <div class="">
@@ -40,7 +45,7 @@
                     <select class="form-select" style="width:100%" id="player_id" name="player_id">
                         <option></option>
                 @foreach ($allPlayers as $player)
-                        <option value="{{ $player->id }}">{{ $player->name }} ({{ $player->birth_year }})</option>
+                        <option value="{{ $player->id }}">{{ $player->name }} ({{ $player->year_label }})</option>
                 @endforeach
                     </select>
                 </div>
