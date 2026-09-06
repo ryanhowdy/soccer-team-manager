@@ -7,14 +7,14 @@
         {{-- Primary context: the selected team --}}
         <div class="dropdown me-auto">
             <button class="btn bg-white rounded-5 dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                {{ auth()->user()->selectedTeam->name ?? 'Select Team' }}
+                {{ auth()->user()->selectedTeam->short_name ?? 'Select Team' }}
             </button>
             <ul class="dropdown-menu">
             @foreach($navManagedTeams as $team)
                 <li>
                     <form action="{{ route('pickTeam', ['teamId' => $team->id]) }}" method="post">
                         @csrf
-                        <button type="submit" class="dropdown-item">{{ $team->club->name }}: {{ $team->name }}</button>
+                        <button type="submit" class="dropdown-item">{{ $team->display_name }}</button>
                     </form>
                 </li>
             @endforeach

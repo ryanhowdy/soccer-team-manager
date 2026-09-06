@@ -13,13 +13,13 @@
                                 <img class="me-2" style="width:30px" src="{{ asset($sched->homeTeam->club->logo) }}" 
                                     data-bs-toggle="tooltip" data-bs-title="{{ $sched->homeTeam->club->name }}"
                                     onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                                {{ $sched->homeTeam->name }}
+                                {{ $sched->homeTeam->short_name }}
                             </div>
                             <div class="away">
                                 <img class="me-2" style="width:30px" src="{{ asset($sched->awayTeam->club->logo) }}" 
                                     data-bs-toggle="tooltip" data-bs-title="{{ $sched->awayTeam->club->name }}"
                                     onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                                {{ $sched->awayTeam->name }}
+                                {{ $sched->awayTeam->short_name }}
                             </div>
                         </div>
                         <div class="small">

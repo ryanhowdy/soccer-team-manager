@@ -6,8 +6,8 @@
         <div id="team-stats" class="rounded rounded-3 bg-white p-4 mb-3">
             <h3 class="mb-3">Team Stats</h3>
             <div class="d-flex justify-content-between pb-1 mb-2 border-bottom">
-                <div class="pe-3 text-secondary">{{ $result->homeTeam->name }}</div>
-                <div class="ps-3 text-secondary text-end">{{ $result->awayTeam->name }}</div>
+                <div class="pe-3 text-secondary">{{ $result->homeTeam->short_name }}</div>
+                <div class="ps-3 text-secondary text-end">{{ $result->awayTeam->short_name }}</div>
             </div>
             <div class="d-flex justify-content-between">
                 <div id="game-goals-good-guys">{{ $stats['home']['goals'] }}</div>

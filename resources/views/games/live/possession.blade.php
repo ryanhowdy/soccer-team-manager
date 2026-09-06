@@ -16,7 +16,7 @@
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->homeTeam->managed,
                                     'bad-guys' => $result->awayTeam->managed,
-                                ])>{{ $result->homeTeam->name }}</div>
+                                ])>{{ $result->homeTeam->short_name }}</div>
                         </div>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->awayTeam->managed,
                                     'bad-guys' => $result->homeTeam->managed,
-                                ])>{{ $result->awayTeam->name }}</div>
+                                ])>{{ $result->awayTeam->short_name }}</div>
                         </div>
                     </div>
                 </div>
@@ -64,20 +64,20 @@
                             data-event-id="@if($result->homeTeam->managed){{ \App\Enums\Event::gain_possession }}@else{{ \App\Enums\Event::lose_possession }}@endif"
                             >
                         <label class="btn btn-outline-primary p-5 w-50" for="home-possession">
-                            <div class="text-nowrap">{{ $result->homeTeam->name }}</div>Has the Ball
+                            <div class="text-nowrap">{{ $result->homeTeam->short_name }}</div>Has the Ball
                         </label>
                         <input type="radio" class="btn-check" name="possession" id="away-possession" value="away" autocomplete="off"
                             data-event-id="@if($result->awayTeam->managed){{ \App\Enums\Event::gain_possession }}@else{{ \App\Enums\Event::lose_possession }}@endif"
                             >
                         <label class="btn btn-outline-primary-dark p-5 w-50" for="away-possession">
-                            <div class="text-nowrap">{{ $result->awayTeam->name }}</div>Has the Ball
+                            <div class="text-nowrap">{{ $result->awayTeam->short_name }}</div>Has the Ball
                         </label>
                     </div>
                 </div>
                 <div class="sidebar col-12 col-lg-5">
                     <div class="d-flex justify-content-between pb-1 mb-2 border-bottom small">
-                        <div class="pe-3 text-secondary">{{ $result->homeTeam->name }}</div>
-                        <div class="ps-3 text-secondary text-end">{{ $result->awayTeam->name }}</div>
+                        <div class="pe-3 text-secondary">{{ $result->homeTeam->short_name }}</div>
+                        <div class="ps-3 text-secondary text-end">{{ $result->awayTeam->short_name }}</div>
                     </div>
                     <div id="possession-bar" class="progress bg-primary-dark rounded-0 mb-4"><div style="width: 50%;" class="progress-bar border-end border-5"></div></div>
                 </div>

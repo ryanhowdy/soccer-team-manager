@@ -78,7 +78,7 @@
                             <label class="form-label" for="my_team_id">Team</label>
                             <select class="form-select" id="my_team_id" name="my_team_id">
                             @foreach ($managedTeams as $i => $team)
-                                <option @selected($result->{$goodGuys . 'Team'}->id == $team->id) value="{{ $team->id }}">{{ $team->name }}</option>
+                                <option @selected($result->{$goodGuys . 'Team'}->id == $team->id) value="{{ $team->id }}">{{ $team->display_name }}</option>
                             @endforeach
                             </select>
                         </div>

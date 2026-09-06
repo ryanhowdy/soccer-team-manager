@@ -1,6 +1,6 @@
     <div class="d-flex justify-content-between pb-1 mb-2 border-bottom">
-        <div class="pe-3 text-secondary">{{ $result->homeTeam->name }}</div>
-        <div class="ps-3 text-secondary text-end">{{ $result->awayTeam->name }}</div>
+        <div class="pe-3 text-secondary">{{ $result->homeTeam->short_name }}</div>
+        <div class="ps-3 text-secondary text-end">{{ $result->awayTeam->short_name }}</div>
     </div>
     <div class="d-flex justify-content-between">
         <div id="game-goals-home">0</div>

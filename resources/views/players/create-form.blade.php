@@ -5,7 +5,7 @@
         <select class="form-select" id="club_team_id" name="club_team_id">
             <option></option>
     @foreach ($managedTeams as $team)
-            <option value="{{ $team->id }}" @selected(old('club_team_id', $selectedTeam->id ?? null) == $team->id)>{{ $team->club->name }}: {{ $team->name }} {{ $team->cohort_label }}</option>
+            <option value="{{ $team->id }}" @selected(old('club_team_id', $selectedTeam->id ?? null) == $team->id)>{{ $team->display_name }}</option>
     @endforeach
         </select>
     </div>

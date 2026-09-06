@@ -63,7 +63,7 @@
                             <div class="small text-center text-secondary">{{ $result->date->inUserTimezone()->format('M j, Y') }}</div>
                             <div class="home-v-away d-grid align-items-center justify-content-center mb-3">
                                 <div class="home-team d-flex align-items-center justify-content-end">
-                                    <div class="me-2 d-none d-lg-block">{{ $result->homeTeam->name }}</div>
+                                    <div class="me-2 d-none d-lg-block">{{ $result->homeTeam->short_name }}</div>
                                     <img class="logo img-fluid me-2 me-md-1 me-lg-0" data-bs-toggle="tooltip" data-bs-title="{{ $result->homeTeam->club->name }}"
                                         src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                                 </div>
@@ -80,7 +80,7 @@
                                 <div class="away-team d-flex align-items-center">
                                     <img class="logo img-fluid ms-2 ms-md-1 ms-lg-0" data-bs-toggle="tooltip" data-bs-title="{{ $result->awayTeam->club->name }}"
                                         src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                                    <div class="ms-2 d-none d-lg-block">{{ $result->awayTeam->name }}</div>
+                                    <div class="ms-2 d-none d-lg-block">{{ $result->awayTeam->short_name }}</div>
                                 </div>
                             </div>
                         </a>

@@ -16,7 +16,7 @@
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->homeTeam->managed,
                                     'bad-guys' => $result->awayTeam->managed,
-                                ])>{{ $result->homeTeam->name }}</div>
+                                ])>{{ $result->homeTeam->short_name }}</div>
                         </div>
                         <div id="home-score" class="ms-4 actions-against">
                             <div class="score display-4 fw-bold">0</div>
@@ -80,7 +80,7 @@
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->awayTeam->managed,
                                     'bad-guys' => $result->homeTeam->managed,
-                                ])>{{ $result->awayTeam->name }}</div>
+                                ])>{{ $result->awayTeam->short_name }}</div>
                         </div>
                     </div>
                 </div>

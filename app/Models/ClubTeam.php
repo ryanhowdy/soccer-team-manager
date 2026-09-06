@@ -40,6 +40,55 @@ class ClubTeam extends Model
     }
 
     /**
+     * The club's name, without triggering a lookup where a query already
+     * supplied it.
+     *
+     * Queries that join clubs alias it as `c.name as club_name`; everything else
+     * falls back to the relation. Same fast path as isSchoolTeam().
+     *
+     * @return string
+     */
+    public function clubName(): string
+    {
+        if (array_key_exists('club_name', $this->attributes))
+        {
+            return (string) $this->attributes['club_name'];
+        }
+
+        return (string) ($this->club?->name ?? '');
+    }
+
+    /**
+     * The team on its own, qualified by its cohort. Use where the club is
+     * already obvious from context, or where space is tight - scoreboards, the
+     * navbar pill, prose.
+     *
+     *   "Copa 2008"        "CW Varsity"
+     *
+     * @return string
+     */
+    public function getShortNameAttribute(): string
+    {
+        return trim($this->name . ' ' . $this->cohort_label);
+    }
+
+    /**
+     * The fully qualified team, for pickers and any list that spans clubs.
+     *
+     *   "Pride SC: Copa 2008"     "Canal Winchester: CW Varsity"
+     *
+     * @return string
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        $club = $this->clubName();
+
+        return $club === ''
+            ? $this->short_name
+            : $club . ': ' . $this->short_name;
+    }
+
+    /**
      * The label identifying which cohort or level this team is, shown next to
      * the team name.
      *
@@ -64,7 +113,7 @@ class ClubTeam extends Model
      * Rank as the user should read it.
      *
      * The stored A/B/C/D value is never reinterpreted - existing club teams
-     * already use it - only the label depends on the club type. See
+     * already use it - only the label depends on the club type.
      *
      * @return string
      */

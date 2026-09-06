@@ -58,8 +58,10 @@ class GameController extends Controller
         $teamIdsByClub = [];
         foreach ($teams as $team)
         {
+            // Accessors are not included by toArray(); the opponent picker needs
+            // the short form, and the club is already the optgroup label.
             $teamsByClub[$team->club_name][] = $team->toArray()
-                + ['cohort_label' => $team->cohort_label];
+                + ['cohort_label' => $team->cohort_label, 'short_name' => $team->short_name];
             $teamIdsByClub[$team->club_id][] = $team->id;
         }
 
@@ -1237,8 +1239,10 @@ class GameController extends Controller
         $teamsByClub = [];
         foreach ($teams as $team)
         {
+            // Accessors are not included by toArray(); the opponent picker needs
+            // the short form, and the club is already the optgroup label.
             $teamsByClub[$team->club_name][] = $team->toArray()
-                + ['cohort_label' => $team->cohort_label];
+                + ['cohort_label' => $team->cohort_label, 'short_name' => $team->short_name];
         }
 
         return view('games.edit', [

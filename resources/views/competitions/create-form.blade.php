@@ -9,7 +9,7 @@
         <select class="form-select" id="club_team_id" name="club_team_id" required>
             <option></option>
     @foreach ($managedTeams as $team)
-            <option value="{{ $team->id }}" @selected($team->id == $defaultTeamId)>{{ $team->club->name }}: {{ $team->name }} {{ $team->cohort_label }}</option>
+            <option value="{{ $team->id }}" @selected($team->id == $defaultTeamId)>{{ $team->display_name }}</option>
     @endforeach
         </select>
     </div>

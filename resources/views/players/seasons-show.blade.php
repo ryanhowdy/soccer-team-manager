@@ -60,11 +60,11 @@
                         </td>
                         <td class="text-start border-end border-secondary-subtle">
                         @if($stats['_result_data_lkup'][$id]->homeTeam->managed)
-                            <span data-bs-toggle="tooltip" data-bs-title="{{ $stats['_result_data_lkup'][$id]->awayTeam->name }}">
+                            <span data-bs-toggle="tooltip" data-bs-title="{{ $stats['_result_data_lkup'][$id]->awayTeam->short_name }}">
                                 {{ $stats['_result_data_lkup'][$id]->awayTeam->club->name }}
                             </span>
                         @else
-                            <span data-bs-toggle="tooltip" data-bs-title="{{ $stats['_result_data_lkup'][$id]->homeTeam->name }}">
+                            <span data-bs-toggle="tooltip" data-bs-title="{{ $stats['_result_data_lkup'][$id]->homeTeam->short_name }}">
                                 {{ $stats['_result_data_lkup'][$id]->homeTeam->club->name }}
                             </span>
                         @endif

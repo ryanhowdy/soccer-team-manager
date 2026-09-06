@@ -25,7 +25,7 @@
             <div class="col-12 col-sm-6">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="teams[]" value="{{ $team->id }}" id="season-team-{{ $team->id }}" checked>
-                    <label class="form-check-label" for="season-team-{{ $team->id }}">{{ $team->name }}</label>
+                    <label class="form-check-label" for="season-team-{{ $team->id }}">{{ $team->display_name }}</label>
                 </div>
             </div>
         @endforeach

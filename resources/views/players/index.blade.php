@@ -58,7 +58,7 @@
                         <td class="smaller">
                         @foreach($player->teams as $playerTeam)
                             @continue(!$playerTeam->clubTeam)
-                            <div>{{ $playerTeam->clubTeam->club->name ?? '' }}: {{ $playerTeam->clubTeam->name }}</div>
+                            <div>{{ $playerTeam->clubTeam->display_name }}</div>
                         @endforeach
                         </td>
                         <td class="smaller">{{ $player->positions->pluck('position_name')->implode(', ') }}</td>

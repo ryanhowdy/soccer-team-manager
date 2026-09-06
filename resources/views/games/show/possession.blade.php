@@ -10,14 +10,14 @@
                 <div class="d-flex justify-content-between p-2">
                     <div>
                         <span class="badge" style="background: {{ $teamColors['home'] }}">&nbsp;</span>
-                        {{ $result->homeTeam->name }}
+                        {{ $result->homeTeam->short_name }}
                     </div>
                     <div class="text-muted">{{ secondsToMinutes($possession['home']['seconds']) }} mins</div>
                 </div>
                 <div class="d-flex justify-content-between p-2">
                     <div>
                         <span class="badge" style="background: {{ $teamColors['away'] }}">&nbsp;</span>
-                        {{ $result->awayTeam->name }}
+                        {{ $result->awayTeam->short_name }}
                     </div>
                     <div class="text-muted">{{ secondsToMinutes($possession['away']['seconds']) }} mins</div>
                 </div>
@@ -30,7 +30,7 @@ let posChart = document.getElementById('pos-chart');
 new Chart(posChart, {
     type: 'doughnut',
     data: {
-        labels: ['{{ $result->homeTeam->name }}', '{{ $result->awayTeam->name }}'],
+        labels: ['{{ $result->homeTeam->short_name }}', '{{ $result->awayTeam->short_name }}'],
         datasets: [{
             data: [{{ $possession['home']['seconds'] }}, {{ $possession['away']['seconds'] }}],
             backgroundColor: ["{{ $teamColors['home'] }}", "{{ $teamColors['away'] }}"],

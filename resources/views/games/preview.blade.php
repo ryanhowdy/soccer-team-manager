@@ -150,7 +150,7 @@
                             {{ $r->competition->name }}
                         </div>
                         <div class="home-team d-flex align-items-center justify-content-end">
-                            <div class="me-2">{{ $r->homeTeam->name }}</div>
+                            <div class="me-2">{{ $r->homeTeam->short_name }}</div>
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $r->homeTeam->club->name }}" 
                                 src="{{ asset($r->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                         </div>
@@ -169,7 +169,7 @@
                         <div class="away-team d-flex align-items-center">
                             <img class="logo img-fluid" data-bs-toggle="tooltip" data-bs-title="{{ $r->awayTeam->club->name }}"
                                 src="{{ asset($r->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                            <div class="ms-2">{{ $r->awayTeam->name }}</div>
+                            <div class="ms-2">{{ $r->awayTeam->short_name }}</div>
                         </div>
                     </div>
                 @endforeach

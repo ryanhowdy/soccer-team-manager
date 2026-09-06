@@ -16,13 +16,13 @@
                     <div class="c position-relative pe-3">
                         <img class="d-none d-lg-inline-block logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}" 
                             onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                        <span class="text-muted pe-1">{{ $result->homeTeam->club->name }}</span>{{ $result->homeTeam->name }}
+                        <span class="text-muted pe-1">{{ $result->homeTeam->club->name }}</span>{{ $result->homeTeam->short_name }}
                         <span class="score font-monospace fw-bold position-absolute end-0 {{ $result->homeTeam->managed ? 'us' : 'them' }}">0</span>
                     </div>
                     <div class="c position-relative pe-3">
                         <img class="d-none d-lg-inline-block logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}" 
                             onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
-                        <span class="text-muted pe-1">{{ $result->awayTeam->club->name }}</span>{{ $result->awayTeam->name }}
+                        <span class="text-muted pe-1">{{ $result->awayTeam->club->name }}</span>{{ $result->awayTeam->short_name }}
                         <span class="score font-monospace fw-bold position-absolute end-0 {{ $result->awayTeam->managed ? 'us' : 'them' }}">0</span>
                     </div>
                 </div><!--/.teams-->

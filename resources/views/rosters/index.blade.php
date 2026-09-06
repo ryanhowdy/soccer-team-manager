@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between mb-3 align-items-center">
             <div>
                 <h2 class="mb-0">Roster</h2>
-                <div class="text-muted small">{{ $selectedTeam->club->name }}: {{ $selectedTeam->name }}</div>
+                <div class="text-muted small">{{ $selectedTeam->display_name }}</div>
             </div>
             <div class="d-flex gap-2 align-items-center justify-content-end">
                 <div>
@@ -51,7 +51,7 @@
             </div>
         @elseif(!$clubTeamSeason)
             <div class="text-center py-4">
-                <p class="mb-3">{{ $selectedTeam->name }} isn't set up for <strong>{{ $selectedSeason->season_year }}</strong> yet.</p>
+                <p class="mb-3">{{ $selectedTeam->short_name }} isn't set up for <strong>{{ $selectedSeason->season_year }}</strong> yet.</p>
             @can('edit things')
                 <button id="activate-season" class="btn btn-primary"
                     data-season-id="{{ $selectedSeason->id }}" data-club-team-id="{{ $selectedTeam->id }}">
@@ -90,7 +90,7 @@
                                 @if(isset($managedPlayerIds[$r->player_id]))
                                     <div class="fw-bold fst-italic small">* Managed</div>
                                 @endif
-                                {{-- Dual-rostered varsity/JV player - see D5 --}}
+                                {{-- Dual-rostered varsity/JV player --}}
                                 @if(!empty($alsoRosteredOn[$r->player_id]))
                                     <div class="smaller">
                                     @foreach($alsoRosteredOn[$r->player_id] as $alsoLabel)

@@ -103,7 +103,7 @@
                 <div class="home-team d-flex align-items-center justify-content-end">
                     <div class="d-none d-md-block text-end pe-2">
                         <div class="club-name pe-2 text-uppercase small text-muted">{{ $result->homeTeam->club->name }}</div>
-                        <div class="team-name pe-2">{{ $result->homeTeam->name }}</div>
+                        <div class="team-name pe-2">{{ $result->homeTeam->short_name }}</div>
                     </div>
                     <div class="pe-4"><img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/></div>
                 </div>
@@ -127,7 +127,7 @@
                     <div class="ps-4"><img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/></div>
                     <div class="d-none d-md-block ps-4">
                         <div class="club-name pe-2 text-uppercase small text-muted">{{ $result->awayTeam->club->name }}</div>
-                        <div class="team-name">{{ $result->awayTeam->name }}</div>
+                        <div class="team-name">{{ $result->awayTeam->short_name }}</div>
                     </div>
                 </div>
             </div>
