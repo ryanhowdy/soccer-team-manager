@@ -22333,6 +22333,12 @@ label.required:after {
   background: #fff;
   max-height: 65px;
 }
+.field .col .position .event-picker .number {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+}
 .field .col .position .event-picker .name {
   width: 80px;
   padding: 6px;

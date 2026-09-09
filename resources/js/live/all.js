@@ -286,11 +286,8 @@ export default class LiveAll extends Live
         let $position = $anchor.parents('.position').first();
         let playerId  = $position.find('img').attr('data-player-id');
 
-        // remove player photo
-        $position.find('img').remove();
-
-        // remove play name
-        $position.find('span.name').remove();
+        // remove the photo, the name and the jersey number badge
+        $position.find('.event-picker').empty();
 
         $position.addClass('empty');
 

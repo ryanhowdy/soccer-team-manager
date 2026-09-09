@@ -83,6 +83,13 @@
                     background: #fff;
                     max-height: 65px;
                 }
+                .number
+                {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    z-index: 2;
+                }
                 .name
                 {
                     width: 80px;

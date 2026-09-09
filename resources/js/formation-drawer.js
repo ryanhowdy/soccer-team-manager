@@ -1,5 +1,8 @@
 export default class FormationDrawer
 {
+    // The players.photo default - a picture of nobody, not a real photo.
+    static NO_PHOTO = 'img/photo_none.png';
+
     constructor(players, playersByPosition)
     {
         this.players           = players;
@@ -176,6 +179,46 @@ export default class FormationDrawer
         $positionDiv.removeClass('empty');
         $eventPicker.append(img);
         $eventPicker.append(nameSpan);
+
+        // The stand-in photo tells you nothing about who is in this position,
+        // so label it with the player's jersey number. A real photo already
+        // identifies the player and is left uncovered.
+        if (this.hasPlaceholderPhoto(playerData) && this.hasNumber(playerData))
+        {
+            let numberBadge = document.createElement('span');
+            numberBadge.className = 'number badge rounded-pill text-bg-dark';
+            numberBadge.textContent = playerData.number;
+
+            $eventPicker.append(numberBadge);
+        }
+    }
+
+    /**
+     * Whether this player is showing the stand-in photo rather than one of
+     * their own.
+     */
+    hasPlaceholderPhoto(playerData)
+    {
+        if (!playerData.photo)
+        {
+            return true;
+        }
+
+        return playerData.photo.indexOf(FormationDrawer.NO_PHOTO) !== -1;
+    }
+
+    /**
+     * Whether this player has a jersey number to show. A roster number is
+     * nullable, and a guest player's is a placeholder 'x' on some pages.
+     */
+    hasNumber(playerData)
+    {
+        if (playerData.number === null || playerData.number === undefined || playerData.number === '')
+        {
+            return false;
+        }
+
+        return String(playerData.number).toLowerCase() !== 'x';
     }
 
     addPlayerStarters(starters, selector = '#live-main')
