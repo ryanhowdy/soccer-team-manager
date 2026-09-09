@@ -248,7 +248,8 @@ class Chart
             $this->chartData['assists'] = ['players' => [], 'labels' => '', 'data' => ''];
         }
 
-        if (!in_array($event->event_id, $this->goalEvents))
+        // Not every goal can be assisted - see Event::getAssistValues().
+        if (!in_array($event->event_id, Event::getAssistValues()))
         {
             return;
         }

@@ -39,6 +39,48 @@ enum Event: int
         ];
     }
 
+    /**
+     * The events an assist can be credited on - the 'Ast' stat.
+     *
+     * A goal, and a free kick goal where someone else supplied the ball (a
+     * cross headed in - see the note on `additional` below).  A penalty is
+     * never assisted, so penalty_goal is not here.
+     */
+    public static function getAssistValues()
+    {
+        return [
+            Event::goal->value,
+            Event::free_kick_goal->value,
+        ];
+    }
+
+    /**
+     * The events a chance-creating pass can be credited on - the 'Cha' stat.
+     *
+     * Every goal and shot except the penalty variants, because nobody supplies
+     * a penalty.  A corner is neither a goal nor a shot, so it is not here.
+     * A pass to a goal counts here as well as being an assist, so chance
+     * creation is the full picture of what a player set up.
+     *
+     * A NOTE ON SET PIECES.  `additional` means "who supplied the ball", and
+     * that is what separates a direct free kick from an indirect one.  A direct
+     * strike has no `additional` at all - nobody supplied it - so it can never
+     * credit anyone here.  An indirect one carries the taker, the cross that
+     * got headed in, which is chance creation by any measure.  Listing the
+     * free kick events here therefore only ever credits the indirect ones.
+     */
+    public static function getChanceValues()
+    {
+        return [
+            Event::goal->value,
+            Event::shot_on_target->value,
+            Event::shot_off_target->value,
+            Event::free_kick_goal->value,
+            Event::free_kick_on_target->value,
+            Event::free_kick_off_target->value,
+        ];
+    }
+
     public static function getShotValues()
     {
         return [

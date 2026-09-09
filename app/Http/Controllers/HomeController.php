@@ -9,6 +9,7 @@ use App\Models\ClubTeam;
 use App\Models\ClubTeamSeason;
 use App\Models\Competition;
 use App\Models\ResultEvent;
+use App\Models\PlayerGameRating;
 use Illuminate\Database\Eloquent\Builder;
 use App\Enums\Event;
 
@@ -197,6 +198,8 @@ class HomeController extends Controller
             ],
             'topScorers'      => [],
             'topAssisters'    => [],
+            'topRated'        => [],
+            'topChances'      => [],
             'formations'      => [],
             'goalTiming'      => array_fill(0, 6, ['for' => 0, 'against' => 0]),
         ];
@@ -281,12 +284,15 @@ class HomeController extends Controller
         $dashboard['formStreak'] = array_slice($dashboard['formStreak'], -10);
 
         // Get events for all season results
-        $goalEvents = Event::getGoalValues();
+        $goalEvents   = Event::getGoalValues();
+        $assistEvents = Event::getAssistValues();
+        $chanceEvents = Event::getChanceValues();
 
         $events = ResultEvent::whereIn('result_id', $resultIds)->get();
 
         $scorers   = [];
         $assisters = [];
+        $chances   = [];
 
         foreach ($events as $event)
         {
@@ -312,26 +318,70 @@ class HomeController extends Controller
                 continue;
             }
 
+            // Top scorers
             if (in_array($event->event_id, $goalEvents))
             {
-                // Top scorers
                 $name = $event->player_name;
                 $scorers[$name] = ($scorers[$name] ?? 0) + 1;
+            }
 
-                // Top assisters
+            // Top assisters.  Not every goal can be assisted - see
+            // Event::getAssistValues().
+            if (in_array($event->event_id, $assistEvents))
+            {
                 if (!empty($event->additional) && $event->additionalPlayer)
                 {
                     $aName = $event->additionalPlayer->name;
                     $assisters[$aName] = ($assisters[$aName] ?? 0) + 1;
                 }
             }
+
+            // Chance creation - the pass that set up a goal or shot.  Reads the
+            // same Event::getChanceValues() the 'Cha' column on stats/teams
+            // counts, so the two can never disagree.
+            if (in_array($event->event_id, $chanceEvents))
+            {
+                if (!empty($event->additional) && $event->additionalPlayer)
+                {
+                    $cName = $event->additionalPlayer->name;
+                    $chances[$cName] = ($chances[$cName] ?? 0) + 1;
+                }
+            }
+        }
+
+        // Player ratings. Several users can rate the same player in the same
+        // game, so a game's rating is the average of those, and the player's
+        // season rating is the average of their rated games. Averaging the raw
+        // rows instead would weight a game by how many people bothered to rate it.
+        $rated = [];
+
+        $ratingRows = PlayerGameRating::with('player')
+            ->whereIn('result_id', $resultIds)
+            ->get();
+
+        foreach ($ratingRows->groupBy('player_id') as $playerRows)
+        {
+            $gameRatings = $playerRows->groupBy('result_id')
+                ->map(fn ($rows) => $rows->avg('rating'));
+
+            $player = $playerRows->first()->player;
+
+            $rated[$player ? $player->name : 'Unknown'] = [
+                'rating' => round($gameRatings->avg(), 1),
+                'games'  => $gameRatings->count(),
+            ];
         }
 
         // Sort and take top 5
         arsort($scorers);
         arsort($assisters);
+        arsort($chances);
+        uasort($rated, fn ($a, $b) => $b['rating'] <=> $a['rating']);
+
         $dashboard['topScorers']   = array_slice($scorers, 0, 5, true);
         $dashboard['topAssisters'] = array_slice($assisters, 0, 5, true);
+        $dashboard['topChances']   = array_slice($chances, 0, 5, true);
+        $dashboard['topRated']     = array_slice($rated, 0, 5, true);
 
         return $dashboard;
     }

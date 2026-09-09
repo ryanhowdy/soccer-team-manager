@@ -318,8 +318,8 @@
                             <th data-bs-toggle="tooltip" data-bs-title="Assists">Ast</th>
                             <th data-bs-toggle="tooltip" data-bs-title="Total Shots">Sh</th>
                             <th data-bs-toggle="tooltip" data-bs-title="Shots On Target">Sot</th>
-                            <th data-bs-toggle="tooltip" data-bs-title="Chance Creation (Passes lead to Goals or Shots)">Cha</th>
-                            <th data-bs-toggle="tooltip" data-bs-title="Free Kicks">FK</th>
+                            <th data-bs-toggle="tooltip" data-bs-title="Chance Creation (Passes that led to a goal or shot, penalties aside)">Cha</th>
+                            <th data-bs-toggle="tooltip" data-bs-title="Free Kicks Taken">FK</th>
                             <th class="border-end" data-bs-toggle="tooltip" data-bs-title="Penalty Kicks">PK</th>
                             <th data-bs-toggle="tooltip" data-bs-title="% of Team Total Goals">Gls</th>
                             <th data-bs-toggle="tooltip" data-bs-title="% of Team Total Assists">Ast</th>

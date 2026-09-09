@@ -96,6 +96,37 @@
     </div>
     @endif
 
+    {{-- 6c. Top Rated --}}
+    @if(count($dashboard['topRated']))
+    <div class="col-12 col-lg-6 mb-3">
+        <div class="rounded rounded-3 bg-white p-3 p-lg-4">
+            <div class="fw-bold text-secondary mb-3">Top Rated</div>
+            @foreach($dashboard['topRated'] as $name => $rated)
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>{{ $name }}</div>
+                <span class="badge bg-primary rounded-pill" data-bs-toggle="tooltip"
+                    data-bs-title="Rated in {{ $rated['games'] }} {{ $rated['games'] == 1 ? 'game' : 'games' }}">{{ number_format($rated['rating'], 1) }}</span>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- 6d. Top Chance Creation --}}
+    @if(count($dashboard['topChances']))
+    <div class="col-12 col-lg-6 mb-3">
+        <div class="rounded rounded-3 bg-white p-3 p-lg-4">
+            <div class="fw-bold text-secondary mb-3" data-bs-toggle="tooltip"
+                data-bs-title="Passes that led to a goal or shot">Top Chance Creation</div>
+            @foreach($dashboard['topChances'] as $name => $chances)
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>{{ $name }}</div>
+                <span class="badge bg-primary rounded-pill">{{ $chances }}</span>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
 </div>
 

@@ -139,6 +139,8 @@ class StatsTeamController extends Controller
         }
 
         $goalEvents    = Event::getGoalValues();
+        $assistEvents  = Event::getAssistValues();
+        $chanceEvents  = Event::getChanceValues();
         $shotOnEvents  = Event::getShotOnTargetValues();
         $shotOffEvents = Event::getShotOffTargetValues();
         $fkEvents      = Event::getFreeKickValues();
@@ -254,63 +256,72 @@ class StatsTeamController extends Controller
                         }
                     }
                 }
-                // Goals/assists
+                // Goals
                 if (in_array($event->event_id, $goalEvents))
                 {
-                    if (!empty($event->additional))
-                    {
-                        if (!isset($stats['players'][$event->additionalPlayer->name]))
-                        {
-                            $stats['players'][$event->additionalPlayer->name] = $playerDefaults;
-                            $stats['players'][$event->additionalPlayer->name]['player'] = $event->additionalPlayer;
-                        }
-
-                        $stats['players'][$event->additionalPlayer->name]['assists']++;
-                    }
-
                     $stats['players'][$event->player_name]['goals']++;
                     $stats['players'][$event->player_name]['shots']++;
                     $stats['players'][$event->player_name]['shotsOn']++;
+                }
+                // Assists.  Not every goal can be assisted - see
+                // Event::getAssistValues().
+                if (in_array($event->event_id, $assistEvents) && !empty($event->additional))
+                {
+                    if (!isset($stats['players'][$event->additionalPlayer->name]))
+                    {
+                        $stats['players'][$event->additionalPlayer->name] = $playerDefaults;
+                        $stats['players'][$event->additionalPlayer->name]['player'] = $event->additionalPlayer;
+                    }
+
+                    $stats['players'][$event->additionalPlayer->name]['assists']++;
                 }
                 // Shot on target
                 if (in_array($event->event_id, $shotOnEvents))
                 {
                     $stats['players'][$event->player_name]['shots']++;
                     $stats['players'][$event->player_name]['shotsOn']++;
-
-                    if (!empty($event->additional))
-                    {
-                        if (!isset($stats['players'][$event->additionalPlayer->name]))
-                        {
-                            $stats['players'][$event->additionalPlayer->name] = $playerDefaults;
-                            $stats['players'][$event->additionalPlayer->name]['player'] = $event->additionalPlayer;
-                        }
-
-                        $stats['players'][$event->additionalPlayer->name]['chances']++;
-                    }
                 }
                 // Shot off target
                 if ($event->event_id == Event::shot_off_target->value)
                 {
                     $stats['players'][$event->player_name]['shots']++;
-
-                    if (!empty($event->additional))
-                    {
-                        if (!isset($stats['players'][$event->additionalPlayer->name]))
-                        {
-                            $stats['players'][$event->additionalPlayer->name] = $playerDefaults;
-                            $stats['players'][$event->additionalPlayer->name]['player'] = $event->additionalPlayer;
-                        }
-
-                        $stats['players'][$event->additionalPlayer->name]['chances']++;
-                    }
                 }
-                // Free kicks
+                // Chance creation - the pass that set up a goal or shot.
+                // Which events qualify is Event::getChanceValues(), so this
+                // and the home dashboard cannot drift apart.
+                if (in_array($event->event_id, $chanceEvents) && !empty($event->additional))
+                {
+                    if (!isset($stats['players'][$event->additionalPlayer->name]))
+                    {
+                        $stats['players'][$event->additionalPlayer->name] = $playerDefaults;
+                        $stats['players'][$event->additionalPlayer->name]['player'] = $event->additionalPlayer;
+                    }
+
+                    $stats['players'][$event->additionalPlayer->name]['chances']++;
+                }
+                // Free kicks, credited to whoever took them.  On an indirect
+                // free kick the event sits on the player who finished it and
+                // `additional` holds the taker, so the taker wins when there is
+                // one - heading in a free kick is not the same as taking one.
+                //
+                // Only worked out inside this branch: `additional` holds a
+                // position string on start/sub_in events, not a player.
                 if (in_array($event->event_id, $fkEvents))
                 {
-                    $stats['players'][$event->player_name]['fks']++;
+                    $taker     = $event->additionalPlayer ?: $event->player;
+                    $takerName = $taker ? $taker->name : $event->player_name;
+
+                    if (!isset($stats['players'][$takerName]))
+                    {
+                        $stats['players'][$takerName] = $playerDefaults;
+                        $stats['players'][$takerName]['player'] = $taker;
+                    }
+
+                    $stats['players'][$takerName]['fks']++;
                 }
-                // Penalties
+                // Penalties always belong to the player who struck them.  A
+                // penalty cannot be indirect, so `additional` is never a taker
+                // here whatever else it may have been recorded for.
                 if (in_array($event->event_id, $pkEvents))
                 {
                     $stats['players'][$event->player_name]['pks']++;

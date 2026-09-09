@@ -676,7 +676,9 @@ class GameController extends Controller
                     $stats['players'][$e->player_id]['shots']++;
                     $stats['players'][$e->player_id]['shots_on']++;
 
-                    if ($e->additional)
+                    // Not every goal can be assisted - see
+                    // EnumEvent::getAssistValues().
+                    if ($e->additional && in_array($e->event_id, EnumEvent::getAssistValues()))
                     {
                         $stats['players'][$e->additional]['assists']++;
                     }

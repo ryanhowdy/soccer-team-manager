@@ -404,7 +404,9 @@ class PlayerController extends Controller
                         $stats['totals'][$type]['shots']++;
                         $stats['totals'][$type]['shots_on']++;
                     }
-                    if ($e->additional == $playerId)
+                    // Not every goal can be assisted - see
+                    // Event::getAssistValues().
+                    if ($e->additional == $playerId && in_array($e->event_id, Event::getAssistValues()))
                     {
                         $stats[$groupBy][$groupBy2nd]['assists']++;
                         $stats['totals']['all']['assists']++;
