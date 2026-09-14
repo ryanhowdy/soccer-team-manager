@@ -19,7 +19,18 @@
 
         <div class="d-flex justify-content-between mb-3">
             <div><h2>Opponents</h2></div>
-            <div class="d-flex gap-2 align-items-center justify-content-end">
+            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-end">
+                <form method="get" action="{{ route('opponents.index') }}" class="d-flex gap-3 align-items-center mb-0">
+                    <input type="hidden" name="filtered" value="1">
+                @foreach (\App\Enums\ClubType::cases() as $type)
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" role="switch" onchange="this.form.submit()"
+                            id="type-{{ $type->value }}" name="types[]" value="{{ $type->value }}"
+                            @checked(in_array($type->value, $selectedTypes, true))>
+                        <label class="form-check-label small text-nowrap" for="type-{{ $type->value }}">{{ $type->label() }}</label>
+                    </div>
+                @endforeach
+                </form>
                 <div>
                     <input class="d-none d-lg-inline-block bg-light" type="text" id="search">
                 </div>
@@ -37,7 +48,7 @@
         </div>
 
         <div id="clubs-cards" class="d-flex flex-wrap mb-5">
-        @foreach($opponentClubs as $club)
+        @forelse($opponentClubs as $club)
             @php
                 // A club can sit on both pages, so count only the teams that make
                 // it an opponent here.  The details modal still lists every team.
@@ -85,7 +96,19 @@
                 @endif
                 </div>
             </div>
-        @endforeach
+        @empty
+            <div class="rounded rounded-3 bg-white p-5 text-center mb-3 w-100">
+                <img class="opacity-50 w-25" src="{{ asset('img/empty-state.svg') }}">
+                <div class="fs-3 fw-bold mt-5 pb-1">No Opponents</div>
+                <small class="pb-3 d-block text-muted">
+                @if (count($selectedTypes))
+                    No {{ collect(\App\Enums\ClubType::cases())->filter(fn ($t) => in_array($t->value, $selectedTypes, true))->map(fn ($t) => strtolower($t->label()))->join(' or ') }} opponents yet.
+                @else
+                    Include either Club or High School teams above to see opponents.
+                @endif
+                </small>
+            </div>
+        @endforelse
         </div>
 
     </div><!--/container-->
