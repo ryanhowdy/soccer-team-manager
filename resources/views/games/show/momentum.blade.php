@@ -1,101 +1,194 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
 <div class="rounded rounded-3 bg-white p-4 mb-3">
-    <h3 class="mb-3">Momentum</h3>
-    <div id="home-momentum-chart">
-        <table class="charts-css area show-data-on-hover show-labels reverse-labels labels-align-inline-end">
-            <tbody></tbody>
-        </table>
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <h3 class="mb-0">Momentum</h3>
+        <div class="text-end small text-muted">
+            <div><span class="momentum-key" data-side="home"></span> {{ $result->homeTeam->short_name }}</div>
+            <div><span class="momentum-key" data-side="away"></span> {{ $result->awayTeam->short_name }}</div>
+        </div>
     </div>
-    <div id="away-momentum-chart">
-        <table class="charts-css area reverse show-data-on-hover show-labels reverse-labels labels-align-inline-end">
-            <tbody></tbody>
-        </table>
+    <div id="momentum-chart-wrap">
+        <canvas id="momentum-chart"></canvas>
     </div>
-<style>
-#home-momentum-chart .area { --color: {{ $teamColors['home'] }} }
-#home-momentum-chart th { color: {{ $teamColors['home'] }} }
-#away-momentum-chart .area { --color: {{ $teamColors['away'] }} }
-#away-momentum-chart th { color: {{ $teamColors['away'] }} }
-</style>
 </div>
 <script>
 $(document).ready(function() {
-    $('#momentum-tab').click(function() {
+    let momentumChart = null;
+
+    let homeColor = @json($teamColors['home']);
+    let awayColor = @json($teamColors['away']);
+    let homeName  = @json($result->homeTeam->short_name);
+    let awayName  = @json($result->awayTeam->short_name);
+
+    let goalFont = '26px "Material Symbols Outlined"';
+
+    // Softer version of a club colour, so the filled areas stay readable.
+    let translucent = function(hex) {
+        let n = parseInt(hex.replace('#', ''), 16);
+        return 'rgba(' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(',') + ',0.55)';
+    };
+
+    $('.momentum-key[data-side=home]').css('background-color', homeColor);
+    $('.momentum-key[data-side=away]').css('background-color', awayColor);
+
+    $('#momentum-tab').on('click', function() {
+        if (momentumChart) {
+            return; // already drawn
+        }
+
         $.ajax({
-            url  : '{{ route('ajax.results.events.momentum', ['result' => $result->id]) }}',
-        }).done((data) => {
-            console.log(data);
+            url : '{{ route('ajax.results.events.momentum', ['result' => $result->id]) }}',
+        }).done((response) => {
+            let data = response.data;
 
-            $('#home-momentum-chart > table > tbody').empty();
-            $('#away-momentum-chart > table > tbody').empty();
+            // Goals and cards, drawn on the line at the minute they happened.
+            // A minute can hold more than one, so they get laid out side by side.
+            let markerAt = {};
 
-            let prev = '0.0';
+            data.markers.forEach((m) => {
+                markerAt[m.minute] = markerAt[m.minute] || [];
+                markerAt[m.minute].push(m);
+            });
 
-            for (let time in data.data['home'])
-            {
-                let tr = document.createElement('tr');
+            // Drawn here rather than as dataset points so the goal keeps the
+            // same soccer ball the rest of the game pages use, and so a marker
+            // on the peak can overflow the plot instead of being clipped.
+            let drawMarkers = {
+                id: 'momentumMarkers',
+                afterDatasetsDraw(chart) {
+                    let meta = chart.getDatasetMeta(0);
+                    let ctx  = chart.ctx;
 
-                let td = document.createElement('td');
-                td.style.setProperty('--start', prev);
-                td.style.setProperty('--end', data.data['home'][time]['total']);
+                    ctx.save();
+                    ctx.textAlign    = 'center';
+                    ctx.textBaseline = 'middle';
 
-                let th = document.createElement('th');
-                th.setAttribute('scope', 'row');
+                    let zeroY = chart.scales.y.getPixelForValue(0);
 
-                if (data.data['home'][time]['event'] == 'goal') {
-                    let span2 = document.createElement('span');
-                    span2.className = 'icon material-symbols-outlined';
-                    span2.textContent = 'sports_soccer';
+                    data.minutes.forEach((minute, i) => {
+                        let list = markerAt[minute];
 
-                    th.append(span2);
-                }
+                        if (!list || !meta.data[i]) {
+                            return;
+                        }
 
-                let span = document.createElement('span');
-                span.className = 'data';
-                span.textContent = time;
+                        let point = meta.data[i];
 
-                td.append(span);
-                tr.append(th);
-                tr.append(td)
-                $('#home-momentum-chart > table > tbody').append(tr);
+                        // A marker belongs to the team it happened to, which is
+                        // not always the team with the momentum - a booking is
+                        // the other side's swing.  So each side's markers stay
+                        // in that side's half, clear of the curve where the
+                        // curve is on their side, and just off the centre line
+                        // where it is not.
+                        ['home', 'away'].forEach((side) => {
+                            let group = list.filter((m) => m.side == side);
 
-                prev = data.data['home'][time]['total'];
-            }
+                            if (!group.length) {
+                                return;
+                            }
 
-            prev = '0.0';
+                            let y = side == 'home'
+                                ? Math.min(point.y, zeroY) - 17
+                                : Math.max(point.y, zeroY) + 17;
 
-            for (let time in data.data['away'])
-            {
-                let tr = document.createElement('tr');
+                            // Never past the edge of the canvas - a marker on
+                            // the game's peak swing sits hard against the top.
+                            y = Math.min(Math.max(y, 15), chart.height - 15);
 
-                let td = document.createElement('td');
-                td.style.setProperty('--start', prev);
-                td.style.setProperty('--end', data.data['away'][time]['total']);
+                            group.forEach((m, n) => {
+                                let x = point.x + (n * 15) - ((group.length - 1) * 7.5);
 
-                let th = document.createElement('th');
-                th.setAttribute('scope', 'row');
+                                if (m.type == 'goal') {
+                                    ctx.font      = goalFont;
+                                    ctx.fillStyle = '#212529';
+                                    ctx.fillText('sports_soccer', x, y);
 
-                if (data.data['away'][time]['event'] == 'goal') {
-                    let span2 = document.createElement('span');
-                    span2.className = 'icon material-symbols-outlined';
-                    span2.textContent = 'sports_soccer';
+                                    return;
+                                }
 
-                    th.append(span2);
-                }
+                                ctx.fillStyle   = m.type == 'yellow' ? '#ffc107' : '#dc3545';
+                                ctx.strokeStyle = '#212529';
+                                ctx.lineWidth   = 1.2;
 
-                let span = document.createElement('span');
-                span.className = 'data';
-                span.textContent = time;
+                                ctx.beginPath();
+                                if (ctx.roundRect) {
+                                    ctx.roundRect(x - 5.5, y - 7.5, 11, 15, 2);
+                                } else {
+                                    ctx.rect(x - 5.5, y - 7.5, 11, 15);
+                                }
+                                ctx.fill();
+                                ctx.stroke();
+                            });
+                        });
+                    });
 
-                td.append(span);
-                tr.append(th);
-                tr.append(td)
-                $('#away-momentum-chart > table > tbody').append(tr);
+                    ctx.restore();
+                },
+            };
 
-                prev = data.data['away'][time]['total'];
+            momentumChart = new Chart(document.getElementById('momentum-chart'), {
+                type: 'line',
+                plugins: [drawMarkers],
+                data: {
+                    labels: data.minutes,
+                    datasets: [{
+                        data: data.values,
+                        fill: {
+                            target: 'origin',
+                            above: translucent(homeColor),
+                            below: translucent(awayColor),
+                        },
+                        borderColor: 'rgba(0,0,0,0.25)',
+                        borderWidth: 1,
+                        tension: 0.35,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                    }],
+                },
+                options: {
+                    animation: false,
+                    maintainAspectRatio: false,
+                    // Room outside the plot for a marker sitting on a peak.
+                    layout: { padding: { top: 22, bottom: 22 } },
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            displayColors: false,
+                            callbacks: {
+                                title: (items) => items[0].label + "'",
+                                // Only the minute, and any goal or card in it.
+                                label: (item) => (markerAt[item.label] || []).map((m) => {
+                                    let who  = m.player || (m.side == 'home' ? homeName : awayName);
+                                    let what = { goal: 'Goal', yellow: 'Yellow card', red: 'Red card' }[m.type];
+
+                                    return what + ' — ' + who;
+                                }),
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Minute' },
+                            ticks: { maxTicksLimit: 10, autoSkip: true },
+                            grid: { display: false },
+                        },
+                        y: {
+                            min: -1.25,
+                            max: 1.25,
+                            title: { display: false },
+                            ticks: { display: false },
+                            grid: { color: (ctx) => ctx.tick.value === 0 ? 'rgba(0,0,0,0.35)' : 'rgba(0,0,0,0.05)' },
+                        },
+                    },
+                },
+            });
+
+            // The ball is a webfont glyph, so redraw once it has actually landed.
+            if (document.fonts && document.fonts.load) {
+                document.fonts.load(goalFont).then(() => momentumChart.update('none'));
             }
         }).fail(() => {
-            $('#home-momentum-chart').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t get momentum data.</p>');
+            $('#momentum-chart-wrap').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t get momentum data.</p>');
         });
     });
 });

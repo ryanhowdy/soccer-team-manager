@@ -10,6 +10,13 @@ use App\Enums\Event as EnumEvent;
 
 class ResultEventController extends Controller
 {
+    // How long one event keeps showing on the momentum chart, in minutes.
+    private const MOMENTUM_WINDOW = 5;
+
+    // Stands in for an unrated shot.  The median of the xG actually recorded,
+    // so leaving the rating off neither wipes the chance out nor inflates it.
+    private const MOMENTUM_DEFAULT_XG = 3;
+
     /**
      * store
      * 
@@ -287,13 +294,19 @@ class ResultEventController extends Controller
 
     /**
      * getMomentum
-     * 
+     *
+     * Attacking threat over the game, as a single signed series: positive is
+     * the home side on top, negative the away side.
+     *
+     * Each event is worth a fixed amount plus its xG where it has one, and
+     * keeps influencing the chart for MOMENTUM_WINDOW minutes while fading
+     * out, which is what turns a list of events into a curve.
+     *
      * @param Result $result
      * @return json
      */
     public function getMomentum(Result $result, Request $request)
     {
-        // Get all the events for this game
         $resultEvents = ResultEvent::where('result_id', $result->id)
             ->orderBy('time')
             ->orderBy('id')
@@ -302,91 +315,213 @@ class ResultEventController extends Controller
         $goodGuys = $result->homeTeam->managed ? 'home' : 'away';
         $badGuys  = $goodGuys == 'home'        ? 'away' : 'home';
 
-        $momentum = [
-            'home' => [],
-            'away' => [],
-        ];
+        // Raw value dropped at the minute it happened, before any fading.
+        $raw     = ['home' => [], 'away' => []];
+        $markers = [];
+        $last    = 0;
 
-        $max = 0;
-
-        foreach($resultEvents as $e)
+        foreach ($resultEvents as $e)
         {
-            $homeAway = $e->against == 1 ? $badGuys : $goodGuys;
+            $minute = (int) floor(eventTimeToSeconds($e->time) / 60);
 
-            // put each time event into 5 min sections (ie 0-4, 5-9, 10-14, etc)
-            $time = floor(substr($e->time, 0, 2) / 5) * 5;
+            $last = max($last, $minute);
 
-            if (!isset($momentum['home'][$time]))
+            // Goals and cards get drawn on the line.  These sit on the side they
+            // happened to, which is not always the side they hand momentum to -
+            // a booking helps the other team but belongs to the booked player.
+            $marker = $this->momentumMarker($e);
+
+            if ($marker)
             {
-                $momentum['home'][$time] = [
-                    'points' => 0,
-                    'total'  => 0,
-                    'event'  => '',
+                $markers[] = [
+                    'minute' => $minute,
+                    'type'   => $marker,
+                    'side'   => $e->against ? $badGuys : $goodGuys,
+                    // Opponent events rarely name a player, so the view falls
+                    // back to the team when this is null.
+                    'player' => $e->player ? $e->player->name : null,
                 ];
             }
-            if (!isset($momentum['away'][$time]))
+
+            $scored = $this->momentumValue($e, $goodGuys, $badGuys);
+
+            if (is_null($scored))
             {
-                $momentum['away'][$time] = [
-                    'points' => 0,
-                    'total'  => 0,
-                    'event'  => '',
-                ];
+                continue;
             }
 
-            // Goal (xg)
-            if (in_array($e->event_id, EnumEvent::getGoalValues()))
-            {
-                $pts = is_null($e->xg) ? 5 : $e->xg;
+            [$side, $value] = $scored;
 
-                $momentum[$homeAway][$time]['points'] += $pts;
-                $momentum[$homeAway][$time]['event'] = 'goal';
-            }
-            // Shot on/off Target (xg)
-            if (in_array($e->event_id, EnumEvent::getShotValues()))
-            {
-                $pts = is_null($e->xg) ? 5 : $e->xg;
-
-                $momentum[$homeAway][$time]['points'] += $pts;
-            }
-            // Foul (-2)
-            if ($e->event_id == EnumEvent::foul->value)
-            {
-                $momentum[$badGuys][$time]['points'] += 2;
-            }
-            // Fouled (2)
-            if ($e->event_id == EnumEvent::fouled->value)
-            {
-                $momentum[$goodGuys][$time]['points'] += 2;
-            }
-
-            if ($momentum['home'][$time]['points'] > $max)
-            {
-                $max = $momentum['home'][$time]['points'];
-            }
-            if ($momentum['away'][$time]['points'] > $max)
-            {
-                $max = $momentum['away'][$time]['points'];
-            }
+            $raw[$side][$minute] = ($raw[$side][$minute] ?? 0) + $value;
         }
 
-        foreach ($momentum['home'] as $timeSpan => $data)
-        {
-            $hPoints = $data['points'] / $max;
-            $aPoints = $momentum['away'][$timeSpan]['points'] / $max;
+        // Fade each minute's events out over the window that follows, then take
+        // the difference between the sides.  One number per minute, so the x
+        // axis is real time whether or not anything happened.
+        $series = [];
+        $peak   = 0;
 
-            if ($hPoints > $aPoints)
-            {
-                $momentum['home'][$timeSpan]['total'] = round($hPoints, 1);
-            }
-            if ($aPoints > $hPoints)
-            {
-                $momentum['away'][$timeSpan]['total'] = round($aPoints, 1);
-            }
+        for ($minute = 0; $minute <= $last; $minute++)
+        {
+            $value = $this->momentumAt($raw['home'], $minute) - $this->momentumAt($raw['away'], $minute);
+
+            $series[$minute] = $value;
+            $peak            = max($peak, abs($value));
+        }
+
+        // Scale to -1..1 off the biggest swing in this game.  A game with no
+        // momentum events at all leaves peak at 0 - flat line, no division.
+        foreach ($series as $minute => $value)
+        {
+            $series[$minute] = $peak > 0 ? round($value / $peak, 3) : 0;
         }
 
         return response()->json([
             'success' => true,
-            'data'    => $momentum,
+            'data'    => [
+                'minutes' => array_keys($series),
+                'values'  => array_values($series),
+                'markers' => $markers,
+                'teams'   => [
+                    'home' => $result->homeTeam->short_name,
+                    'away' => $result->awayTeam->short_name,
+                ],
+            ],
         ], 200);
+    }
+
+    /**
+     * momentumValue
+     *
+     * What one event is worth, and to which side.  Null for events that say
+     * nothing about momentum - substitutions, the whistle, possession flags.
+     *
+     * Weights are deliberately flat per event type plus xG on the shooting
+     * ones: the swing from a chance is carried by its xG, which is why a shot
+     * on and off target are worth the same base.
+     *
+     * @param ResultEvent $event
+     * @param string $goodGuys
+     * @param string $badGuys
+     * @return array|null  [side, value]
+     */
+    private function momentumValue(ResultEvent $event, string $goodGuys, string $badGuys): ?array
+    {
+        $side  = $event->against ? $badGuys : $goodGuys;
+        $other = $side === 'home' ? 'away' : 'home';
+
+        // An unrated shot should not outweigh a rated one, so it takes the
+        // middle of the scale rather than sitting near the top of it.
+        $xg = is_null($event->xg) ? self::MOMENTUM_DEFAULT_XG : $event->xg;
+
+        if (in_array($event->event_id, EnumEvent::getGoalValues()))
+        {
+            return [$side, 10 + $xg];
+        }
+
+        if (in_array($event->event_id, EnumEvent::getShotValues()))
+        {
+            return [$side, 4 + $xg];
+        }
+
+        // A save sits on our own keeper, but it is the other side's shot on
+        // target - and it is how nearly every one of theirs gets recorded, so
+        // leaving it out hides most of the opposition's attacking play.
+        if ($event->event_id == EnumEvent::save->value)
+        {
+            return [$other, 4 + $xg];
+        }
+
+        if ($event->event_id == EnumEvent::corner_kick->value)
+        {
+            return [$side, 3];
+        }
+
+        if ($event->event_id == EnumEvent::tackle_won->value)
+        {
+            return [$side, 1];
+        }
+
+        if ($event->event_id == EnumEvent::tackle_lost->value)
+        {
+            return [$other, 2];
+        }
+
+        // Won a foul, or got in behind and was flagged - both say you were the
+        // side doing something.
+        if (in_array($event->event_id, [EnumEvent::fouled->value, EnumEvent::offsides->value]))
+        {
+            return [$side, 1];
+        }
+
+        if (in_array($event->event_id, [EnumEvent::foul->value, EnumEvent::yellow_card->value]))
+        {
+            return [$other, 1];
+        }
+
+        if ($event->event_id == EnumEvent::red_card->value)
+        {
+            return [$other, 10];
+        }
+
+        return null;
+    }
+
+    /**
+     * momentumMarker
+     *
+     * The moments worth drawing on the line rather than just moving it.
+     *
+     * @param ResultEvent $event
+     * @return string|null
+     */
+    private function momentumMarker(ResultEvent $event): ?string
+    {
+        if (in_array($event->event_id, EnumEvent::getGoalValues()))
+        {
+            return 'goal';
+        }
+
+        if ($event->event_id == EnumEvent::yellow_card->value)
+        {
+            return 'yellow';
+        }
+
+        if ($event->event_id == EnumEvent::red_card->value)
+        {
+            return 'red';
+        }
+
+        return null;
+    }
+
+    /**
+     * momentumAt
+     *
+     * One side's standing at a given minute: everything it did in the window
+     * up to now, each fading linearly with age so a chance counts for full at
+     * the moment it happens and nothing once the window has passed.
+     *
+     * @param array $raw  value keyed by the minute it happened
+     * @param int $minute
+     * @return float
+     */
+    private function momentumAt(array $raw, int $minute): float
+    {
+        $total = 0;
+
+        for ($age = 0; $age < self::MOMENTUM_WINDOW; $age++)
+        {
+            $was = $minute - $age;
+
+            if ($was < 0 || !isset($raw[$was]))
+            {
+                continue;
+            }
+
+            $total += $raw[$was] * (1 - ($age / self::MOMENTUM_WINDOW));
+        }
+
+        return $total;
     }
 }

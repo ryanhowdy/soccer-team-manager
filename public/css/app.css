@@ -22059,9 +22059,19 @@ label.required:after {
   background-color: #555;
 }
 
-#home-momentum-chart,
-#away-momentum-chart {
-  max-width: 600px;
+/* Momentum chart (games/show).  Team colours come from the club logos, so the
+   key swatches and the chart fills are both painted from JS, not from here. */
+#momentum-chart-wrap {
+  height: 320px;
+  position: relative;
+}
+
+.momentum-key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
 }
 
 .game-listing-details .date {
