@@ -19,6 +19,12 @@
         height: 50px;
         line-height: 50px;
     }
+    // Rating badges in the player stats table.  A fixed width keeps the
+    // column from jumping between a one and a two digit rating.
+    .badge.rating-avg
+    {
+        min-width: 35px;
+    }
     // Competition card notes toggle.  Bootstrap drops .collapsed off the
     // trigger while the panel is open, so the caret flips to point up.
     a.notes-toggle
