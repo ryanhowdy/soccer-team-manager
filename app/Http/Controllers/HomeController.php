@@ -199,6 +199,7 @@ class HomeController extends Controller
             'topScorers'      => [],
             'topAssisters'    => [],
             'topRated'        => [],
+            'topRatedMinGames' => 0,
             'topChances'      => [],
             'formations'      => [],
             'goalTiming'      => array_fill(0, 6, ['for' => 0, 'against' => 0]),
@@ -372,11 +373,21 @@ class HomeController extends Controller
             ];
         }
 
+        // Drop small samples - one great game shouldn't top the list. A player
+        // must be rated in a quarter of the games anyone was rated in (at least
+        // 2), capped at the rated-game count so an early season still shows.
+        $ratedGames = $ratingRows->pluck('result_id')->unique()->count();
+        $minGames   = min($ratedGames, max(2, (int) ceil($ratedGames * 0.25)));
+
+        $rated = array_filter($rated, fn ($r) => $r['games'] >= $minGames);
+
+        $dashboard['topRatedMinGames'] = $minGames;
+
         // Sort and take top 5
         arsort($scorers);
         arsort($assisters);
         arsort($chances);
-        uasort($rated, fn ($a, $b) => $b['rating'] <=> $a['rating']);
+        uasort($rated, fn ($a, $b) => [$b['rating'], $b['games']] <=> [$a['rating'], $a['games']]);
 
         $dashboard['topScorers']   = array_slice($scorers, 0, 5, true);
         $dashboard['topAssisters'] = array_slice($assisters, 0, 5, true);
