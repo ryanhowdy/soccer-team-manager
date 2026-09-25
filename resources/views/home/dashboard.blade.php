@@ -120,8 +120,11 @@
     @if(count($dashboard['topChances']))
     <div class="col-12 col-lg-6 mb-3">
         <div class="rounded rounded-3 bg-white p-3 p-lg-4">
-            <div class="fw-bold text-secondary mb-3" data-bs-toggle="tooltip"
-                data-bs-title="Passes that led to a goal or shot">Top Chance Creation</div>
+            <div class="fw-bold text-secondary mb-3">
+                Top Chance Creation
+                <i class="bi bi-info-circle ms-2" data-bs-toggle="tooltip"
+                    data-bs-title="Passes that led to a goal or shot"></i>
+            </div>
             @foreach($dashboard['topChances'] as $name => $chances)
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>{{ $name }}</div>
