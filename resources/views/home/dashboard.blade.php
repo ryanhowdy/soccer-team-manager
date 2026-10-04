@@ -192,9 +192,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach($dashboard['formations'] as $formName => $formStats)
+                @foreach($dashboard['formations'] as $formStats)
                     <tr class="text-center">
-                        <td class="fw-bold text-start">{{ $formName }}</td>
+                        <td class="text-start">
+                            <span class="fw-bold">{{ $formStats['name'] }}</span>
+                        @if($formStats['description'])
+                            <span class="text-secondary small">{{ $formStats['description'] }}</span>
+                        @endif
+                        </td>
                         <td>{{ $formStats['games'] }}</td>
                         <td>{{ $formStats['wins'] }}-{{ $formStats['draws'] }}-{{ $formStats['losses'] }}</td>
                         <td>{{ $formStats['goals'] }}</td>

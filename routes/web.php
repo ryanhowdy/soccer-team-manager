@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
     // Formations
     Route::get( '/formations', [\App\Http\Controllers\FormationController::class, 'index'])->name('formations.index');
     Route::post('/formations', [\App\Http\Controllers\FormationController::class, 'store'])->name('formations.store');
+    Route::post('/formations/{formation}/edit', [\App\Http\Controllers\FormationController::class, 'update'])->name('formations.update');
 
     // Me
     Route::get( '/me/settings', [\App\Http\Controllers\MeController::class, 'index'])->name('settings');

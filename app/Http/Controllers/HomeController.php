@@ -258,20 +258,31 @@ class HomeController extends Controller
             // Formation effectiveness
             if ($result->formation_id)
             {
-                $formName = $result->formation ? $result->formation->name : 'Unknown';
+                // Keyed by id, not name, so variants sharing a shape (433 Defensive
+                // vs 433 Attack) get their own rows
+                $formId = $result->formation_id;
 
-                if (!isset($dashboard['formations'][$formName]))
+                if (!isset($dashboard['formations'][$formId]))
                 {
-                    $dashboard['formations'][$formName] = ['wins' => 0, 'draws' => 0, 'losses' => 0, 'games' => 0, 'goals' => 0, 'goals_against' => 0];
+                    $dashboard['formations'][$formId] = [
+                        'name'          => $result->formation ? $result->formation->name : 'Unknown',
+                        'description'   => $result->formation ? $result->formation->description : null,
+                        'wins'          => 0,
+                        'draws'         => 0,
+                        'losses'        => 0,
+                        'games'         => 0,
+                        'goals'         => 0,
+                        'goals_against' => 0,
+                    ];
                 }
 
-                $dashboard['formations'][$formName]['games']++;
-                $dashboard['formations'][$formName]['goals'] += $usGoals;
-                $dashboard['formations'][$formName]['goals_against'] += $themGoals;
+                $dashboard['formations'][$formId]['games']++;
+                $dashboard['formations'][$formId]['goals'] += $usGoals;
+                $dashboard['formations'][$formId]['goals_against'] += $themGoals;
 
-                if ($usGoals > $themGoals) $dashboard['formations'][$formName]['wins']++;
-                else if ($usGoals < $themGoals) $dashboard['formations'][$formName]['losses']++;
-                else $dashboard['formations'][$formName]['draws']++;
+                if ($usGoals > $themGoals) $dashboard['formations'][$formId]['wins']++;
+                else if ($usGoals < $themGoals) $dashboard['formations'][$formId]['losses']++;
+                else $dashboard['formations'][$formId]['draws']++;
             }
         }
 

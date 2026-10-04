@@ -120,6 +120,11 @@ class LiveGameController extends Controller
         {
             $dashed = implode('-', str_split($formation->name, 1));
 
+            if ($formation->description)
+            {
+                $dashed .= ' (' . $formation->description . ')';
+            }
+
             $groupedFormations[$formation->players][] = [
                 'id'   => $formation->id,
                 'name' => $dashed,
