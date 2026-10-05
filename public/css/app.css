@@ -22074,6 +22074,15 @@ label.required:after {
   vertical-align: middle;
 }
 
+/* Player of the Match (games/show summary) */
+#player-of-the-match img {
+  width: 56px;
+  height: 56px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  background: #fff;
+}
+
 .game-listing-details .date {
   margin-top: -3px;
 }

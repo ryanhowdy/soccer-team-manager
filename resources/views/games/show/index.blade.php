@@ -179,8 +179,32 @@
                             <p><i>You had no managed players in this game.</i></p>
                         @endempty
                         </div>
-                        {{-- Game Notes --}}
                         <div class="col-12 col-lg-6">
+                        {{-- Player of the Match --}}
+                        @if($playerOfTheMatch)
+                            @php
+                                $potm    = $playerOfTheMatch['player'];
+                                $potmAvg = $playerOfTheMatch['rating']['average'];
+                                $potmCnt = $playerOfTheMatch['rating']['count'];
+                            @endphp
+                            <div class="pb-2 small text-muted">Player of the Match</div>
+                            <div id="player-of-the-match" class="d-flex align-items-center gap-3 mb-4">
+                                <img src="/{{ $potm->photo }}" class="rounded-circle" alt="{{ $potm->name }}">
+                                <div>
+                                    <a href="{{ route('players.show', ['player' => $potm->id]) }}" class="fs-5 fw-bold link-dark link-underline-opacity-0 link-underline-opacity-100-hover">{{ $potm->name }}</a>
+                                @if($playerOfTheMatch['highlights'])
+                                    <div class="small text-muted">
+                                        {{ implode(' · ', $playerOfTheMatch['highlights']) }}
+                                    </div>
+                                @endif
+                                </div>
+                                <span data-bs-toggle="tooltip" data-bs-title="Average of {{ $potmCnt }} {{ Str::plural('rating', $potmCnt) }}" class="badge fs-5 bg-{{ $potmAvg < 3 ? 'danger' : ($potmAvg < 5 ? 'warning' : ($potmAvg < 6 ? 'secondary' : ($potmAvg < 9 ? 'success bg-opacity-75' : 'success'))) }}">
+                                    {{ $potmAvg }}
+                                </span>
+                            </div>
+                        @endif
+
+                        {{-- Game Notes --}}
                             <div class="pb-2 small text-muted">Game Notes</div>
                         @if($result->notes)
                             {{ $result->notes }}

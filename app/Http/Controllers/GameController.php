@@ -27,6 +27,8 @@ use App\Enums\CompetitionStatus;
 use App\Enums\ResultStatus;
 use App\Models\PlayerGameRating;
 use App\Services\EventDeduplicator;
+use App\Services\KeeperStats;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 use League\ColorExtractor\Color;
 use League\ColorExtractor\ColorExtractor;
@@ -896,6 +898,36 @@ class GameController extends Controller
             }
         }
 
+        // Player of the match: the highest average rating, but only when it
+        // outright beats everyone else. Compared on the rounded average shown
+        // on the page, so two players who both show 8.5 count as a tie.
+        $playerOfTheMatch = null;
+
+        if (!empty($ratings))
+        {
+            // player_id => average
+            $averages = array_map(fn($r) => $r['average'], $ratings);
+            $best     = max($averages);
+            $bestIds  = array_keys($averages, $best);
+
+            if (count($bestIds) === 1)
+            {
+                $bestId = $bestIds[0];
+                $player = Player::find($bestId);
+
+                $playerOfTheMatch = [
+                    'player'     => $player,
+                    'rating'     => $ratings[$bestId],
+                    'highlights' => $this->playerOfTheMatchHighlights(
+                        $player,
+                        $stats['players'][$bestId] ?? null,
+                        (new KeeperStats)->calculate($resultEvents, $goalEvents)[$player->name] ?? null,
+                        $playingTime[$bestId] ?? null
+                    ),
+                ];
+            }
+        }
+
         return view('games.show.index', [
             'result'               => $result,
             'shootout'             => $shootout,
@@ -915,7 +947,75 @@ class GameController extends Controller
             'fulltime'             => $fulltime,
             'possession'           => $possession,
             'ratings'              => $ratings,
+            'playerOfTheMatch'     => $playerOfTheMatch,
         ]);
+    }
+
+    /**
+     * The few stats that best sum up a player of the match's game, e.g.
+     * ['1 goal', '1 assist']. A keeper is judged on their goalkeeping; anybody
+     * else on goals and assists, falling back to shots and tackles, and then
+     * to minutes played when nothing else was recorded.
+     *
+     * @param Player $player
+     * @param array|null $playerStats  $stats['players'] row from show()
+     * @param array|null $keeper  KeeperStats row for this game
+     * @param array|null $time  $playingTime row from show()
+     * @return array
+     */
+    private function playerOfTheMatchHighlights($player, $playerStats, $keeper, $time)
+    {
+        $highlights = [];
+
+        $count = fn ($n, $word) => $n . ' ' . Str::plural($word, $n);
+
+        if ($keeper)
+        {
+            $highlights[] = $count($keeper['saves'], 'save');
+
+            // Only known when the game recorded who was in goal
+            if ($keeper['savePct'] !== null)
+            {
+                $highlights[] = $keeper['savePct'] . '% saved';
+            }
+            if ($keeper['prevented'] !== null)
+            {
+                $highlights[] = sprintf('%+.1f goals prevented', $keeper['prevented']);
+            }
+
+            return $highlights;
+        }
+
+        if ($playerStats)
+        {
+            if ($playerStats['goals'])
+            {
+                $highlights[] = $count($playerStats['goals'], 'goal');
+            }
+            if ($playerStats['assists'])
+            {
+                $highlights[] = $count($playerStats['assists'], 'assist');
+            }
+
+            if (empty($highlights))
+            {
+                if ($playerStats['shots'])
+                {
+                    $highlights[] = $count($playerStats['shots'], 'shot') . ' (' . $playerStats['shots_on'] . ' on target)';
+                }
+                if ($playerStats['tackles'])
+                {
+                    $highlights[] = $count($playerStats['tackles'], 'tackle');
+                }
+            }
+        }
+
+        if (empty($highlights) && isset($time['minutes']))
+        {
+            $highlights[] = $time['minutes'] . ' minutes played';
+        }
+
+        return $highlights;
     }
 
     /**

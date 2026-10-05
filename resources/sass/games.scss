@@ -37,3 +37,15 @@
     border-radius: 2px;
     vertical-align: middle;
 }
+
+/* Player of the Match (games/show summary) */
+#player-of-the-match
+{
+    img
+    {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        background: #fff;
+    }
+}
