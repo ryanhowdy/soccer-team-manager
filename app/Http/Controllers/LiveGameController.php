@@ -106,7 +106,9 @@ class LiveGameController extends Controller
             }
         }
 
-        $formations = Formation::all()
+        $formations = Formation::orderBy('name')
+            ->orderBy('description')
+            ->get()
             ->keyBy('id');
 
         if ($formations->isEmpty())
@@ -130,6 +132,9 @@ class LiveGameController extends Controller
                 'name' => $dashed,
             ];
         }
+
+        // Biggest first (11v11, 9v9, 7v7), matching the formations page tabs
+        krsort($groupedFormations);
 
         $events = Event::all()
             ->keyBy('id');

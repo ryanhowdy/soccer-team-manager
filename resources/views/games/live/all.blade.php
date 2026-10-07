@@ -39,7 +39,7 @@
 
                     <form id="second-half-form" class="mb-3">
                         <input type="number" class="form-control d-inline-block w-50" id="time" name="time" placeholder="45">
-                        <button type="button" id="start-second-half" class="btn btn-secondary">Start 2nd Half</button>
+                        <button type="button" id="start-second-half" class="btn btn-secondary"><span class="d-none d-sm-inline">Start </span>2nd Half</button>
                     </form>
 
                     <a id="end-game" class="btn btn-danger btn mt-2 mb-3 text-white">End Game</a>
@@ -92,6 +92,7 @@
                     <div id="live-main" class="field mx-auto text-center position-relative"
                         data-result-id="{{ $result->id }}" data-start-game-route="{{ route('ajax-start-game') }}"
                         data-create-event-route="{{ route('ajax-create-event') }}"
+                        data-destroy-event-route="{{ route('ajax.results.events.destroy', ['result' => $result->id, 'resultEvent' => '__EVENT__']) }}"
                         data-end-game-route="{{ route('ajax-end-game') }}"
                         data-live-state-route="{{ route('ajax.results.live-state', ['result' => $result->id]) }}"
                         @if($result->homeTeam->managed) data-good-guys="home" @else data-good-guys="away" @endif
@@ -162,6 +163,21 @@
     @include('games.live.event-modal')
 
     @include('games.live.additional-modal')
+
+    {{-- Confirms each saved event, with a chance to undo a mis-tap --}}
+    <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3">
+        <div id="event-toast" class="toast align-items-center text-bg-dark border-0" role="status" aria-live="polite" aria-atomic="true" data-bs-delay="10000">
+            <div class="d-flex align-items-center">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle-fill text-success pe-1"></i>
+                    <b class="event-toast-label"></b>
+                    <span class="event-toast-who opacity-75 ps-1"></span>
+                </div>
+                <button type="button" class="event-toast-undo btn btn-sm btn-outline-light ms-auto">Undo</button>
+                <button type="button" class="btn-close btn-close-white mx-2" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 <script>

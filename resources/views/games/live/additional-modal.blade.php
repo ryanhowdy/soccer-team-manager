@@ -52,7 +52,7 @@
                             <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button id="additional-save" type="submit" class="btn btn-primary">Save</button>
                         </div>
                     </form>

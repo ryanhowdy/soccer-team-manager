@@ -97,6 +97,11 @@ export default class EventTimeline
         // event
         eventDiv.className = 'event border border-light rounded ' + side + ' ' + eventData.event_name;
 
+        if (eventData.id)
+        {
+            eventDiv.dataset.eventId = eventData.id;
+        }
+
         if (managed)
         {
             eventDiv.className += ' managed shadow-sm';
@@ -216,5 +221,18 @@ export default class EventTimeline
         eventDiv.append(detailsDiv);
 
         $(this.selector).append(eventDiv);
+    }
+
+    /**
+     * removeEvent
+     *
+     * Take an event back off the timeline, e.g. when it's undone.
+     *
+     * @param {Number} eventId
+     * return null
+     */
+    removeEvent(eventId)
+    {
+        $(this.selector).find('.event[data-event-id="' + eventId + '"]').remove();
     }
 }

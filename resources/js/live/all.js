@@ -21,6 +21,12 @@ export default class LiveAll extends Live
             this.confirmExit(e);
         });
 
+        // Fit the controls and field to the screen on phones, again whenever
+        // the screen or the controls (start, end half, 2nd half...) change size
+        this.fitField();
+        addEventListener('resize', () => this.fitField());
+        new ResizeObserver(() => this.fitField()).observe(document.getElementById('game-controls'));
+
         // Resume an existing game from server state
         if (liveState && liveState.started)
         {
@@ -76,6 +82,41 @@ export default class LiveAll extends Live
         $('#additional-modal').on('click', '#additional-save', (e) => {
             this.clickSaveEvent(e);
         });
+    }
+
+    /**
+     * fitField
+     *
+     * On a phone, narrow the field (it keeps the pitch's proportions, so this
+     * shortens it too) until the whole page down to the bottom of the field -
+     * navbar, score, timer, buttons and pitch - fits the screen without
+     * scrolling. It never grows past the width it
+     * would have had, and stops shrinking at a usable minimum on very short
+     * screens.
+     *
+     * return null
+     */
+    fitField()
+    {
+        let field = document.getElementById('live-main');
+
+        field.style.width = '';
+
+        if (!window.matchMedia('(max-width: 500px)').matches)
+        {
+            return;
+        }
+
+        // where the field starts on the page, so everything above it (navbar,
+        // score, timer, buttons) is on screen without scrolling
+        let fieldTop  = field.getBoundingClientRect().top + window.scrollY;
+        let available = window.innerHeight - fieldTop - 8;
+        let fitted    = Math.floor(available * 452 / 684);
+
+        if (fitted < field.offsetWidth)
+        {
+            field.style.width = Math.max(fitted, 220) + 'px';
+        }
     }
 
     /**
@@ -342,8 +383,10 @@ export default class LiveAll extends Live
             .removeClass('btn-secondary')
             .addClass('btn-primary-light');
 
-        // Set header for (good guys)
-        $('#event-modal .modal-header .modal-title > span').text(goodGuysTeamName);
+        // Set header to the tapped player, so a mis-tap is obvious before
+        // anything is saved
+        let playerName = this.players[playerId] ? this.players[playerId].name : goodGuysTeamName;
+        $('#event-modal .modal-header .modal-title > span').text(playerName);
 
         // Show all the event buttons
         $('#event-modal button').show();
@@ -417,25 +460,47 @@ export default class LiveAll extends Live
         $('#assist-details').hide();
         $('#xg-details').hide();
 
-        // show/hide the additional form details
-        let show = $eventButton.attr('data-show');
-        if (show)
-        {
-            show = JSON.parse(show);
-            for (let i = 0; i < show.length; i++)
-            {
-                // don't show assist for bad guys
-                if (against == "1" && show[i] == 'assist')
-                {
-                    continue;
-                }
+        // which additional form details this event uses
+        let show = JSON.parse($eventButton.attr('data-show') || '[]');
 
-                $('#' + show[i] + '-details').show();
+        // don't show assist for bad guys
+        if (against == "1")
+        {
+            show = show.filter((detail) => detail != 'assist');
+        }
+
+        let eventText = $eventButton.contents().not($eventButton.children()).text().trim();
+
+        // Nothing to add (tackles, fouls, cards...), so save straight away
+        // instead of opening the additional modal just to press Save
+        if (show.length == 0)
+        {
+            let eventData = {
+                result_id : resultId,
+                against   : against,
+                time      : time,
+                event_id  : eventId,
+            };
+
+            // Against events have no player. Left out entirely (as the
+            // additional modal does), since the event modal can still hold
+            // the last player tapped.
+            if (against != "1")
+            {
+                eventData.player_id = playerId;
             }
+
+            this.saveEvent(eventData, eventText);
+
+            return;
+        }
+
+        for (let i = 0; i < show.length; i++)
+        {
+            $('#' + show[i] + '-details').show();
         }
 
         // update additional modal title
-        let eventText = $eventButton.contents().not($eventButton.children()).text();
         $('#additional-modal .modal-title').text(eventText);
 
         // show the addition info modal, and pass data to it
@@ -548,7 +613,7 @@ export default class LiveAll extends Live
             additional = $('#additional-modal #player_id').val();
         }
 
-        let eventData = {
+        this.saveEvent({
             result_id  : $('#additional-modal').attr('data-result-id'),
             player_id  : $('#additional-modal').attr('data-player-id'),
             against    : $('#additional-modal').attr('data-against'),
@@ -558,8 +623,21 @@ export default class LiveAll extends Live
             pk_fk      : $('#additional-modal input[name=pk_fk]:checked').val(),
             xg         : $('input[name=xg]:checked').val(),
             notes      : $('#notes').val(),
-        };
+        }, $('#additional-modal .modal-title').text());
+    }
 
+    /**
+     * saveEvent
+     *
+     * Save an event, straight from the event modal or via the additional
+     * modal, then confirm it with an undo toast.
+     *
+     * @param {Object} eventData
+     * @param {String} label  what to call the event in the toast
+     * return null
+     */
+    saveEvent(eventData, label)
+    {
         $.ajax({
             url  : $('#live-main').attr('data-create-event-route'),
             type : 'POST',
@@ -586,20 +664,81 @@ export default class LiveAll extends Live
             }
             // Update Summary, Events and Player stats
             this.updateSummaryEventPlayerStats(data.data);
+
+            this.showUndoToast(data.data, label);
         }).fail(() => {
             $('#live-main').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t save event.</p>');
         });
     }
 
     /**
-     * updateSummaryEventPlayerStats
+     * showUndoToast
      *
-     * Updates the Summary, Events, Player stat areas.  Called after a new event has been added.
+     * Confirm a saved event, with a chance to take it back.
      *
-     * @param {Object} data
+     * @param {Object} data  the saved event
+     * @param {String} label
      * return null
      */
-    updateSummaryEventPlayerStats(data)
+    showUndoToast(data, label)
+    {
+        let who = data.against == 1
+            ? $('#game-controls .team-name.bad-guys').text()
+            : (this.players[data.player_id] ? this.players[data.player_id].name : '');
+
+        let $toast = $('#event-toast');
+
+        $toast.find('.event-toast-label').text(label);
+        $toast.find('.event-toast-who').text(who);
+        $toast.find('.event-toast-undo')
+            .prop('disabled', false)
+            .off('click')
+            .on('click', () => this.undoEvent(data));
+
+        bootstrap.Toast.getOrCreateInstance($toast[0]).show();
+    }
+
+    /**
+     * undoEvent
+     *
+     * Delete a just-saved event and take it back out of the summary, events
+     * and player stats.
+     *
+     * @param {Object} data  the saved event
+     * return null
+     */
+    undoEvent(data)
+    {
+        let $toast = $('#event-toast');
+
+        // stop a double tap deleting twice
+        $toast.find('.event-toast-undo').prop('disabled', true);
+
+        $.ajax({
+            url  : $('#live-main').attr('data-destroy-event-route').replace('__EVENT__', data.id),
+            type : 'POST',
+        }).done(() => {
+            this.updateSummaryEventPlayerStats(data, -1);
+
+            bootstrap.Toast.getOrCreateInstance($toast[0]).hide();
+        }).fail(() => {
+            $toast.find('.event-toast-undo').prop('disabled', false);
+
+            $('#live-main').before('<p class="alert alert-danger mt-2">Something went wrong, couldn\'t undo event.</p>');
+        });
+    }
+
+    /**
+     * updateSummaryEventPlayerStats
+     *
+     * Updates the Summary, Events, Player stat areas.  Called after a new event has been added,
+     * and with a delta of -1 to take one back out when it's undone.
+     *
+     * @param {Object} data
+     * @param {Number} delta  1 to add the event, -1 to remove it
+     * return null
+     */
+    updateSummaryEventPlayerStats(data, delta = 1)
     {
         let eventName = data.event_name;
         let usOrThem  = data.against == 1 ? this.them : this.us;
@@ -611,115 +750,157 @@ export default class LiveAll extends Live
         if (eventName == 'goal' || eventName == 'penalty_goal' || eventName == 'free_kick_goal')
         {
             // update the score
-            $('#' + usOrThem + '-score > .score').text(parseInt($('#' + usOrThem + '-score > .score').text()) + 1);
+            this.bump('#' + usOrThem + '-score > .score', delta);
 
             // Summary
-            $('#game-goals-' + usOrThem).text(parseInt($('#game-goals-' + usOrThem).text()) + 1);
-            $('#game-shots-' + usOrThem).text(parseInt($('#game-shots-' + usOrThem).text()) + 1);
-            $('#game-shots-on-' + usOrThem).text(parseInt($('#game-shots-on-' + usOrThem).text()) + 1);
+            this.bump('#game-goals-' + usOrThem, delta);
+            this.bump('#game-shots-' + usOrThem, delta);
+            this.bump('#game-shots-on-' + usOrThem, delta);
 
             // Events
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
 
             // Players (only for us)
             if (data.against == 0)
             {
                 let pSelector = '#players-pane tr#player-' + data.player_id + ' td';
-                $(pSelector + '.goals').text(parseInt($(pSelector + '.goals').text()) + 1);
-                $(pSelector + '.shots').text(parseInt($(pSelector + '.shots').text()) + 1);
+                this.bump(pSelector + '.goals', delta);
+                this.bump(pSelector + '.shots', delta);
 
                 if (data.additional)
                 {
                     let aSelector = '#players-pane tr#player-' + data.additional + ' td.assists';
-                    $(aSelector).text(parseInt($(aSelector).text()) + 1);
+                    this.bump(aSelector, delta);
                 }
             }
         }
         if (eventName == 'shot_on_target' || eventName == 'penalty_on_target' || eventName == 'free_kick_on_target')
         {
-            $('#game-shots-' + usOrThem).text(parseInt($('#game-shots-' + usOrThem).text()) + 1);
-            $('#game-shots-on-' + usOrThem).text(parseInt($('#game-shots-on-' + usOrThem).text()) + 1);
+            this.bump('#game-shots-' + usOrThem, delta);
+            this.bump('#game-shots-on-' + usOrThem, delta);
 
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
 
             if (data.against == 0)
             {
                 let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
-                $(pSelector).text(parseInt($(pSelector).text()) + 1);
+                this.bump(pSelector, delta);
             }
         }
         if (eventName == 'shot_off_target' || eventName == 'penalty_off_target' || eventName == 'free_kick_off_target')
         {
-            $('#game-shots-' + usOrThem).text(parseInt($('#game-shots-' + usOrThem).text()) + 1);
-            $('#game-shots-off-' + usOrThem).text(parseInt($('#game-shots-off-' + usOrThem).text()) + 1);
+            this.bump('#game-shots-' + usOrThem, delta);
+            this.bump('#game-shots-off-' + usOrThem, delta);
 
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
 
             if (data.against == 0)
             {
                 let pSelector = '#players-pane tr#player-' + data.player_id + ' td.shots';
-                $(pSelector).text(parseInt($(pSelector).text()) + 1);
+                this.bump(pSelector, delta);
             }
         }
         if (eventName == 'corner_kick')
         {
-            $('#game-corners-' + usOrThem).text(parseInt($('#game-corners-' + usOrThem).text()) + 1);
+            this.bump('#game-corners-' + usOrThem, delta);
 
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
         }
         if (eventName == 'foul')
         {
-            $('#game-fouls-' + this.us).text(parseInt($('#game-fouls-' + this.us).text()) + 1);
+            this.bump('#game-fouls-' + this.us, delta);
 
-            this.timeline.addEvent(data, this.us);
+            this.updateTimeline(data, delta, this.us);
         }
         if (eventName == 'fouled')
         {
-            $('#game-fouls-' + this.them).text(parseInt($('#game-fouls-' + this.them).text()) + 1)
+            this.bump('#game-fouls-' + this.them, delta);
 
-            this.timeline.addEvent(data, this.them);
+            this.updateTimeline(data, delta, this.them);
         }
         if (eventName == 'tackle_won')
         {
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
 
             if (data.against == 0)
             {
                 let pSelector = '#players-pane tr#player-' + data.player_id + ' td.tackles';
-                $(pSelector).text(parseInt($(pSelector).text()) + 1);
+                this.bump(pSelector, delta);
             }
         }
         if (eventName == 'tackle_lost')
         {
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
         }
         if (eventName == 'offsides')
         {
-            $('#game-offsides-' + usOrThem).text(parseInt($('#game-offsides-' + usOrThem).text()) + 1);
+            this.bump('#game-offsides-' + usOrThem, delta);
 
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
         }
         if (eventName == 'yellow_card')
         {
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
         }
         if (eventName == 'red_card')
         {
-            this.timeline.addEvent(data, usOrThem);
+            this.updateTimeline(data, delta, usOrThem);
         }
         if (eventName == 'save')
         {
-            $('#game-shots-' + this.them).text(parseInt($('#game-shots-' + this.them).text()) + 1);
-            $('#game-shots-on-' + this.them).text(parseInt($('#game-shots-on-' + this.them).text()) + 1);
+            this.bump('#game-shots-' + this.them, delta);
+            this.bump('#game-shots-on-' + this.them, delta);
 
             // yes this is right - shots count for them, but show up in timeline as us
-            this.timeline.addEvent(data, this.us);
+            this.updateTimeline(data, delta, this.us);
         }
 
         // redraw the datatable so sorting works again
         $('#players-pane table').DataTable().rows().invalidate().draw();
 
         this.updateSummaryProgressBars();
+    }
+
+    /**
+     * bump
+     *
+     * Add delta to the number shown in an element.
+     *
+     * @param {String} selector
+     * @param {Number} delta
+     * return null
+     */
+    bump(selector, delta)
+    {
+        $(selector).text(parseInt($(selector).text()) + delta);
+    }
+
+    /**
+     * updateTimeline
+     *
+     * Add an event to the timeline, or remove it again on undo.
+     *
+     * @param {Object} data
+     * @param {Number} delta
+     * @param {String} side
+     * return null
+     */
+    updateTimeline(data, delta, side)
+    {
+        if (delta > 0)
+        {
+            this.timeline.addEvent(data, side);
+        }
+        else
+        {
+            this.timeline.removeEvent(data.id);
+
+            if ($('#game-timeline .event').length == 0)
+            {
+                $('#game-timeline').hide();
+                $('#no-events-yet').show();
+            }
+        }
     }
 
     /**
@@ -735,7 +916,11 @@ export default class LiveAll extends Live
             let homeCount  = parseInt($parent.find('div').first().text());
             let awayCount  = parseInt($parent.find('div').eq(2).text());
             let totalCount = homeCount + awayCount;
-            let percentage = (homeCount / totalCount) * 100;
+            // Back to the even split the page starts with when there's
+            // nothing to compare, e.g. after undoing the only shot (0 / 0
+            // would be a NaN width, which the browser ignores, leaving the
+            // bar where it was)
+            let percentage = totalCount ? (homeCount / totalCount) * 100 : 50;
 
             $(progress).find('.progress-bar').css('width', percentage + '%');
         });

@@ -29,7 +29,7 @@
 
                     <form id="second-half-form" class="mb-3">
                         <input type="number" class="form-control d-inline-block w-50" id="time" name="time" placeholder="45">
-                        <button type="button" id="start-second-half" class="btn btn-secondary">Start 2nd Half</button>
+                        <button type="button" id="start-second-half" class="btn btn-secondary"><span class="d-none d-sm-inline">Start </span>2nd Half</button>
                     </form>
 
                     <a id="end-game" class="btn btn-danger btn mt-2 mb-3 text-white">End Game</a>

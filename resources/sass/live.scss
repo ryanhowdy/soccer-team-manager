@@ -98,6 +98,20 @@
             }
         }
 
+        // The middle column is narrow on a phone, and a two-line "End
+        // Half" costs height the field needs
+        .btn
+        {
+            white-space: nowrap;
+        }
+
+        // 2nd half start minute: half of the narrow middle column is only
+        // ~41px on a phone, too little to show two digits
+        #time
+        {
+            min-width: 4.5rem;
+        }
+
         #current-formation > span.badge
         {
             cursor: pointer;
@@ -119,6 +133,24 @@
         #player_id > option[disabled]
         {
             display: none;
+        }
+
+        // Keep 0-9 on one line: each button is its usual 31px where the
+        // row fits (~396px+ screens), and they share the width evenly on
+        // narrower phones instead of wrapping the 9
+        .xg
+        {
+            display: flex;
+            gap: 4px;
+
+            > label
+            {
+                flex: 0 1 31px;
+                min-width: 0;
+                padding-left: 0;
+                padding-right: 0;
+                text-align: center;
+            }
         }
     }
 

@@ -25,7 +25,7 @@
                         </div>
                         <div class="col-12">Attack</div>
                         <div class="col-6">
-                            <button type="button" id="corner_kick" data-event-id="12" data-show='["assist"]' class="btn btn-secondary w-100">
+                            <button type="button" id="corner_kick" data-event-id="12" class="btn btn-secondary w-100">
                                 <span class="material-symbols-outlined align-top d-block">flag</span>Corner Kick
                             </button>
                         </div>

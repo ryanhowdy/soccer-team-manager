@@ -136,6 +136,10 @@ class ResultEventController extends Controller
     /**
      * destroy
      *
+     * Anyone can delete an event they recorded themselves (the live game's
+     * undo), since anyone can record one; deleting other people's events
+     * needs 'edit things'.
+     *
      * @param Request $request
      * @param Result $result
      * @param ResultEvent $resultEvent
@@ -143,7 +147,12 @@ class ResultEventController extends Controller
      */
     public function destroy(Request $request, Result $result, ResultEvent $resultEvent)
     {
-        if (Auth()->user()->cannot('edit things'))
+        if ($resultEvent->result_id != $result->id)
+        {
+            return response()->json(['success' => false, 'message' => 'Not found'], 404);
+        }
+
+        if ($resultEvent->created_user_id != Auth()->id() && Auth()->user()->cannot('edit things'))
         {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
