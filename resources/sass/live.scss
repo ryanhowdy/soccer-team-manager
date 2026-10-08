@@ -10,6 +10,25 @@
     }
 }
 
+$live-tabs-height: 56px;
+
+// Phones, live events page (the one with the bottom nav): nothing outside the
+// screen, so no page scrollbar. The footer would sit below the fold
+@media only screen and (max-width: 500px)
+{
+    body#live:has(#live-tabs)
+    {
+        overflow: hidden;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+
+        footer
+        {
+            display: none !important;
+        }
+    }
+}
+
 #live
 {
     .list-group-radio 
@@ -83,18 +102,32 @@
             #end-game { display: inline-block; }
         }
 
-        #home-score,
-        #away-score
+        // One button for every opponent event, in the same grey as the
+        // opponent's event sheet
+        .opp-actions
         {
-            span.goal_against,
-            span.more_against
-            {
-                cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 5px 10px 5px 14px;
+            border: 0;
+            border-radius: 999px;
+            background-color: mix($secondary, $white, 22%);
+            color: darken($secondary, 25%);
+            font-size: .95rem;
+            font-weight: 600;
+            white-space: nowrap;
 
-                &:hover
-                {
-                    color: #999;
-                }
+            &:hover
+            {
+                background-color: mix($secondary, $white, 34%);
+            }
+
+            .material-symbols-outlined
+            {
+                font-size: 20px;
+                line-height: 1;
             }
         }
 
@@ -124,6 +157,181 @@
             &.paused
             {
                 animation: pulse 2s infinite;
+            }
+        }
+    }
+
+    // Event picker: who it's for, a Goal bar, then good/bad pairs (good on
+    // the left in green, bad on the right in red). For the opponent
+    // (data-against="1") everything turns neutral grey, the bad side darker
+    #event-modal
+    {
+        .modal-content
+        {
+            border: 0;
+            border-radius: 18px;
+        }
+
+        .event-who
+        {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 16px;
+            padding: 14px 0 10px;
+            border-bottom: 1px solid var(--bs-border-color);
+        }
+        .event-who-img
+        {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border: 2px solid $primary;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .event-who-text
+        {
+            min-width: 0;
+        }
+        .event-who-name
+        {
+            overflow: hidden;
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.2;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .event-who-detail
+        {
+            font-size: .8rem;
+            color: var(--bs-secondary-color);
+        }
+        .event-who-time
+        {
+            margin-left: auto;
+            font-size: .85rem;
+        }
+
+        .modal-body
+        {
+            padding: 12px 16px 16px;
+        }
+
+        .btn
+        {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 12px;
+            line-height: 1.1;
+
+            &:active
+            {
+                filter: brightness(.94);
+            }
+        }
+
+        .event-goal
+        {
+            justify-content: center;
+            width: 100%;
+            height: 54px;
+            margin-bottom: 10px;
+            background-color: $success;
+            color: $white;
+            font-size: 1.15rem;
+            font-weight: 700;
+
+            .material-symbols-outlined
+            {
+                font-size: 26px;
+            }
+        }
+
+        .event-pairs
+        {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+
+            .btn
+            {
+                height: 48px;
+                padding: 0 12px;
+                color: var(--bs-body-color);
+                font-size: .88rem;
+                font-weight: 500;
+                text-align: left;
+
+                .material-symbols-outlined
+                {
+                    flex-shrink: 0;
+                    font-size: 22px;
+                }
+            }
+
+            // Fixed columns, so a hidden button leaves its gap rather than
+            // pulling a bad event over to the good side
+            .good
+            {
+                grid-column: 1;
+                background-color: mix($success, $white, 11%);
+
+                .material-symbols-outlined { color: $success; }
+            }
+            .bad
+            {
+                grid-column: 2;
+                background-color: mix($danger, $white, 12%);
+
+                .material-symbols-outlined { color: $danger; }
+            }
+            .material-symbols-outlined.card-yellow { color: darken($warning, 10%); }
+            .material-symbols-outlined.card-red    { color: $danger; }
+        }
+
+        .event-divider
+        {
+            grid-column: 1 / -1;
+            margin: 2px 0;
+            border-color: var(--bs-border-color);
+            opacity: 1;
+        }
+
+        &[data-against="1"]
+        {
+            .event-who-img
+            {
+                border: 0;
+                border-radius: 0;
+                object-fit: contain;
+            }
+
+            // A goal against is bad news, so the darkest grey
+            .event-goal
+            {
+                background-color: darken($secondary, 25%);
+            }
+
+            .event-pairs
+            {
+                .good
+                {
+                    background-color: mix($secondary, $white, 14%);
+
+                    .material-symbols-outlined { color: $secondary; }
+                }
+                .bad
+                {
+                    background-color: mix($secondary, $white, 34%);
+
+                    .material-symbols-outlined { color: darken($secondary, 22%); }
+                }
+                .material-symbols-outlined.card-yellow { color: darken($warning, 10%); }
+                .material-symbols-outlined.card-red    { color: $danger; }
             }
         }
     }
@@ -203,31 +411,383 @@
         border-color: transparent;
     }
 
+    // Phone-only scoreboard pieces and bottom nav (see the max-width 500px
+    // block below)
+    #live-tabs,
+    #back-link,
+    .team-abbr,
+    .opp-logo,
+    .opp-label
+    {
+        display: none;
+    }
+
     @media only screen and (max-width: 500px)
     {
         .bg-dark
         {
             display: none;
         }
+
+        // The event picker comes up from the bottom, where thumbs are
+        #event-modal
+        {
+            .modal-dialog
+            {
+                align-items: flex-end;
+                max-width: none;
+                min-height: 100%;
+                margin: 0;
+            }
+            .modal-content
+            {
+                border-radius: 18px 18px 0 0;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        // Leaving mid-game isn't supported (the clock and unsaved state would
+        // be lost), so the navbars go and their height goes to the field.
+        // #back-link is the way out before kick off
+        .navbar
+        {
+            display: none;
+        }
+
         .main-content
         {
-            margin-top: 12px;
+            margin-top: 8px;
 
-            img.logo
+            > .rounded
             {
-                max-width: 50px;
+                padding: 12px !important;
+            }
+        }
+
+        // Scoreboard, two rows:
+        //   [< logo ABC     0]  [ 20:19  ]  [0     ABC logo]
+        //   [4-3-3          ]  [ABC ⚽ ⋯]  [      End Half]
+        // The desktop columns are flattened with display: contents so their
+        // pieces can be placed on one grid
+        #game-controls
+        {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px 6px;
+            margin: 0 0 8px !important;
+
+            > .col-4,
+            .d-flex
+            {
+                display: contents !important;
+            }
+            &.first,
+            &.half,
+            &.second
+            {
+                #home-score,
+                #away-score
+                {
+                    display: contents;
+                }
             }
 
+            .middle > *
+            {
+                margin: 0 !important;
+            }
+
+            // Row 1: teams, scores and the clock
+            .team
+            {
+                grid-row: 1;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin: 0 !important;
+            }
+            .home-side .team
+            {
+                grid-column: 1;
+                justify-self: start;
+            }
+            .away-side .team
+            {
+                grid-column: 3;
+                justify-self: end;
+                flex-direction: row-reverse;
+            }
+            img.logo
+            {
+                max-width: 28px;
+                max-height: 28px;
+            }
             .team-name
             {
                 display: none;
             }
-
-            #formation-form > select,
-            #formation-form > input
+            .team-abbr
             {
-                width: 100% !important;
+                display: block;
+                font-size: .8rem;
+                font-weight: 600;
+                color: var(--bs-secondary-color);
             }
+
+            .score
+            {
+                grid-row: 1;
+                font-size: 2rem;
+                line-height: 1;
+            }
+            #home-score .score
+            {
+                grid-column: 1;
+                justify-self: end;
+                padding-right: 4px;
+            }
+            #away-score .score
+            {
+                grid-column: 3;
+                justify-self: start;
+                padding-left: 4px;
+            }
+
+            #timer
+            {
+                grid-row: 1;
+                grid-column: 2;
+
+                .badge
+                {
+                    font-size: 1.5rem !important;
+                }
+
+                &::after
+                {
+                    display: block;
+                    margin-top: 2px;
+                    font-size: .7rem;
+                    color: var(--bs-secondary-color);
+                }
+            }
+            &.first #timer::after
+            {
+                content: '1st half';
+            }
+            &.half #timer::after
+            {
+                content: 'Half time';
+            }
+            &.second #timer::after
+            {
+                content: '2nd half';
+            }
+
+            // Row 2: formation, opponent events, game progression
+            #current-formation
+            {
+                grid-row: 2;
+                grid-column: 1;
+                justify-self: start;
+            }
+
+            // Their logo + abbreviation instead of "Add event"
+            .opp-actions
+            {
+                grid-row: 2;
+                grid-column: 2;
+                justify-self: center;
+                gap: 5px;
+                padding: 3px 8px 3px 6px;
+                font-size: .85rem;
+                font-weight: 700;
+
+                .opp-logo
+                {
+                    display: block;
+                    max-width: 22px;
+                    max-height: 22px;
+                }
+                .opp-label
+                {
+                    display: inline;
+                }
+                .opp-add
+                {
+                    display: none;
+                }
+            }
+
+            #start-game,
+            #end-half,
+            #end-game,
+            #second-half-form
+            {
+                grid-row: 2;
+                grid-column: 3;
+                justify-self: end;
+            }
+            #start-game
+            {
+                --bs-btn-padding-y: .375rem;
+                --bs-btn-padding-x: .75rem;
+                --bs-btn-font-size: 1rem;
+            }
+            // Nothing to record against the opponent at half time, so the
+            // minutes box and 2nd Half get the middle of the row too
+            &.half .opp-actions
+            {
+                display: none;
+            }
+            #second-half-form
+            {
+                grid-column: 2 / 4;
+                white-space: nowrap;
+
+                // Just the 4.5rem minimum (see above) instead of w-50 of
+                // the wider half-time form
+                #time
+                {
+                    width: 4.5rem !important;
+                }
+            }
+
+            #formation-form
+            {
+                grid-row: 2;
+                grid-column: 1 / 3;
+                display: flex;
+                gap: 6px;
+
+                > select
+                {
+                    flex: 1 1 auto;
+                    width: auto !important;
+                    min-width: 0;
+                }
+            }
+
+            .alert
+            {
+                grid-row: 2;
+                grid-column: 1 / -1;
+            }
+
+            &.initial,
+            &.formation
+            {
+                #back-link
+                {
+                    display: block;
+                    margin: -8px 0 -8px -8px;
+                    padding: 8px 4px 8px 8px;
+                    font-size: 1.25rem;
+                    color: var(--bs-body-color);
+                }
+            }
+        }
+
+        // Live events page: an app-style screen that never scrolls. The
+        // scoreboard stays on top, the bottom nav picks what fills the rest:
+        // the field, or the summary, events or players pane
+        .live-shell
+        {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - #{$live-tabs-height});
+            height: calc(100dvh - #{$live-tabs-height});
+            margin-top: 0;
+            padding-top: 8px;
+            padding-bottom: 8px;
+
+            > .rounded
+            {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 0;
+                min-height: 0;
+                margin-bottom: 0 !important;
+            }
+
+            .live-panes
+            {
+                flex: 1 1 0;
+                min-height: 0;
+
+                > *
+                {
+                    height: 100%;
+                }
+            }
+
+            // The panes scroll inside themselves when they're long
+            .sidebar
+            {
+                overflow-y: auto;
+
+                .tab-pane
+                {
+                    padding-top: 0 !important;
+                }
+            }
+            #game-detail-links
+            {
+                display: none;
+            }
+
+            &[data-tab="live"] .sidebar,
+            &:not([data-tab="live"]) .live-field
+            {
+                display: none;
+            }
+        }
+
+        #live-tabs
+        {
+            display: flex;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1030;
+            height: $live-tabs-height;
+            background-color: var(--bs-body-bg);
+            border-top: 1px solid var(--bs-border-color);
+
+            > button
+            {
+                flex: 1 1 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                padding: 0;
+                border: 0;
+                background: none;
+                font-size: .7rem;
+                color: var(--bs-secondary-color);
+
+                > i
+                {
+                    font-size: 1.25rem;
+                    line-height: 1;
+                }
+
+                &.active
+                {
+                    color: var(--bs-primary);
+                    font-weight: 600;
+                }
+            }
+        }
+
+        // Saved-event toasts sit above the bottom nav
+        .toast-container:has(#event-toast)
+        {
+            bottom: $live-tabs-height !important;
         }
     }
 }

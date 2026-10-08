@@ -21,11 +21,17 @@ export default class LiveAll extends Live
             this.confirmExit(e);
         });
 
-        // Fit the controls and field to the screen on phones, again whenever
-        // the screen or the controls (start, end half, 2nd half...) change size
+        // Fit the field to its space on phones, again whenever that space
+        // changes: the screen, or the controls (start, end half, 2nd half...)
+        // above it
         this.fitField();
         addEventListener('resize', () => this.fitField());
-        new ResizeObserver(() => this.fitField()).observe(document.getElementById('game-controls'));
+        new ResizeObserver(() => this.fitField()).observe(document.querySelector('.live-field'));
+
+        // Click bottom nav (phones)
+        $('#live-tabs').on('click', 'button', (e) => {
+            this.clickLiveTab(e);
+        });
 
         // Resume an existing game from server state
         if (liveState && liveState.started)
@@ -63,13 +69,8 @@ export default class LiveAll extends Live
             this.clickEvent(e);
         });
 
-        // Click goal against
-        $('.main-content').on('click', '#game-controls .actions-against span.goal_against', (e) => {
-            this.clickGoalAgainst(e);
-        });
-
-        // Click event against
-        $('.main-content').on('click', '#game-controls .actions-against span.more_against', (e) => {
+        // Click event against (goals included)
+        $('.main-content').on('click', '#game-controls .opp-actions', (e) => {
             this.clickEventAgainst(e);
         });
 
@@ -87,12 +88,10 @@ export default class LiveAll extends Live
     /**
      * fitField
      *
-     * On a phone, narrow the field (it keeps the pitch's proportions, so this
-     * shortens it too) until the whole page down to the bottom of the field -
-     * navbar, score, timer, buttons and pitch - fits the screen without
-     * scrolling. It never grows past the width it
-     * would have had, and stops shrinking at a usable minimum on very short
-     * screens.
+     * On a phone the page never scrolls: the field's column fills the space
+     * between the scoreboard and the bottom nav, and the field (which keeps
+     * the pitch's proportions) is narrowed until its height fits that space.
+     * It never grows past the width it would have had.
      *
      * return null
      */
@@ -107,16 +106,48 @@ export default class LiveAll extends Live
             return;
         }
 
-        // where the field starts on the page, so everything above it (navbar,
-        // score, timer, buttons) is on screen without scrolling
-        let fieldTop  = field.getBoundingClientRect().top + window.scrollY;
-        let available = window.innerHeight - fieldTop - 8;
-        let fitted    = Math.floor(available * 452 / 684);
+        // 0 while another bottom nav tab is showing; fitted on the way back
+        let available = field.parentElement.clientHeight;
+
+        if (!available)
+        {
+            return;
+        }
+
+        let fitted = Math.floor(available * 452 / 684);
 
         if (fitted < field.offsetWidth)
         {
-            field.style.width = Math.max(fitted, 220) + 'px';
+            field.style.width = fitted + 'px';
         }
+    }
+
+    /**
+     * clickLiveTab
+     *
+     * Phones' bottom nav: show the field, or one of the summary, events and
+     * players panes in its place.
+     *
+     * @param {Object} event
+     * return null
+     */
+    clickLiveTab(event)
+    {
+        let $button = $(event.currentTarget);
+        let tab     = $button.attr('data-tab');
+
+        $('#live-tabs > button').removeClass('active');
+        $button.addClass('active');
+
+        $('.live-shell').attr('data-tab', tab);
+
+        if (tab == 'live')
+        {
+            this.fitField();
+            return;
+        }
+
+        bootstrap.Tab.getOrCreateInstance(document.getElementById(tab + '-tab')).show();
     }
 
     /**
@@ -375,18 +406,23 @@ export default class LiveAll extends Live
         let $eventPickerDiv = $(event.currentTarget);
 
         let playerId = $eventPickerDiv.find('img').attr('data-player-id');
+        let player   = this.players[playerId] || {};
 
-        let goodGuysTeamName = $('#game-controls .team-name.good-guys').text();
+        // Header: the tapped player, so a mis-tap is obvious before anything
+        // is saved
+        let detail = [];
 
-        // change all buttons to primary for (good guys)
-        $('#event-modal button.btn-secondary')
-            .removeClass('btn-secondary')
-            .addClass('btn-primary-light');
+        if (player.number !== null && player.number !== undefined && player.number !== '')
+        {
+            detail.push('#' + player.number);
+        }
+        detail.push($eventPickerDiv.closest('.position').attr('data-player-position'));
 
-        // Set header to the tapped player, so a mis-tap is obvious before
-        // anything is saved
-        let playerName = this.players[playerId] ? this.players[playerId].name : goodGuysTeamName;
-        $('#event-modal .modal-header .modal-title > span').text(playerName);
+        this.setEventModalHeader(
+            player.photo ? '/' + player.photo : $eventPickerDiv.find('img').attr('src'),
+            player.name || $('#game-controls .team-name.good-guys').text(),
+            detail.filter(Boolean).join(' · ')
+        );
 
         // Show all the event buttons
         $('#event-modal button').show();
@@ -513,42 +549,24 @@ export default class LiveAll extends Live
     }
 
     /**
-     * clickGoalAgainst
+     * setEventModalHeader
      *
-     * @param {Object} event
+     * Who the event is for (player photo or team logo, name, detail) and the
+     * minute it will be saved at.
+     *
+     * @param {String} img
+     * @param {String} name
+     * @param {String} detail
      * return null
      */
-    clickGoalAgainst(event)
+    setEventModalHeader(img, name, detail)
     {
-        let $eventSpan = $(event.target);
+        let minute = parseInt($('#timer > span').text().split(':')[0]) + 1;
 
-        let resultId = $('#live-main').attr('data-result-id');
-        let time     = $('#timer > span').text();
-        let eventId  = $eventSpan.attr('data-event-id');
-
-        // reset any data passed to the additional modal
-        $('#additional-modal')
-            .removeAttr('data-player-id')
-            .removeAttr('data-against');
-
-        // reset the additional form
-        document.getElementById('additional-form').reset();
-        $('input[name=xg] + label').css('opacity', 1);
-
-        // show pk/fk and xg, hide assist
-        $('#pkfk-details').show();
-        $('#assist-details').hide();
-        $('#xg-details').show();
-
-        $('#additional-modal .modal-title').text('Goal Against');
-
-        // show the addition info modal, and pass data to it
-        $('#additional-modal')
-            .attr('data-result-id', resultId)
-            .attr('data-against', 1)
-            .attr('data-time', time)
-            .attr('data-event-id', eventId)
-            .modal('show');
+        $('#event-modal .event-who-img').attr('src', img);
+        $('#event-modal .event-who-name').text(name);
+        $('#event-modal .event-who-detail').text(detail);
+        $('#event-modal .event-who-time').text(minute + "'");
     }
 
     /**
@@ -559,24 +577,23 @@ export default class LiveAll extends Live
      */
     clickEventAgainst(event)
     {
-        let badGuysTeamName = $('#game-controls .team-name.bad-guys').text();
+        // Header: the opponent's logo and name (data-against="1" also turns
+        // the buttons grey, see live.scss)
+        let $badGuys = $('#game-controls .team-name.bad-guys');
 
-        // change all buttons to grey for (bad guys)
-        $('#event-modal button.btn-primary-light')
-            .removeClass('btn-primary-light')
-            .addClass('btn-secondary');
+        this.setEventModalHeader($badGuys.siblings('img.logo').attr('src'), $badGuys.text(), 'Opponent');
 
-        // Set header for (bad guys)
-        $('#event-modal .modal-header .modal-title > span').text(badGuysTeamName);
-
+        // show everything (a player's sheet may have been opened last), then
         // hide a few events that don't make sense against
-        $('#event-modal #goal').hide();
+        $('#event-modal button').show();
         $('#event-modal #save').hide();
         $('#event-modal #foul').hide();
         $('#event-modal #fouled').hide();
 
-        // show events modal
+        // show events modal, without a player left over from a sheet closed
+        // without saving
         $('#event-modal')
+            .removeAttr('data-player-id')
             .attr('data-against', 1)
             .modal('show');
     }

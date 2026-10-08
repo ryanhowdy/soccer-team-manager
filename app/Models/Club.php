@@ -17,6 +17,19 @@ class Club extends Model
     }
 
     /**
+     * Three-letter label for tight spaces, like the live game scoreboard on a
+     * phone: the first three letters of the club name.
+     *
+     *   "Pride SC" => "PRI"      "FC Dayton" => "FCD"
+     *
+     * @return string
+     */
+    public function getAbbreviationAttribute(): string
+    {
+        return strtoupper(mb_substr(preg_replace('/[^A-Za-z0-9]/', '', $this->name), 0, 3));
+    }
+
+    /**
      * Is this club a high school?
      *
      * The one place the club/school distinction should be read from. Everything

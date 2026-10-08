@@ -3,31 +3,40 @@
 @section('body-id', 'live')
 
 @section('content')
-    <div class="container main-content">
+    {{-- data-tab: which of the bottom nav's views a phone shows (see #live-tabs) --}}
+    <div class="container main-content live-shell" data-tab="live">
 
         <div class="rounded rounded-3 bg-white p-4 mb-1">
             <div id="game-controls" class="initial row text-center mb-3">
                 <div class="d-none d-lg-block col-lg-1"></div>
-                <div class="col-4 col-lg-3">
+                <div class="home-side col-4 col-lg-3">
                     <div class="d-flex">
-                        <div class="mx-auto">
+                        <div class="team mx-auto">
+                            {{-- Phones hide the navbar, so this is the only way out, and only before kick off --}}
+                            <a id="back-link" href="{{ route('games.show', ['id' => $result->id]) }}" title="Back to game"><i class="bi bi-chevron-left"></i></a>
                             <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div @class([
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->homeTeam->managed,
                                     'bad-guys' => $result->awayTeam->managed,
                                 ])>{{ $result->homeTeam->short_name }}</div>
+                            <div class="team-abbr">{{ $result->homeTeam->club->abbreviation }}</div>
                         </div>
                         <div id="home-score" class="ms-4 actions-against">
                             <div class="score display-4 fw-bold">0</div>
                         @if($result->awayTeam->managed)
-                            <span class="goal_against material-symbols-outlined" data-event-id="1">sports_soccer</span>
-                            <span class="more_against material-symbols-outlined">more_horiz</span>
+                            {{-- All opponent events, goals included. Phones show their logo + abbreviation, desktop "Add event" --}}
+                            <button type="button" class="opp-actions">
+                                <img class="opp-logo" src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
+                                <span class="opp-label">{{ $result->homeTeam->club->abbreviation }}</span>
+                                <span class="opp-add">Add event</span>
+                                <span class="material-symbols-outlined">add</span>
+                            </button>
                         @endif
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="middle col-4">
                 @can('edit others')
                     <a id="start-game" class="btn btn-success btn-lg mt-2 mb-3 text-white">Start Game</a>
                 @endcan
@@ -65,30 +74,36 @@
 
                     <div id="current-formation"><span class="badge fs-6 text-bg-secondary"></span></div>
                 </div>
-                <div class="col-4 col-lg-3">
+                <div class="away-side col-4 col-lg-3">
                     <div class="d-flex">
                         <div id="away-score" class="me-4 actions-against">
                             <div class="score display-4 fw-bold">0</div>
                         @if($result->homeTeam->managed)
-                            <span class="goal_against material-symbols-outlined" data-event-id="1">sports_soccer</span>
-                            <span class="more_against material-symbols-outlined">more_horiz</span>
+                            {{-- All opponent events, goals included. Phones show their logo + abbreviation, desktop "Add event" --}}
+                            <button type="button" class="opp-actions">
+                                <img class="opp-logo" src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
+                                <span class="opp-label">{{ $result->awayTeam->club->abbreviation }}</span>
+                                <span class="opp-add">Add event</span>
+                                <span class="material-symbols-outlined">add</span>
+                            </button>
                         @endif
                         </div>
-                        <div class="mx-auto">
+                        <div class="team mx-auto">
                             <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div @class([
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->awayTeam->managed,
                                     'bad-guys' => $result->homeTeam->managed,
                                 ])>{{ $result->awayTeam->short_name }}</div>
+                            <div class="team-abbr">{{ $result->awayTeam->club->abbreviation }}</div>
                         </div>
                     </div>
                 </div>
                 <div class="d-none d-lg-block col-lg-1"></div>
             </div><!--/#game-controls-->
 
-            <div class="row">
-                <div class="col-12 col-lg-7">
+            <div class="live-panes row">
+                <div class="live-field col-12 col-lg-7">
                     <div id="live-main" class="field mx-auto text-center position-relative"
                         data-result-id="{{ $result->id }}" data-start-game-route="{{ route('ajax-start-game') }}"
                         data-create-event-route="{{ route('ajax-create-event') }}"
@@ -156,9 +171,18 @@
                         </div>
                     </div><!--/#game-details-->
                 </div><!--/.sidebar-->
+            </div><!--/.live-panes-->
         </div><!--/.rounded-->
 
     </div><!--/container-->
+
+    {{-- Phones: the page never scrolls, so the field and the game details take turns --}}
+    <nav id="live-tabs">
+        <button type="button" class="active" data-tab="live"><i class="bi bi-broadcast"></i>Live</button>
+        <button type="button" data-tab="summary"><i class="bi bi-bar-chart"></i>Summary</button>
+        <button type="button" data-tab="events"><i class="bi bi-list-ul"></i>Events</button>
+        <button type="button" data-tab="players"><i class="bi bi-people"></i>Players</button>
+    </nav>
 
     @include('games.live.event-modal')
 

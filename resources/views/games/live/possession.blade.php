@@ -8,19 +8,22 @@
         <div class="rounded rounded-3 bg-white p-4 mb-1">
             <div id="game-controls" class="initial row text-center mb-3">
                 <div class="d-none d-lg-block col-lg-1"></div>
-                <div class="col-4 col-lg-3">
+                <div class="home-side col-4 col-lg-3">
                     <div class="d-flex">
-                        <div class="mx-auto">
+                        <div class="team mx-auto">
+                            {{-- Phones hide the navbar, so this is the only way out, and only before kick off --}}
+                            <a id="back-link" href="{{ route('games.show', ['id' => $result->id]) }}" title="Back to game"><i class="bi bi-chevron-left"></i></a>
                             <img class="logo img-fluid" src="{{ asset($result->homeTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div @class([
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->homeTeam->managed,
                                     'bad-guys' => $result->awayTeam->managed,
                                 ])>{{ $result->homeTeam->short_name }}</div>
+                            <div class="team-abbr">{{ $result->homeTeam->club->abbreviation }}</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="middle col-4">
                     <a id="start-game" class="btn btn-success btn-lg mt-2 mb-3 text-white">Start Game</a>
 
                     <div id="timer" class="mb-3"><span class="badge fs-2 text-bg-dark">00:00</span></div>
@@ -34,15 +37,16 @@
 
                     <a id="end-game" class="btn btn-danger btn mt-2 mb-3 text-white">End Game</a>
                 </div>
-                <div class="col-4 col-lg-3">
+                <div class="away-side col-4 col-lg-3">
                     <div class="d-flex">
-                        <div class="mx-auto">
+                        <div class="team mx-auto">
                             <img class="logo img-fluid" src="{{ asset($result->awayTeam->club->logo) }}" onerror="this.onerror=null;this.src='{{ asset('img/logo_none.png') }}';"/>
                             <div @class([
                                     'team-name pt-2 pb-1',
                                     'good-guys' => $result->awayTeam->managed,
                                     'bad-guys' => $result->homeTeam->managed,
                                 ])>{{ $result->awayTeam->short_name }}</div>
+                            <div class="team-abbr">{{ $result->awayTeam->club->abbreviation }}</div>
                         </div>
                     </div>
                 </div>

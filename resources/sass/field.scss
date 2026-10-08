@@ -330,8 +330,7 @@ $jersey-keeper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
     // keeps the pitch image's proportions - its width comes from the screen,
     // or on the live game from LiveAll.fitField(), which narrows it so the
     // controls and the whole field fit the screen's height. The goalie sits
-    // at the bottom in the box and the other rows spread out over the rest
-    // of the pitch.
+    // at the bottom in the box and the other rows stack above it.
     // Photos are capped by the room each row has (cqh - 1% of the field's
     // height). The formations page's small fields lay themselves out and are
     // left alone.
@@ -350,19 +349,28 @@ $jersey-keeper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
             height: 100%;
         }
 
-        // The outfield rows share the pitch above the goalie equally, each
-        // centred in its share; the goalie row (always drawn last) only
-        // takes the room it needs, which keeps it down in the box
+        // Like the formations page: rows stack up from the goalie (always
+        // drawn last, so down in the box) with small even gaps, and any spare
+        // height is left above the forwards. Shorter shapes get wider gaps
+        // so they still spread up the pitch. The first row's auto margin
+        // does the pushing down; unlike flex-end, a shape too tall for the
+        // field can't slide off the top
+        gap: 1cqh;
+
         > .row
         {
-            flex: 1 1 0;
+            flex: 0 0 auto;
             align-items: center;
 
-            &:last-child
+            &:first-of-type
             {
-                flex: 0 0 auto;
+                margin-top: auto;
             }
         }
+
+        &.formation-rows-2 { gap: 7cqh; }
+        &.formation-rows-3 { gap: 3cqh; }
+        &.formation-rows-4 { gap: 2cqh; }
 
         .col
         {

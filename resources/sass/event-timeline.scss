@@ -142,3 +142,68 @@
         }
     }
 }
+
+// Phones: each side of the timeline is only ~150px wide, too narrow for
+// icon, name and minute on one line, so the name drops below them:
+//
+//   [icon]        12
+//   Tackle Won
+//
+// The type wrapper is flattened (display: contents) so the icon and name
+// can be laid out separately; the header's last child is the minute, or on
+// the game page the minute + edit menu.
+@media only screen and (max-width: 500px)
+{
+    .event-timeline
+    {
+        padding: 8px;
+
+        .event
+        {
+            width: calc(50% - 8px);
+            padding: 8px 10px;
+
+            &.home
+            {
+                margin-right: 8px;
+            }
+            &.away
+            {
+                margin-left: 8px;
+            }
+
+            .header
+            {
+                flex-wrap: wrap;
+                align-items: center;
+                row-gap: 2px;
+
+                .type
+                {
+                    display: contents !important;
+                }
+                .icon
+                {
+                    order: 0;
+                }
+                > :last-child
+                {
+                    order: 1;
+                }
+                .type > b
+                {
+                    order: 2;
+                    flex: 0 0 100%;
+                    padding-left: 0 !important;
+                    font-size: .9rem !important;
+                    line-height: 1.2;
+                }
+            }
+
+            .details .xg span
+            {
+                padding: 4px 8px 4px 0;
+            }
+        }
+    }
+}
