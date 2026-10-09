@@ -22083,6 +22083,10 @@ label.required:after {
   background: #fff;
 }
 
+.home-v-away .home-team {
+  text-align: end;
+}
+
 .game-listing-details .date {
   margin-top: -3px;
 }

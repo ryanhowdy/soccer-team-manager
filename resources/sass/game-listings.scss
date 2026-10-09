@@ -1,3 +1,10 @@
+// Every results row: the home team's name sits against its logo, so a long
+// name that wraps onto two lines stays right aligned too
+.home-v-away .home-team
+{
+    text-align: end;
+}
+
 // home (today)
 .game-listing-cards
 {
