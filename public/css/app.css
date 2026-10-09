@@ -22581,8 +22581,10 @@ label.required:after {
   }
   #live #game-controls .opp-actions .opp-logo {
     display: block;
-    max-width: 22px;
-    max-height: 22px;
+    width: 22px;
+    height: 22px;
+    -o-object-fit: contain;
+       object-fit: contain;
   }
   #live #game-controls .opp-actions .opp-label {
     display: inline;

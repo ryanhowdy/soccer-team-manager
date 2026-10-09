@@ -604,11 +604,15 @@ $live-tabs-height: 56px;
                 font-size: .85rem;
                 font-weight: 700;
 
+                // A fixed box, not just max sizes: an SVG logo with no size
+                // of its own would otherwise count as 0px wide and push
+                // the + out of the pill
                 .opp-logo
                 {
                     display: block;
-                    max-width: 22px;
-                    max-height: 22px;
+                    width: 22px;
+                    height: 22px;
+                    object-fit: contain;
                 }
                 .opp-label
                 {
