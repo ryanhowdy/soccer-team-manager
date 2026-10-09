@@ -45,7 +45,9 @@ class LoginController extends Controller
         {
             $request->session()->regenerate();
 
-            return redirect()->intended('home');
+            // via index, which starts the club/team setup on a new install
+            // and otherwise goes on to home
+            return redirect()->intended(route('index'));
         }
 
         return back()->withError([
