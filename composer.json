@@ -1,8 +1,8 @@
 {
-    "name": "laravel/laravel",
+    "name": "ryanhowdy/soccer-team-manager",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Self-hosted soccer team manager: live game tracking from your phone, lineups, formations and season stats.",
+    "keywords": ["soccer", "football", "team-management", "sports-analytics", "laravel", "self-hosted"],
     "license": "MIT",
     "require": {
         "php": "^8.2",
